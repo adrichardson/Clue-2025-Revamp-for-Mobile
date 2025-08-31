@@ -4,11 +4,15 @@ dotenv.config();
 import { fileURLToPath } from "url";
 import path from "path";
 import express from "express";
+import session from "express-session";
 import http from "http";
 import { Server, LobbyRoom } from "colyseus";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import adminRoutes from "./routes/admin.js";
+import pageRoutes from "./routes/pages.js"; 
+import auth from "./middleware/authMiddleware.js";
 
 const PORT = process.env.PORT || 2567;
 const app = express();
@@ -22,10 +26,20 @@ connectDB();
 
 // Serve static client files
 app.use(express.static(path.resolve(__dirname, "..", "client")));
+app.use(
+  session({
+    secret: "testsecretkey%&&!!@@%$%!", // change this to something secure
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // true only if using HTTPS
+  })
+);
 
 app.use(express.json());
-app.use("/api", authRoutes);      // /api/register, /api/login
+app.use("/", pageRoutes);     // /pages
+app.use("/auth", authRoutes);       // /auth/register, /auth/login
 app.use("/api/users", userRoutes); // /api/users
+app.use("/admin", adminRoutes);    // /admin
 
 // Colyseus game server
 const gameServer = new Server({
@@ -36,7 +50,7 @@ const gameServer = new Server({
 gameServer.define("lobby", LobbyRoom);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "..", "client", "screens", "register.html"));
+  res.redirect("/home");
 });
 
 // 404 handler should be LAST

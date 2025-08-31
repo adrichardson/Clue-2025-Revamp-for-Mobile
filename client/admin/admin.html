@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Users</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; padding: 40px; }
+    table { border-collapse: collapse; width: 60%; text-align: center; }
+    th, td { border: 1px solid #ccc; padding: 12px; }
+    th { background-color: #f2f2f2; }
+    tr:nth-child(even) { background: #fafafa; }
+    .online { color: green; font-weight: bold; }
+    .offline { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Created At</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="userTable"></tbody>
+  </table>
+
+  <script src="https://unpkg.com/colyseus.js/dist/colyseus.js"></script>
+  <script>
+    const client = new Colyseus.Client("ws://localhost:2567"); // adjust port to your Colyseus server
+    client.joinOrCreate("admin").then(room => {
+      console.log("Connected to AdminRoom", room.sessionId);
+
+      room.onMessage("userList", (users) => {
+        const tbody = document.getElementById("userTable");
+        tbody.innerHTML = "";
+        users.forEach(u => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${u.username}</td>
+            <td>${new Date(u.createdAt).toLocaleString()}</td>
+            <td class="${u.online ? "online" : "offline"}">${u.online ? "Online" : "Offline"}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }).catch(err => console.error("Failed to join admin room:", err));
+  </script>
+</body>
+</html>

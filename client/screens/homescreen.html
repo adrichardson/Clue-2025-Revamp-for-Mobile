@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Colyseus</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Home Screen</h1>
+    <div id="welcomeMessage"></div>
+    <script>
+        // Fetch user data to display a welcome message
+        async function fetchUserData() {
+            const res = await fetch("/api/user");
+            const data = await res.json();
+            if (data.username) {
+                document.getElementById("welcomeMessage").textContent = `Welcome, ${data.username}!`;
+            } else {
+                document.getElementById("welcomeMessage").textContent = "Welcome, Guest!";
+            }
+        }
+        fetchUserData();
+    </script>
+</body>
+</html>
