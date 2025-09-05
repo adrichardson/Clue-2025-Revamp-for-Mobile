@@ -1,36 +1,32 @@
 <div class="registration-wrapper">
   <% if (step == 1) { %>
-    <form action="/register?step=2" method="get">
+    <form id="form-step1">
       <label>Email:</label>
-      <input type="email" name="email" required>
-      <button type="submit">Continue</button>
+      <input type="email" id="email" name="email" required>
+      <button class="interactable-button" type="submit" id="step1">Continue</button>
     </form>
   <% } else if (step == 2) { %>
-    <form action="/register?step=3" method="post">
+    <form id="form-step2">
       <label>Username:</label>
-      <input type="text" name="username" required>
+      <input type="text" id="username" name="username" required>
 
       <label>Password:</label>
-      <input type="password" name="password" required>
+      <input type="password" id="password" name="password" required>
 
       <label>Confirm Password:</label>
-      <input type="password" name="confirmPassword" required>
+      <input type="password" id="confirmPassword" name="confirmPassword" required>
 
-      <button type="submit">Register</button>
+      <button class="interactable-button" type="submit" id="step2">Continue</button>
     </form>
-  <% } %>
   <% } else if (step == 3) { %>
-    <form action="/register" method="post">
-      <label>Username:</label>
-      <input type="text" name="username" required>
-
-      <label>Password:</label>
-      <input type="password" name="password" required>
-
-      <label>Confirm Password:</label>
-      <input type="password" name="confirmPassword" required>
-
-      <button type="submit">Register</button>
+    <form id="form-step3">
+      <label>Choose a profile picture</label>
+      <div class="profile-pic-grid">
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/msscarlet.png" alt="Ms. Scarlet" class="profile-pic-image">
+        </div>
+      </div>
+      <button class="interactable-button" type="submit" id="step3">Select</button>
     </form>
   <% } %>  
 </div>

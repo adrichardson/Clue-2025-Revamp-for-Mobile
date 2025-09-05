@@ -4,56 +4,85 @@ import User from "../config/schemas/User.js";
 
 const router = express.Router();
 
-router.post("/step1", (req, res) => {
-  req.session.email = req.body.email; 
-  res.redirect("/register?step=2"); 
+// STEP 1: Save email to session
+router.post("/step1", async (req, res) => {
+  const email = req.body.email;
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+  try {
+    // Ensure email is unique
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already taken" });
+    } 
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }  
+  req.session.email = req.body.email;
+  res.json({ success: true, nextStep: 2 });
 });
 
+// STEP 2: Save username + hashed password
 router.post("/step2", async (req, res) => {
   const { username, password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    return res.send("Passwords don't match!");
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  req.session.username = req.body.username;
-  req.session.password = hashedPassword;
-  res.redirect("/register?step=3");
-
-});
-
-router.post("/step3", async (req, res) => {
-  const email = req.session.email; // retrieve from session
-  const username = req.session.username; // retrieve from session
-  const password = req.session.password; // retrieve from session 
-
-  if (password !== confirmPassword) {
-    return res.send("Passwords don't match!");
+    return res.status(400).json({ error: "Passwords don't match" });
   }
 
   try {
-    // Check if user already exists
+    // Ensure username is unique
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ error: "username already taken" });
-    }
-
-    const user = new User({ username, password });
-    await user.save();
-
-    res.status(201).json({
-      message: "User created",
-      user: { username: user.username, createdAt: user.createdAt },
-    });
+      return res.status(400).json({ error: "Username already taken" });
+    } 
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 
-  // Clear session if you want
-  req.session.destroy(() => {
-    res.redirect("/home");
-  });  
+  const hashedPassword = await bcrypt.hash(password, 10);
+  req.session.username = username;
+  req.session.password = hashedPassword;
+
+  res.json({ success: true, nextStep: 3 });
+});
+
+// STEP 3: Finalize user creation
+router.post("/step3", async (req, res) => {
+  const email = req.session.email;
+  const username = req.session.username;
+  const password = req.session.password;
+  const { profile_pic_id } = req.body;
+
+  if (!email || !username || !password) {
+    return res.status(400).json({ error: "Session data missing" });
+  }
+
+  try {
+    // Ensure username is unique
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already taken" });
+    }
+
+    // Save user
+    const user = new User({ username, password, email, profile_pic_id });
+    await user.save();
+
+    // Clear session after registration
+    req.session.destroy(() => {
+      console.log("Registration session cleared");
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "User created",
+      redirect: "/home", // let frontend handle final redirect
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 export default router;

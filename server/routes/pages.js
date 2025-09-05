@@ -10,12 +10,7 @@ const __dirname = path.dirname(__filename);
 
 router.get("/register", (req, res) => {
   const step = req.query.step || 1;
-  res.render("registration", { step, email: req.session.email || "" });  
-});
-
-app.post("/registration/step1", (req, res) => {
-  req.session.email = req.body.email;   // save to session
-  res.redirect("/registration?step=2"); // go to step 2
+  res.render("register", { step });  
 });
 
 router.get("/login", auth.redirectIfLoggedIn, (req, res) => {
