@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Colyseus</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Home Screen</h1>
+    <div id="welcomeMessage"></div>
+    <script src="https://unpkg.com/colyseus.js/dist/colyseus.js"></script>
+    <script src="../js/client.js?v=001"></script>
+    <script type="module">
+
+        async function init() {
+        // Fetch user data
+        const res = await fetch("/api/user");
+        const data = await res.json();
+        const username = data.username || "Guest";
+
+        document.getElementById("welcomeMessage").textContent = `Welcome, ${username}!`;
+
+        // Join lobby
+        await joinLobby(username);
+        }
+
+        init();
+    </script>
+</body>
+</html>

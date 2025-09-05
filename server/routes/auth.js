@@ -7,27 +7,6 @@ import { matchMaker } from "colyseus";
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ error: "username already taken" });
-    }
-
-    const user = new User({ username, password });
-    await user.save();
-
-    res.status(201).json({
-      message: "User created",
-      user: { username: user.username, createdAt: user.createdAt },
-    });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {

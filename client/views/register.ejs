@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <%- include("partials/header", { title: "Register" }) %>
+<body>
+
+  <div class="landscape-warning">
+      Sorry Clue Online does not support landscape mode. <br /> Please rotate your device to portrait.
+  </div>
+  <div id="wrapper">
+    <%- include("partials/logo") %>    
+    <%- include("partials/registerform") %>
+  </div>
+  <script src="/js/index.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>
+
+<!-- <head>
   <meta charset="UTF-8">
   <title>Register - Colyseus</title>
   <link rel="stylesheet" href="/css/style.css">
@@ -32,5 +47,5 @@
       document.getElementById("result").textContent = data.message || data.error;
     });
   </script>
-</body>
+</body> -->
 </html>

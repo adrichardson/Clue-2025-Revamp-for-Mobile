@@ -1,0 +1,24 @@
+window.onload = function() {
+  addEventListeners();
+};
+
+function addEventListeners() {
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.message === "admin login success") {
+      window.location.href = "/admin";
+      return;
+    } else if (data.message === "user login success") {
+      window.location.href = "/home";
+      return;
+    }      
+  });
+}

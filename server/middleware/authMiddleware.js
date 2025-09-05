@@ -23,4 +23,4 @@ export function requireLogin(req, res, next) {
   next(); // Logged in → continue
 }
 
-export default { redirectIfLoggedIn, requireLogin, requireAdminLogin};
+export default { redirectIfLoggedIn, requireLogin, requireAdminLogin };
