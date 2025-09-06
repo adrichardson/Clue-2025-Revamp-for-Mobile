@@ -3,7 +3,7 @@ window.onload = function () {
 };
 
 function setupStepForms() {
-  attachStepHandler("form-step1", "/register/step1", ["email"]);
+  attachStepHandler("form-step1", "/register", ["email"]);
   attachStepHandler("form-step2", "/register/step2", ["username", "password", "confirmPassword"]);
   attachStepHandler("form-step3", "/register/step3", ["profile_pic_id"], true);
 }

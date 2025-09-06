@@ -32,7 +32,10 @@ connectDB();
 
 // Set the view engine to EJS
 app.set("view engine", "ejs");
-app.set("views", path.resolve(__dirname, "..", "client", "views")); // folder for EJS templates
+app.set("views", [
+  path.resolve(__dirname, "..", "client", "views"),
+  path.resolve(__dirname, "..", "client", "admin"),
+]);
 // Serve static client files
 app.use(express.static(path.resolve(__dirname, "..", "client")));
 

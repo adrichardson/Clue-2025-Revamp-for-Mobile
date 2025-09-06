@@ -5,7 +5,7 @@ import User from "../config/schemas/User.js";
 const router = express.Router();
 
 // STEP 1: Save email to session
-router.post("/step1", async (req, res) => {
+router.post("/", async (req, res) => {
   const email = req.body.email;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
