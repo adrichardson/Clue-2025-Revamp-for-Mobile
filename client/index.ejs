@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include("partials/header", { title: "" }) %>
+<body>
+  <div class="landscape-warning">
+      Sorry Clue Online does not support landscape mode. <br /> Please rotate your device to portrait.
+  </div>
+  <div id="wrapper">
+    <%- include("partials/logo") %>   
+    <div class="button-wrapper">
+        <button onclick="redirectWithTransition('/login')" class="interactable-button">Login</button>
+        <button onclick="redirectWithTransition('/register')" class="interactable-button">Register</button>
+    </div>
+  </div>
+  <script src="/js/index.js?v=<%= version %>"></script>
+</body>
+</html>

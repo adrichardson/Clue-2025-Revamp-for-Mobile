@@ -20,6 +20,8 @@ import { LobbyRoom } from "./rooms/LobbyRoom.js";
 import { AdminRoom } from "./rooms/AdminRoom.js";
 import { GameRoom } from "./rooms/GameRoom.js";
 
+import { APP_VERSION } from "./config/version.js";
+
 const PORT = process.env.PORT || 2567;
 const app = express();
 const server = http.createServer(app);
@@ -33,6 +35,7 @@ connectDB();
 // Set the view engine to EJS
 app.set("view engine", "ejs");
 app.set("views", [
+  path.resolve(__dirname, "..", "client"),  
   path.resolve(__dirname, "..", "client", "views"),
   path.resolve(__dirname, "..", "client", "admin"),
 ]);
@@ -43,6 +46,7 @@ app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
+  res.locals.version = APP_VERSION;  
   next();
 });
 
@@ -84,7 +88,7 @@ gameServer.define("game", GameRoom);
 })();
 
 app.get("/", (req, res) => {
-  res.status(404).sendFile(path.resolve(__dirname, "..", "client", "index.html"));
+  res.render("index");
 });
 
 // 404 handler should be LAST
