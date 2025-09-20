@@ -1,6 +1,46 @@
 window.onload = function () {
   setupStepForms();
+  addEventListeners();
 };
+
+function addEventListeners() {
+  const container = document.getElementById("form-step3");
+  const button = document.getElementById("step3");
+
+  container.addEventListener("click", function(e) {
+    if (e.target.tagName.toLowerCase() === "img") {
+      const allImages = container.querySelectorAll(".profile-pic-image");
+
+      // If clicked image is already selected, deselect it
+      if (e.target.src.includes("-thumb-selected.png")) {
+        e.target.src = e.target.src.replace("-thumb-selected.png", "-thumb.png");
+        e.target.classList.remove("selected");
+      } else {
+        // reset all to unselected
+        allImages.forEach(img => {
+          img.src = img.src.replace("-thumb-selected.png", "-thumb.png");
+          img.classList.remove("selected");
+        });
+        // select the clicked one
+        e.target.src = e.target.src.replace("-thumb.png", "-thumb-selected.png");
+        e.target.classList.add("selected");
+      }
+
+      // check if any image is selected
+      const anySelected = Array.from(allImages).some(img =>
+        img.src.includes("-thumb-selected.png")
+      );
+
+      if (anySelected) {
+        button.classList.remove("disabled");
+        button.disabled = false;
+      } else {
+        button.classList.add("disabled");
+        button.disabled = true;
+      }
+    }
+  });
+}
 
 function setupStepForms() {
   attachStepHandler("form-step1", "/register", ["email"]);
@@ -21,6 +61,12 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    const step3Button = document.getElementById("step3");
+
+    if (step3Button && step3Button.classList.contains("disabled")) {
+      return;
+    }
 
     // Collect field values dynamically
     const body = {};

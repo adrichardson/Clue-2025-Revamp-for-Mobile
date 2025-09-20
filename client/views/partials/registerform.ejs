@@ -22,20 +22,30 @@
       </form>
    </div>
   <% } else if (step == 3) { %>
-  <div class="button-wrapper">    
+  <div class="subtext">Choose a profile picture</div>
+  <div class="button-wrapper">
     <form id="form-step3" class="form">
-      <label>Choose a profile picture</label>
       <div class="profile-pic-grid">
         <div class="profile-pic-option">
-          <img src="../../assets/imgs/people/msscarlet-thumb.png" alt="Ms. Scarlet" class="profile-pic-image">
-          <img src="../../assets/imgs/people/mrspeacock-thumb.png" alt="Mrs. Peacock" class="profile-pic-image">          
-          <img src="../../assets/imgs/people/mrswhite-thumb.png" alt="Mrs. White" class="profile-pic-image">
-          <img src="../../assets/imgs/people/mrgreen-thumb.png" alt="Mr. Green" class="profile-pic-image">
-          <img src="../../assets/imgs/people/profplum-thumb.png" alt="Professor Plum" class="profile-pic-image">
-          <img src="../../assets/imgs/people/colmustard-thumb.png" alt="Colonel Mustard" class="profile-pic-image">
+          <img src="../../assets/imgs/people/msscarlet-thumb.png" alt="Ms. Scarlet" class="profile-pic-image" id="msscarlet-thumb">
+        </div>
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/mrspeacock-thumb.png" alt="Mrs. Peacock" class="profile-pic-image" id="mrspeacock-thumb">
+        </div>
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/mrswhite-thumb.png" alt="Mrs. White" class="profile-pic-image" id="mrswhite-thumb">
+        </div>
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/mrgreen-thumb.png" alt="Mr. Green" class="profile-pic-image" id="mrgreen-thumb">
+        </div>
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/profplum-thumb.png" alt="Professor Plum" class="profile-pic-image" id="profplum-thumb">
+        </div>
+        <div class="profile-pic-option">
+          <img src="../../assets/imgs/people/colmustard-thumb.png" alt="Colonel Mustard" class="profile-pic-image" id="colmustard-thumb">
         </div>
       </div>
-      <button class="interactable-button" type="submit" id="step3">Select</button>
+      <button class="interactable-button disabled" type="submit" id="step3">Select</button>
     </form>
   </div>
   <% } %>
