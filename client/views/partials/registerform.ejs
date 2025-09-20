@@ -1,32 +1,41 @@
-<div class="registration-wrapper">
-  <% if (step == 1) { %>
-    <form id="form-step1">
-      <label>Email:</label>
-      <input type="email" id="email" name="email" required>
-      <button class="interactable-button" type="submit" id="step1">Continue</button>
-    </form>
+<% if (!step || step == 1) { %>
+    <div class="button-wrapper">
+      <form id="form-step1" class="form">
+        <label>Email:</label>
+        <input type="email" id="email" name="email" required>
+        <button class="interactable-button" type="submit" id="step1">Continue</button>
+      </form>
+    </div>
   <% } else if (step == 2) { %>
-    <form id="form-step2">
-      <label>Username:</label>
-      <input type="text" id="username" name="username" required>
+    <div class="button-wrapper">
+      <form id="form-step2" class="form">
+        <label>Username:</label>
+        <input type="text" id="username" name="username" required>
 
-      <label>Password:</label>
-      <input type="password" id="password" name="password" required>
+        <label>Password:</label>
+        <input type="password" id="password" name="password" required>
 
-      <label>Confirm Password:</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <label>Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
 
-      <button class="interactable-button" type="submit" id="step2">Continue</button>
-    </form>
+        <button class="interactable-button" type="submit" id="step2">Continue</button>
+      </form>
+   </div>
   <% } else if (step == 3) { %>
-    <form id="form-step3">
+  <div class="button-wrapper">    
+    <form id="form-step3" class="form">
       <label>Choose a profile picture</label>
       <div class="profile-pic-grid">
         <div class="profile-pic-option">
-          <img src="../../assets/imgs/people/msscarlet.png" alt="Ms. Scarlet" class="profile-pic-image">
+          <img src="../../assets/imgs/people/msscarlet-thumb.png" alt="Ms. Scarlet" class="profile-pic-image">
+          <img src="../../assets/imgs/people/mrspeacock-thumb.png" alt="Mrs. Peacock" class="profile-pic-image">          
+          <img src="../../assets/imgs/people/mrswhite-thumb.png" alt="Mrs. White" class="profile-pic-image">
+          <img src="../../assets/imgs/people/mrgreen-thumb.png" alt="Mr. Green" class="profile-pic-image">
+          <img src="../../assets/imgs/people/profplum-thumb.png" alt="Professor Plum" class="profile-pic-image">
+          <img src="../../assets/imgs/people/colmustard-thumb.png" alt="Colonel Mustard" class="profile-pic-image">
         </div>
       </div>
       <button class="interactable-button" type="submit" id="step3">Select</button>
     </form>
-  <% } %>  
-</div>
+  </div>
+  <% } %>
