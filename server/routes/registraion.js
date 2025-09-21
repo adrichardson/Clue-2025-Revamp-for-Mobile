@@ -6,18 +6,18 @@ const router = express.Router();
 
 // STEP 1: Save email to session
 router.post("/", async (req, res) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   if (!email) {
-    return res.status(400).json({ error: "Email is required" });
+    return res.status(400).json({ errorType: "email", error: "Email is required" });
   }
   try {
     // Ensure email is unique
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: "Email already taken" });
+      return res.status(400).json({ errorType: "email", error: "Email already taken" });
     } 
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ errorType: "email", error: err.message });
   }  
   req.session.email = req.body.email;
   res.json({ success: true, nextStep: 2 });
@@ -28,17 +28,21 @@ router.post("/step2", async (req, res) => {
   const { username, password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    return res.status(400).json({ error: "Passwords don't match" });
+    return res.status(400).json({ errorType: "password", error: "Passwords don't match" });
   }
 
   try {
     // Ensure username is unique
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ error: "Username already taken" });
+      return res.status(400).json({ errorType: "username", error: "Username already taken" });
     } 
+
+    if (username.length < 3 || username.length > 10) {
+      return res.status(400).json({ errorType: "username", error: "Username must be between 3 and 10 characters" });
+    }
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ errorType: "username", error: err.message });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,7 +54,7 @@ router.post("/step2", async (req, res) => {
 
 // STEP 3: Finalize user creation
 router.post("/step3", async (req, res) => {
-  const email = req.session.email;
+  const email = req.session.email.toLowerCase();
   const username = req.session.username;
   const password = req.session.password;
   const { profile_pic_id } = req.body;
@@ -60,12 +64,6 @@ router.post("/step3", async (req, res) => {
   }
 
   try {
-    // Ensure username is unique
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ error: "Username already taken" });
-    }
-
     // Save user
     const user = new User({ username, password, email, profile_pic_id });
     await user.save();

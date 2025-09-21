@@ -4,8 +4,11 @@ window.onload = function () {
 };
 
 function addEventListeners() {
+
   const container = document.getElementById("form-step3");
-  const button = document.getElementById("step3");
+  const button3 = document.getElementById("step3");
+
+  if (!container || !button3) return;
 
   container.addEventListener("click", function(e) {
     if (e.target.tagName.toLowerCase() === "img") {
@@ -32,11 +35,11 @@ function addEventListeners() {
       );
 
       if (anySelected) {
-        button.classList.remove("disabled");
-        button.disabled = false;
+        button3.classList.remove("disabled");
+        button3.disabled = false;
       } else {
-        button.classList.add("disabled");
-        button.disabled = true;
+        button3.classList.add("disabled");
+        button3.disabled = true;
       }
     }
   });
@@ -58,7 +61,7 @@ function setupStepForms() {
 function attachStepHandler(formId, endpoint, fields, isFinal = false) {
   const form = document.getElementById(formId);
   if (!form) return;
-
+  
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -93,7 +96,18 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
       console.log(`${formId} response:`, data);
 
       if (data.error) {
-        alert(data.error);
+        //data.errorType can be "email", "username", "password"
+        const field = document.getElementById(data.errorType);
+        const errorField = document.getElementById(`error-${data.errorType}`);
+        setErrorPosition(field, errorField);
+        showError(errorField, data.error);
+        if (data.errorType === "password") {
+          const field2 = document.getElementById("confirmPassword");
+          const errorField2 = document.getElementById("error-confirm-password");
+          setErrorPosition(field2, errorField2);
+          showError(errorField2, data.error);
+        }
+
         return;
       }
 
@@ -107,4 +121,33 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
       alert("Something went wrong. Please try again.");
     }
   });
+}
+
+function showError(errorField, message) {
+  errorField.textContent = message;
+  errorField.classList.add("active");
+  // Hide after 3s with fade-out
+  setTimeout(() => {
+    errorField.classList.remove("active");
+  }, 3000);
+}
+
+function hideError(errorField) {
+  errorField.classList.remove("active");
+} 
+
+function setErrorPosition(field, errorField) {
+    // Get input’s Y position relative to page
+    const rect = field.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const top = rect.top + scrollTop - 44; // input’s top minus 20px
+    const left = rect.left + rect.width - errorField.width + 200; // align with input left
+
+    errorField.style.top = `${top}px`; // slide down
+    errorField.style.left = `${left}px`; // align with input left
+
+    // Remove error immediately if user focuses the field
+    field.addEventListener("focus", () => {
+      errorField.classList.remove("active");
+    }, { once: true }); // run only once for this error    
 }

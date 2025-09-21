@@ -1,22 +1,26 @@
 <% if (!step || step == 1) { %>
     <div class="button-wrapper">
       <form id="form-step1" class="form">
+        <div class="error-message" id="error-email"></div>
         <label>Email:</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email">
         <button class="interactable-button" type="submit" id="step1">Continue</button>
       </form>
     </div>
   <% } else if (step == 2) { %>
     <div class="button-wrapper">
       <form id="form-step2" class="form">
+        <div class="error-message" id="error-username"></div>
         <label>Username:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username">
 
+        <div class="error-message" id="error-password"></div>
         <label>Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password">
 
+        <div class="error-message" id="error-confirm-password"></div>
         <label>Confirm Password:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <input type="password" id="confirmPassword" name="confirmPassword">
 
         <button class="interactable-button" type="submit" id="step2">Continue</button>
       </form>

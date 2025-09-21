@@ -1,13 +1,6 @@
 /* Basic utilities */
 .hidden { display: none; }
-
-* { margin: 0; padding: 0; } /* remove top/left whitespace */
-
-html, body {
-    width: 100vw;
-    height: 100vh;
-    overflow-x: hidden;
-}
+* { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;} /* remove top/left whitespace */
 
 :root {
   --black: #333333;
@@ -23,6 +16,31 @@ html, body {
   --mrgreen: #599B53;
   --mrswhite: #808080;
   --mrspeacock: #6CA5B9;
+}
+
+/* Override Chrome autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill::first-line,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+&:-webkit-autofill::first-line,
+&:-webkit-autofill,
+&:-webkit-autofill:hover,
+&:-webkit-autofill:focus,
+&:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--clue-yellow) inset !important; /* force background */
+  -webkit-text-fill-color: var(--white) !important; /* force text color */
+  color: var(--white) !important;           /* force text color */
+  font-size: 32px !important;        /* force font size */
+  font-family: "Futura-Book", sans-serif !important;   /* or your custom font */  
+  transition: background-color 5000s ease-in-out 0s; /* trick to keep color */
+}
+
+html, body {
+    width: 100dvw;
+    height: 100dvh;
+    overflow-x: hidden;
 }
 
 /* Fonts */
@@ -88,11 +106,20 @@ html, body {
 
 /* Layout */
 /* Wrapper for mobile-sized content */
+
+.container {
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--clue-brown);
+}
+
 #wrapper {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
+    width: 100dvw;
+    height: 100dvh;
+    max-width: 100dvw;
+    max-height: 100dvh;
     background-color: var(--clue-brown);
     display: flex;
     flex-direction: column;
@@ -178,8 +205,7 @@ html, body {
 
 .form {
   width: 100%;
-  min-width: 295px;
-  min-height: 58px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -233,6 +259,8 @@ html, body {
   aspect-ratio: 1 / 1; /* keep square */
   width: 100%; 
   height: 100%;
+  max-width: 120px;
+  max-height: 120px;
   overflow: hidden;
   align-items: center;
   justify-content: center;
@@ -247,4 +275,86 @@ html, body {
 .profile-pic-option img.selected {
   transform: scale(1.25);
   overflow: visible;
+}
+
+
+/* Hidden by default */
+.error-message {
+  font-family: "Futura-Book", sans-serif;
+  display: block;
+  position: absolute;
+  background: #f44336; /* red background */
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.15);
+  opacity: 0;               /* start transparent */
+  transition: opacity 0.5s ease;
+}
+
+/* Little arrow below the bubble */
+.error-message::after {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  /* Adjust these values to control arrow size and direction */
+  border-width: 15px 15px 0 15px; /* Top, Right, Bottom, Left */
+  border-color: #f44336 transparent transparent transparent; /* Match background color for the visible part */
+  bottom: -14px; /* Position the arrow below the bubble */
+  left: 20px; /* Adjust for horizontal positioning */
+}
+/* Show error when active */
+.error-message.active {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.5s ease;
+}
+
+/* Extra small devices (portrait phones, <576px) */
+@media (max-width: 575.98px) {  
+  .logo-image {
+    width: 65%;
+  }
+  .logo-subtext {
+      font-size: 18px;
+      margin-top: 10%;
+  }
+  .version-text {
+      margin-left: 66%;
+      margin-top: -15%;
+  }  
+}
+
+/* Small devices (landscape phones, ≥576px) */
+@media (min-width: 576px) and (max-width: 767.98px) {  
+  .logo-image {
+    width: 65%;
+  }
+  .logo-subtext {
+      font-size: 18px;
+      margin-top: 10%;
+  }
+  .version-text {
+      margin-left: 70%;
+      margin-top: -15%;
+  }    
+}
+
+/* Medium devices (tablets, ≥768px) */
+@media (min-width: 768px) and (max-width: 991.98px) {  
+  .logo-image {
+    width: 100%;
+  }
+}
+
+/* Large devices (desktops, ≥992px) */
+@media (min-width: 992px) and (max-width: 1199.98px) {  
+  .logo-image {
+    width: 100%;
+  }
 }
