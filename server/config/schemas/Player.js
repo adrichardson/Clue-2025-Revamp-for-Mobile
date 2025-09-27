@@ -1,15 +1,8 @@
 import mongoose from "mongoose";
 
 const playerSchema = new mongoose.Schema({
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",   // References the User model
-    required: true,
-  },
-  character_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Character", // References the Character model
-  }
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  characterId: { type: mongoose.Schema.Types.ObjectId, ref: "Character", required: true }
 });
 
 const Player = mongoose.model("Player", playerSchema);

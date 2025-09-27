@@ -1,19 +1,10 @@
 import mongoose from "mongoose";
 
 const onlineUserSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  room: {
-    type: String,
-    default: null, // optional: track which room they are in
-  },
-  connectedAt: {
-    type: Date,
-    default: Date.now,
-  }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  room: { type: String, default: null }, // optional: track which room they are in
+  connectedAt: { type: Date, default: Date.now },
+  lastOnline: { type: Date, default: Date.now }
 });
 
 // Optionally prevent duplicate entries for the same user

@@ -9,47 +9,54 @@ const router = express.Router();
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ errorType: "username", error: "Username is required" });
+  } else if (!password) {
+    return res.status(400).json({ errorType: "password", error: "Password is required" });
+  } 
+
   try {
-    const user = await User.findOne({ username });
-    const adminuser = await AdminUser.findOne({username});
-    
-    if(adminuser){
-      const isMatch = await bcrypt.compare(password, adminuser.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid username or password" });
-      }
-      req.session.user = { username: adminuser.username, isAdmin: true };
-      res.json({ message: "admin login success" });
+    const adminuser = await AdminUser.findOne({username}); //equivalent to AdminUser.findOne({ username: username })
+    const user = await User.findOne({ $or: [ { username: username }, { email: username } ] });
+    const validUser = adminuser || user;
+
+    if (!validUser) {
+      return res.status(401).json({ errorType: "username", error: "Invalid username" });
     }
     
-    if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
+    const isMatch = await bcrypt.compare(password, validUser.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ errorType: "password", error: "Invalid password" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid username or password" });
+    if(adminuser){
+      // After login or logout success:
+      const adminRooms = matchMaker.connections;
+      for (let roomId in adminRooms) {
+      const room = adminRooms[roomId].room;
+          if (room.constructor.name === "AdminRoom") {
+              room.pushUpdate();
+          }
+      }
+
+      req.session.user = { username: adminuser.username, isAdmin: true };
+      return res.json({ message: "admin login success" });
+    } else if (user) {  
+      req.session.user = { username: user.username, isAdmin: false };
+      return res.json({ message: "user login success" });
     }
 
     // Mark user online
-    await OnlineUser.findOneAndUpdate(
-      { user: user._id },
-      { user: user._id, connectedAt: new Date() },
-      { upsert: true, new: true }
-    );
+    // await OnlineUser.findOneAndUpdate(
+    //   { user: user._id },
+    //   { user: user._id, connectedAt: new Date() },
+    //   { upsert: true, new: true }
+    // );
 
-    // After login or logout success:
-    const adminRooms = matchMaker.connections;
-    for (let roomId in adminRooms) {
-    const room = adminRooms[roomId].room;
-        if (room.constructor.name === "AdminRoom") {
-            room.pushUpdate();
-        }
-    }
-    req.session.user = { username: user.username, isAdmin: false };
-    res.json({ message: "user login success"});
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ errorType: "username", error: err.message });
   }
 });
 
@@ -62,7 +69,7 @@ router.post("/logout", async (req, res) => {
     }
     res.json({ message: "Logged out" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ errorType: "username", error: err.message });
   }
 });
 

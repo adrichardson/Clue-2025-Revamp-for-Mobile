@@ -45,10 +45,24 @@ function addEventListeners() {
   });
 }
 
+function getProfilePicId() {
+  const selectedImg = document.querySelector(".profile-pic-image.selected");
+  if (!selectedImg) return null;
+  switch (selectedImg.alt) {
+    case "Miss Scarlet": return 1;
+    case "Mrs. Peacock": return 2;
+    case "Mrs. White": return 3;
+    case "Mr. Green": return 4;
+    case "Professor Plum": return 5;
+    case "Colonel Mustard": return 6;
+    default: return null;
+  }
+}
+
 function setupStepForms() {
   attachStepHandler("form-step1", "/register", ["email"]);
-  attachStepHandler("form-step2", "/register/step2", ["username", "password", "confirmPassword"]);
-  attachStepHandler("form-step3", "/register/step3", ["profile_pic_id"], true);
+  attachStepHandler("form-step2", "/register/step2", ["username", "password", "confirm-password"]);
+  attachStepHandler("form-step3", "/register/step3", [], true);
 }
 
 /**
@@ -82,7 +96,7 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
 
     // For step 3, fallback default value
     if (endpoint.includes("step3") && !body.profile_pic_id) {
-      body.profile_pic_id = 1; // TODO: replace with actual selected pic
+      body.profile_pic_id = getProfilePicId();
     }
 
     try {
@@ -96,18 +110,11 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
       console.log(`${formId} response:`, data);
 
       if (data.error) {
-        //data.errorType can be "email", "username", "password"
+        //data.errorType can be "email", "username", "password", "confirm-password", "profile-pic-grid"
         const field = document.getElementById(data.errorType);
         const errorField = document.getElementById(`error-${data.errorType}`);
         setErrorPosition(field, errorField);
         showError(errorField, data.error);
-        if (data.errorType === "password") {
-          const field2 = document.getElementById("confirmPassword");
-          const errorField2 = document.getElementById("error-confirm-password");
-          setErrorPosition(field2, errorField2);
-          showError(errorField2, data.error);
-        }
-
         return;
       }
 
@@ -118,7 +125,6 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
       }
     } catch (err) {
       console.error("Error submitting form:", err);
-      alert("Something went wrong. Please try again.");
     }
   });
 }
@@ -126,15 +132,13 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
 function showError(errorField, message) {
   errorField.textContent = message;
   errorField.classList.add("active");
-  // Hide after 3s with fade-out
+  // Hide after 5s with fade-out
   setTimeout(() => {
-    errorField.classList.remove("active");
-  }, 3000);
+    if (errorField.classList.contains("active")) {
+      errorField.classList.remove("active");
+    }
+  }, 5000);
 }
-
-function hideError(errorField) {
-  errorField.classList.remove("active");
-} 
 
 function setErrorPosition(field, errorField) {
     // Get input’s Y position relative to page
