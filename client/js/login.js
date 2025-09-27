@@ -5,7 +5,7 @@ window.addEventListener("load", () => {
 function addEventListeners() {
   document.getElementById("loginForm").addEventListener("submit", async function(e) {
     e.preventDefault();
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.toLowerCase();
     const password = document.getElementById("password").value;
 
     const res = await fetch("/auth/login", {
