@@ -1,6 +1,6 @@
 import express from "express";
-import bcrypt from "bcrypt";
 import User from "../config/schemas/User.js";
+import AdminUser from "../config/schemas/AdminUser.js";
 import ProfilePicture from "../config/schemas/ProfilePicture.js";
 
 const router = express.Router();
@@ -8,6 +8,11 @@ const router = express.Router();
 // STEP 1: Save email to session
 router.post("/", async (req, res) => {
   const email = req.body.email.toLowerCase();
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ errorType: "email", error: "Please enter a valid email" });
+  }
   if (!email) {
     return res.status(400).json({ errorType: "email", error: "Email is required" });
   }
@@ -32,17 +37,14 @@ router.post("/step2", async (req, res) => {
     return res.status(400).json({ errorType: "username", error: "Username is required" });
   } else if (!password) {
     return res.status(400).json({ errorType: "password", error: "Password is required" });
-  } else if (!confirmPassword) {
-    return res.status(400).json({ errorType: "confirm-password", error: "Please confirm your password" });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ errorType: "confirm-password", error: "Passwords don't match" });
   }
 
   try {
     // Ensure username is unique
-    const existingUser = await User.findOne({ username });
+    const adminuser = await AdminUser.findOne({username});
+    const user = await User.findOne({username});
+    const existingUser = adminuser || user;
+    
     if (existingUser) {
       return res.status(400).json({ errorType: "username", error: "Username already taken" });
     } 
@@ -52,6 +54,33 @@ router.post("/step2", async (req, res) => {
     }
   } catch (err) {
     res.status(400).json({ errorType: "server", error: err.message });
+  }
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return { valid: false, error: "Password must be at least 8 characters long" };
+    }
+    if (!/[a-z]/.test(password)) {
+      return { valid: false, error: "Password must include at least one lowercase letter" };
+    }
+    if (!/\d/.test(password)) {
+      return { valid: false, error: "Password must include at least one number" };
+    }
+    if (!/[@$!%*?&]/.test(password)) {
+      return { valid: false, error: "Password must include at least one special character (@$!%*?&)" };
+    }
+    return { valid: true };
+  };
+
+  const result = validatePassword(password);
+  if (!result.valid) {
+    return res.status(400).json({ errorType: "password", error: result.error });
+  }  
+
+  if (!confirmPassword) {
+    return res.status(400).json({ errorType: "confirm-password", error: "Please confirm your password" });
+  } else if (password !== confirmPassword) {
+    return res.status(400).json({ errorType: "confirm-password", error: "Passwords don't match" });
   }
 
   req.session.username = username;

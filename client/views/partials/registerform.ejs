@@ -1,6 +1,6 @@
 <% if (!step || step == 1) { %>
     <div class="button-wrapper">
-      <form id="form-step1" class="form">
+      <form id="form-step1" class="form" novalidate>
         <div class="error-message" id="error-email"></div>
         <label>Email:</label>
         <input type="email" id="email" name="email">
@@ -12,7 +12,7 @@
       <form id="form-step2" class="form">
         <div class="error-message" id="error-username"></div>
         <label>Username:</label>
-        <input type="text" id="username" name="username">
+        <input type="text" id="username" name="username" maxlength="10">
 
         <div class="error-message" id="error-password"></div>
         <label>Password:</label>
