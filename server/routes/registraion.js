@@ -7,7 +7,7 @@ const router = express.Router();
 
 // STEP 1: Save email to session
 router.post("/", async (req, res) => {
-  const email = req.body.email.toLowerCase();
+  const email = req.body.email.toLowerCase().trim();
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   if (!emailRegex.test(email)) {
@@ -116,9 +116,12 @@ router.post("/step3", async (req, res) => {
     await profilePic.save();
 
     // Clear session after registration
-    req.session.destroy(() => {
-      console.log("Registration session cleared");
-    });
+    req.session.email = null;
+    req.session.username = null;   
+    req.session.password = null;
+    req.session.profile_pic_id = null;
+
+    req.session.user = { username: username, isAdmin: false };
 
     res.status(201).json({
       success: true,

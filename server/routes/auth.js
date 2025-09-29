@@ -8,7 +8,9 @@ import { matchMaker } from "colyseus";
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  var { username, password } = req.body;
+
+  username = username.trim();
 
   if (!username) {
     return res.status(400).json({ errorType: "username", error: "Username is required" });
