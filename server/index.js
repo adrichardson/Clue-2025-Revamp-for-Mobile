@@ -7,20 +7,21 @@ import express from "express";
 import session from "express-session";
 import http from "http";
 
-import { connectDB } from "./config/db.js";
+import { connectDB } from "./db/config/db.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import userRoute from "./routes/user.js"
 import adminRoutes from "./routes/admin.js";
 import pageRoutes from "./routes/pages.js"; 
 import registraionRoutes from "./routes/registraion.js";
+import gameRoutes from "./routes/game.js";
 
 import { Server, matchMaker } from "colyseus";
-import { LobbyRoom } from "./rooms/LobbyRoom.js";
-import { AdminRoom } from "./rooms/AdminRoom.js";
-import { GameRoom } from "./rooms/GameRoom.js";
+import { LobbyRoom } from "./colyseus/rooms/LobbyRoom.js";
+import { AdminRoom } from "./colyseus/rooms/AdminRoom.js";
+import { GameRoom } from "./colyseus/rooms/GameRoom.js";
 
-import { APP_VERSION } from "./config/version.js";
+import { APP_VERSION } from "./db/config/version.js";
 
 const PORT = process.env.PORT || 2567;
 const app = express();
@@ -66,6 +67,7 @@ app.use("/api/users", userRoutes);        // /api/users
 app.use("/api/user", userRoute);          // /api/user
 app.use("/admin", adminRoutes);           // /admin
 app.use("/register", registraionRoutes);  // /register
+app.use("/api/game", gameRoutes);         // /api/game
 
 // Colyseus game server
 const gameServer = new Server({
@@ -75,7 +77,7 @@ const gameServer = new Server({
 // Define Lobby and GameRoom
 gameServer.define("lobby", LobbyRoom);
 gameServer.define("admin", AdminRoom);
-gameServer.define("game", GameRoom);
+gameServer.define("game", GameRoom).enableRealtimeListing();
 
 //Force create a persistent lobby on startup
 (async () => {
@@ -86,6 +88,8 @@ gameServer.define("game", GameRoom);
     console.error("❌ Failed to create persistent lobby:", err);
   }
 })();
+
+app.set("gameServer", gameServer);
 
 app.get("/", (req, res) => {
   res.render("index");

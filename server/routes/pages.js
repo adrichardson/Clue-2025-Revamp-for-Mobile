@@ -16,4 +16,16 @@ router.get("/home", auth.requireLogin, (req, res) => {
   res.render("homescreen");
 });
 
+router.get("/game", auth.requireLogin, (req, res) => {
+  const game_id = req.query.id;  
+  res.render("gamescreen", { game_id });
+});
+
+const allowedPartials = ["homearea", "gamearea", "banner"];
+router.get("/partials/:view", (req, res) => {
+  const view = req.params.view;
+  if (!allowedPartials.includes(view)) return res.status(404).send("Not allowed");
+  res.render(view);
+});
+
 export default router;

@@ -1,13 +1,12 @@
 import express from "express";
-import User from "../config/schemas/User.js";
-import ProfilePictures from "../config/schemas/ProfilePicture.js";
-import { profile } from "console";
+import User from "../db/config/schemas/User.js";
+import ProfilePictures from "../db/config/schemas/ProfilePicture.js";
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
   if (!req.session.user) return res.status(401).json({ message: "Not logged in" });
-  res.json({ username: req.session.user.username, isAdmin: req.session.user.isAdmin });
+  res.json({ user: req.session.user });
 });
 
 router.get("/profileImageId", async (req, res) => {

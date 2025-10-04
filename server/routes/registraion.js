@@ -1,7 +1,7 @@
 import express from "express";
-import User from "../config/schemas/User.js";
-import AdminUser from "../config/schemas/AdminUser.js";
-import ProfilePicture from "../config/schemas/ProfilePicture.js";
+import User from "../db/config/schemas/User.js";
+import AdminUser from "../db/config/schemas/AdminUser.js";
+import ProfilePicture from "../db/config/schemas/ProfilePicture.js";
 
 const router = express.Router();
 

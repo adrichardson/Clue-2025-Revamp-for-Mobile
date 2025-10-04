@@ -23,6 +23,10 @@ function addEventListeners() {
       showError(errorField, data.error);
       return;
     }
+
+    if (data.accessToken) {
+      localStorage.setItem("accessToken", data.accessToken);
+    }    
     
     if (data.message === "admin login success") {
       window.location.href = "/admin";

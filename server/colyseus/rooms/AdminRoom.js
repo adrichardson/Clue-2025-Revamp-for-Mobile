@@ -1,6 +1,6 @@
 import { Room } from "colyseus";
-import User from "../config/schemas/User.js";
-import OnlineUser from "../config/schemas/OnlineUser.js";
+import User from "../../db/config/schemas/User.js";
+import OnlineUser from "../../db/config/schemas/OnlineUser.js";
 
 export class AdminRoom extends Room {
   onCreate() {

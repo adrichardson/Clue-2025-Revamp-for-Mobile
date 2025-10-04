@@ -89,9 +89,7 @@ function attachStepHandler(formId, endpoint, fields, isFinal = false) {
     const body = {};
     fields.forEach((field) => {
       const el = document.getElementById(field);
-      if(field === "username" && el) {
-        body[field] = el.value.toLowerCase();
-      } else if (el) {
+      if (el) {
         body[field] = el.value;
       }
     });

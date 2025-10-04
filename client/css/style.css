@@ -1,5 +1,7 @@
 /* Basic utilities */
 .hidden { display: none; }
+.hide {visibility: hidden; }
+
 * { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;} /* remove top/left whitespace */
 
 :root {
@@ -16,6 +18,8 @@
   --mrgreen: #599B53;
   --mrswhite: #808080;
   --mrspeacock: #6CA5B9;
+  --match-bg: #6CA5B9;
+
 }
 
 /* Override Chrome autofill styles */
@@ -185,6 +189,11 @@ html, body {
     letter-spacing: 0.2rem;
 }
 
+
+.brown {
+  background-color: var(--clue-brown);
+}
+
 .disabled {
     background-color: var(--disabled-button-bg);
     color: var(--disabled-button-txt);
@@ -224,10 +233,6 @@ html, body {
   text-align: left;
   padding-left: 10px;
   margin-bottom: 20px;
-}
-
-#username {
-  text-transform: lowercase;
 }
 
 .form input:focus {
@@ -322,7 +327,7 @@ html, body {
   transition: opacity 0.5s ease;
 }
 
-.home-wrapper {
+.app-wrapper {
   background-color: var(--clue-yellow);
 }
 
@@ -405,7 +410,7 @@ html, body {
   margin-top: 16px;
 }
 
-.matchlist-wrapper {
+.gamesarea-wrapper {
   width: 80%;
   min-width: 295px;
   height: 100%;
@@ -413,13 +418,145 @@ html, body {
   border-radius: 20px;
   margin-bottom: 36px;
   margin-top: 17px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;  
+  letter-spacing: 0.12rem;
+  color: var(--white);
+  padding-top: 20px;
+  position: relative;  
+}
+
+.search-wrapper {
+  width: calc(85%);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;  
+}
+
+.searchbox {
+  min-width: 80%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 2px solid var(--active-button);
+  margin-right: 12px;
+  padding: 10px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  caret-color: var(--active-button); /* <- cursor glow color */  
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;  
+  color: var(--active-button);
+}
+
+.searchicon {
+  position: absolute;
+  right: 31%;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.searchbox:focus,
+.searchbox:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 2px solid var(--active-button);
+}
+
+.newgame-button {
+  max-width: 38px;
+  max-height: 42px;
+  min-width: 38px;
+  min-height: 42px;  
+  font-size: 2rem;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  letter-spacing: normal;
+  display: flex;
+}
+
+.filtercontrols {
+  width: calc(85% - 20px);
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;  
+}
+
+.matchlisting {
+  width: calc(85% - 22px);
+  display: flex;
+  flex-direction: row;
+  background-color: var(--match-bg);
+  border: 1px solid var(--white);
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: var(--black) 0px 4px 10px 0px;
+}
+
+.selected-game {
+  border: 5px solid var(--clue-yellow);
+  padding: 6px;
+}
+
+.match-username {
+  min-width: 45%;
+}
+
+.match-type {
+  min-width: 35%;
+}
+
+.matcheswrapper {
+  width: 100%;
+  min-width: 295px;
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;  
+  letter-spacing: 0.12rem;
+  color: var(--white);
+  position: relative;    
 }
 
+.match-subtext {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-left: 5px;
+  margin-top: 5px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.75rem;
+  color: var(--white);
+  text-align: center;
+  justify-content: center;
+}
+
+.nogames {
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;
+  color: var(--white);
+  width: calc(85% - 20px);
+  padding-left: 10px;
+  padding-right: 10px;
+
+}
 
 /* Extra small devices (portrait phones, <576px) */
 @media (max-width: 575.98px) {  

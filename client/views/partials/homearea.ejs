@@ -1,8 +1,21 @@
 <div class="screen-text">Available Games</div>
-<div class="matchlist-wrapper">
-    <div class="matchlisting">Test Match 1</div>
+<div class="gamesarea-wrapper" id="gamesareawrapper">
+    <div class="search-wrapper">
+        <input type="search" class="searchbox hide" id="searchbox" maxlength="15"></input>
+        <img class="searchicon hide" src="../../assets/icons/search.png" id="searchicon"></img>        
+        <button class="interactable-button newgame-button" id="newgamebtn">+</button>
+    </div>
+    <div class="filtercontrols hide" id="filtercontrols">
+        <div class="filtertext">Username</div>
+        <div class="filtertext">Type</div>        
+        <div class="filtertext">Plr</div>        
+    </div>
+    <div class="nogames hidden" id="nogames">There are no available games.Try making one by pressing the (+) button above.</div>    
+    <div class="matcheswrapper" id="matcheswrapper"></div>     
+    <div class="match-subtext hide" id="matchsubtext">*Standard(S)/Custom(C)</div>   
 </div>
+
 <div class="button-wrapper">
-    <button class="interactable-button disabled">Play</button>
-    <button class="interactable-button disabled">Match History</button>
+    <button class="interactable-button disabled" id="joinbtn">Join</button>
+    <button class="interactable-button disabled" id="matchhistbtn">Match History</button>
 </div>

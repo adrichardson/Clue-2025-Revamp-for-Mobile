@@ -1,4 +1,4 @@
-import { Schema, MapSchema } from "@colyseus/schema";
+import { Schema, MapSchema, defineTypes } from "@colyseus/schema";
 import { Player } from "./Player.js";
 
 export class GameState extends Schema {
@@ -7,15 +7,15 @@ export class GameState extends Schema {
     this.players = new MapSchema();
   }
 
-  addPlayer(id) {
-    this.players.set(id, new Player());
+  addPlayer(id, player) {
+    this.players.set(id, player);
   }
 
   removePlayer(id) {
     this.players.delete(id);
-  }
-
-  static $schema = {
-    players: { type: "map", valueType: Player }
-  };
+  }  
 }
+
+defineTypes(GameState, {
+  players: { map: Player },
+});

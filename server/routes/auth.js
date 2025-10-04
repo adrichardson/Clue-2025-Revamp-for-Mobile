@@ -1,7 +1,7 @@
 import express from "express";
-import User from "../config/schemas/User.js";
-import AdminUser from "../config/schemas/AdminUser.js";
-import OnlineUser from "../config/schemas/OnlineUser.js";
+import User from "../db/config/schemas/User.js";
+import AdminUser from "../db/config/schemas/AdminUser.js";
+import OnlineUser from "../db/config/schemas/OnlineUser.js";
 import bcrypt from "bcrypt";
 import { matchMaker } from "colyseus";
 
@@ -46,17 +46,10 @@ router.post("/login", async (req, res) => {
       req.session.user = { username: adminuser.username, isAdmin: true };
       return res.json({ message: "admin login success" });
     } else if (user) {  
-      req.session.user = { username: user.username, isAdmin: false };
-      return res.json({ message: "user login success" });
+      req.session.user = { username: user.username, user_id: user._id, isAdmin: false };
+
+      return res.json({ message: "user login success" });   
     }
-
-    // Mark user online
-    // await OnlineUser.findOneAndUpdate(
-    //   { user: user._id },
-    //   { user: user._id, connectedAt: new Date() },
-    //   { upsert: true, new: true }
-    // );
-
   } catch (err) {
     return res.status(500).json({ errorType: "username", error: err.message });
   }

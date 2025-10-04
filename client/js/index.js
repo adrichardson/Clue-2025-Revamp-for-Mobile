@@ -17,7 +17,6 @@ window.addEventListener("load", () => {
 
 function addEventListenersIndex() {
   const logo = document.getElementById("logo-image");
-  console.log("added event listener for logo");
   if (logo) {
      logo.addEventListener("click", function(e) {
       e.preventDefault();
@@ -66,3 +65,66 @@ function setErrorPosition(field, errorField) {
     }, { once: true }); // run only once for this error    
 }
 
+async function setProfilePicId() {
+    try {
+        const res = await fetch("/api/user/profileImageId", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const data = await res.json();
+
+        var character = "";
+        switch (data.imageId) {
+            case 1:
+                character = "msscarlet";
+                break;
+            case 2:
+                character = "mrspeacock";
+                break;    
+            case 3:
+                character = "mrswhite";
+                break;    
+            case 4:
+                character = "mrgreen";
+                break;                                    
+            case 5:
+                character = "profplum";
+                break;
+            case 6:
+                character = "colmustard";
+                break;                                     
+            default:
+                break;
+        }
+
+        const imgpath = `../../assets/imgs/people/${character}-thumb.png`;
+        document.getElementById('banner-thumb').src = imgpath;
+        document.getElementById('banner-thumb').alt = character;
+        
+    } catch (err) {
+      console.error("Error getting profile data:", err);
+    }
+}
+
+
+async function getUser() {
+  try {
+    const res = await fetch("/api/user", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });  
+
+    const data = await res.json();
+
+    return data.user;
+
+  } catch (err) {
+    console.error("Error getting user data:", err);
+  }    
+}
+
+async function setUsername() {
+    var user = await getUser();
+    document.getElementById('banner-username').innerHTML = user.username;
+}
