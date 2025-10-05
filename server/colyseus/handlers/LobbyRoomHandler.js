@@ -1,22 +1,15 @@
-import { Game } from "../schemas/Game.js";
+import { matchMaker } from "colyseus";
 
 export const lobbyroomHandlers = {
-  newGameCreated: (room, client, message) => {
-    const user = client.user;
-    if (user) {
-        const { username, type, mode, maxplayers, game_id } = message.game;
-
-        console.log(username + " created a new game with id " + game_id);
-        let newgame = new Game(username, type, mode, maxplayers, game_id);
-        room.state.addGame(newgame);
-
-        room.broadcast("gameCreated", { games : room.state.activegames }, { except: client });        
+    gamecreated: (room, client, message) => {
+        room.broadcast("gamecreated", { games : room.state.activegames }, { except: client });
+    },
+    listgames: async (room, client) => {
+        try {
+            const games = await matchMaker.query({ name: "game" });
+            client.send("listgames", games);
+        } catch (err) {
+            console.error("Failed to fetch game list:", err);
+        }
     }
-  },
-  listGames: (room, client) => {
-    const user = client.user;
-    if (user) {
-      client.send("gamelist", {games : room.state.activegames});
-    }
-  }
 };

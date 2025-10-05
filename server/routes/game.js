@@ -1,12 +1,14 @@
 import express from "express";
+import auth from "../middleware/authMiddleware.js";
 import { matchMaker } from "colyseus";
 
 const router = express.Router();
 
-router.post("/createroom", async (req, res) => {
+router.post("/createroom", auth.requireLogin, async (req, res) => {
     const { game, user } = req.body;
+    const options =  { game : game , user: user};
     try {
-        const room = await matchMaker.createRoom("game", { game, user });
+        const room = await matchMaker.createRoom("game", options);
         res.json({ game_id: room.roomId });
     } catch (err) {
         console.error(err);

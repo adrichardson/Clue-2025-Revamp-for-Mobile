@@ -40,14 +40,14 @@ async function setupLobbyHandlers() {
         console.log("welcome message:", message);
       });
 
-      lobby.onMessage("gameCreated", (message) => {
-        console.log("gameCreated message:", message);
-        listGames(message.games);        
+      lobby.onMessage("gamecreated", (message) => {
+        console.log("gamecreated message:", message);
+        listGames(message);        
       });      
 
-      lobby.onMessage("gamelist", (message) => {
-        console.log("gamelist message:", message);
-        listGames(message.games);
+      lobby.onMessage("listgames", (message) => {
+        console.log("listgames message:", message);
+        listGames(message);
       });            
 
       lobby.onMessage("logout", (message) => {
@@ -78,7 +78,7 @@ class ColyseusLobbyService {
       this.client = new Colyseus.Client("ws://192.168.11.2:2567");
     }
     if (!this.lobby) {
-      this.lobby = await this.client.joinOrCreate("lobby", { username: user.username, user_id: user.user_id });
+      this.lobby = await this.client.joinOrCreate("lobby", { username: user.username, user_id: user.user_id });       
       setupLobbyHandlers();
       console.log("Joined lobby!", this.lobby.roomId);  
     }
@@ -112,7 +112,7 @@ class ColyseusLobbyService {
     });
     const { game_id } = await res.json();
     game.game_id = game_id;    
-    this.lobby.send("newGameCreated", { game });
+    this.lobby.send("gamecreated", { game });
     this.disconnect();    
     window.location.href = `/game?id=${game_id}`;    
   }

@@ -8,6 +8,14 @@ export class GameRoom extends Room {
     this.autoDispose = false; // keep game alive
     this.state  = new GameState();
 
+    this.setMetadata({
+        owner: options.game.username,
+        type: options.game.type,
+        mode: options.game.mode,
+        maxplayers: options.game.maxplayers,
+        game_id: this.roomId
+    });  
+
     console.log("GameRoom ("+ this.roomId +") created!");
 
     for (const [msg, handler] of Object.entries(gameroomHandlers)) {

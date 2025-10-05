@@ -55,7 +55,7 @@ async function listGames(gameslist){
     const matchsubtext = document.getElementById("matchsubtext");
     const nogames = document.getElementById("nogames");
 
-    if (Object.keys(gameslist).length === 0) {
+    if (!gameslist || gameslist.length === 0) {
         searchbox.classList.add("hide");
         searchicon.classList.add("hide");        
         filtercontrols.classList.add("hide");
@@ -69,8 +69,8 @@ async function listGames(gameslist){
     matchsubtext.classList.remove("hide");    
     nogames.classList.add("hidden"); 
       
-    Object.values(gameslist).forEach(game => {
-        const { username, type, mode, maxplayers, game_id } = game;
+    gameslist.forEach(game => {
+        const { owner, type, mode, maxplayers, game_id } = game.metadata;
         const matchdiv = document.getElementById("matcheswrapper");
 
         const listing = document.createElement("div");
@@ -91,7 +91,7 @@ async function listGames(gameslist){
 
         const matchusername = document.createElement("div");
         matchusername.classList.add("match-username");
-        matchusername.textContent = username;
+        matchusername.textContent = owner;
 
         const matchtype = document.createElement("div");
         matchtype.classList.add("match-type");
@@ -111,5 +111,5 @@ async function listGames(gameslist){
 async function getAvailableGames() { 
     if(!colyseus) return;
 
-    colyseus.send("listGames");
+    colyseus.send("listgames");
 }
