@@ -1,12 +1,13 @@
 import { Schema, type, defineTypes } from "@colyseus/schema";
 
 class Game extends Schema {
-  constructor(username = "", type = "", mode = "", maxplayers = "", game_id = "") {
+  constructor(username = "", type = "", mode = "", maxplayers = "", password = "", game_id = "") {
     super();
     this.username = username;
     this.type = type;
     this.mode = mode;
     this.maxplayers = maxplayers;
+    this.password = password;
     this.game_id = game_id;
   }
 }

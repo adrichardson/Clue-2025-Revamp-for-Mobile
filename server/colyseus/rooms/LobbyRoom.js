@@ -9,6 +9,8 @@ export class LobbyRoom extends Room {
     this.autoDispose = false; // keep lobby alive
     this.state = new LobbyState();
 
+    global.lobbyRoom = this; 
+
     for (const [msg, handler] of Object.entries(lobbyroomHandlers)) {
       this.onMessage(msg, (client, message) => {
         handler(this, client, message);

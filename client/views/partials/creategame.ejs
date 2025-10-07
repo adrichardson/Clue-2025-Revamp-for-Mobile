@@ -1,0 +1,30 @@
+<div class="newgamehome hidden" id="newgamehome">
+    <div class="screen-text">Setup</div>
+    <div class="gamesarea-wrapper" id="gamesareawrapper">
+        <div class="options-wrapper" id="optionswrapper">
+            <button type="button" class="setupbutton type" id="setupprivatebtn">Private</button>
+            <button type="button" class="setupbutton selected type" id="setuppublicbtn">Public</button>        
+            <button type="button" class="setupbutton mode" id="setupcustombtn">Custom</button>        
+            <button type="button" class="setupbutton selected mode" id="setupstandardbtn">Standard</button>
+        </div>
+        <div class="password-wrapper hide" id="passwordwrapper">
+            <div class="screen-text small">Set Password:</div>
+            <input type="text" id="gamepassword" name="gamepassword" maxlength="20">
+        </div>
+        <div class="slider-wrapper" id="sliderwrapper">
+            <div class="screen-text small">Max Players</div>
+            <div class="slider-labels">
+                <span>3</span>
+                <span>4</span>
+                <span>5</span>
+                <span>6</span>
+            </div>            
+            <input type="range" id="playerslider" min="3" max="6" value="6" />
+        </div>
+    </div>
+
+    <div class="button-wrapper">
+        <button class="interactable-button" id="creategamebtn">Create</button>
+        <button class="interactable-button brown" id="cancelcreategamebtn">Cancel</button>
+    </div>
+</div>

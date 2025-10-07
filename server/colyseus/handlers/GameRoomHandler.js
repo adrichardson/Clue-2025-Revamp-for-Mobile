@@ -1,14 +1,16 @@
 export const gameroomHandlers = {
-    toggleReady: (client, state) => {
-        const player = state.players.get(client.sessionId);
+    toggleready: (room, client, message) => {
+        let user = message.user;
+        const player = room.state.getPlayer(user.user_id);
         if (player) {
-        player.readystate = !player.readystate;
+            player.readystate = !player.readystate;
         }
     },
-    selectCharacter: (client, state, message) => {
-        const player = state.players.get(client.sessionId);
+    selectcharacter: (room, client, message) => {
+        let user = message.user;        
+        const player = room.state.getPlayer(user.user_id);
         if (player) {
-        player.character_id = message.character_id;
+            player.character_id = message.character_id;
         }
     },
     updatemetadata: async (room, client, message) => {
@@ -22,5 +24,6 @@ export const gameroomHandlers = {
         });
 
         console.log(room.metadata);
+        client.send("metadata", this.metadata);           
     },  
 };

@@ -1,7 +1,7 @@
 import { Schema, type, defineTypes } from "@colyseus/schema";
 
 class Player extends Schema {
-  constructor(username = "", user_id = "", character_id = 1, readystate = false) {
+  constructor(username = "", user_id = "", character_id = 0, readystate = false) {
     super();
     this.username = username;
     this.user_id = user_id;

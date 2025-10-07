@@ -1,8 +1,9 @@
 import { matchMaker } from "colyseus";
 
 export const lobbyroomHandlers = {
-    gamecreated: (room, client, message) => {
-        room.broadcast("gamecreated", { games : room.state.activegames }, { except: client });
+    gamecreated: async (room, client, message) => {
+        const games = await matchMaker.query({ name: "game" });        
+        room.broadcast("gamecreated", games, { except: client });
     },
     listgames: async (room, client) => {
         try {

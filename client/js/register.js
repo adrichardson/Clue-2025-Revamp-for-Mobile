@@ -12,26 +12,24 @@ function addEventListeners() {
 
   container.addEventListener("click", function(e) {
     if (e.target.tagName.toLowerCase() === "img") {
-      const allImages = container.querySelectorAll(".profile-pic-image");
+      const allImages = container.querySelectorAll(".fleximage");
+      const currentimage = e.target;
 
       // If clicked image is already selected, deselect it
-      if (e.target.src.includes("-thumb-selected.png")) {
-        e.target.src = e.target.src.replace("-thumb-selected.png", "-thumb.png");
+      if (currentimage.classList.contains("selected")) {
         e.target.classList.remove("selected");
       } else {
         // reset all to unselected
         allImages.forEach(img => {
-          img.src = img.src.replace("-thumb-selected.png", "-thumb.png");
           img.classList.remove("selected");
         });
-        // select the clicked one
-        e.target.src = e.target.src.replace("-thumb.png", "-thumb-selected.png");
+        updateSelectedImageColor(currentimage.id);
         e.target.classList.add("selected");
       }
 
       // check if any image is selected
       const anySelected = Array.from(allImages).some(img =>
-        img.src.includes("-thumb-selected.png")
+        img.classList.contains("selected")
       );
 
       if (anySelected) {
@@ -49,12 +47,12 @@ function getProfilePicId() {
   const selectedImg = document.querySelector(".profile-pic-image.selected");
   if (!selectedImg) return null;
   switch (selectedImg.alt) {
-    case "Miss Scarlet": return 1;
-    case "Mrs. Peacock": return 2;
-    case "Mrs. White": return 3;
-    case "Mr. Green": return 4;
-    case "Professor Plum": return 5;
-    case "Colonel Mustard": return 6;
+    case "Miss Scarlet": return 0;
+    case "Mrs. Peacock": return 1;
+    case "Mrs. White": return 2;
+    case "Mr. Green": return 3;
+    case "Professor Plum": return 4;
+    case "Colonel Mustard": return 5;
     default: return null;
   }
 }

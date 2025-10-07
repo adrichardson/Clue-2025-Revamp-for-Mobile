@@ -5,10 +5,9 @@ import { matchMaker } from "colyseus";
 const router = express.Router();
 
 router.post("/createroom", auth.requireLogin, async (req, res) => {
-    const { game, user } = req.body;
-    const options =  { game : game , user: user};
+    const { game } = req.body;
     try {
-        const room = await matchMaker.createRoom("game", options);
+        const room = await matchMaker.createRoom("game", game);
         res.json({ game_id: room.roomId });
     } catch (err) {
         console.error(err);

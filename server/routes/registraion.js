@@ -101,7 +101,7 @@ router.post("/step3", async (req, res) => {
   }
 
 
-  if (!profile_pic_id || isNaN(profile_pic_id) || profile_pic_id < 1 || profile_pic_id > 6) {
+  if (!profile_pic_id || isNaN(profile_pic_id) || profile_pic_id < 0 || profile_pic_id > 5) {
     return res.status(400).json({ errorType: "profile-pic-grid", error: "Unable to select a valid profile picture, please try again." });
   }
 
@@ -115,13 +115,13 @@ router.post("/step3", async (req, res) => {
     const profilePic = new ProfilePicture({ userId: user._id, imageId: profile_pic_id });
     await profilePic.save();
 
+    req.session.user = { username: user.username, user_id: user._id, isAdmin: false };
+
     // Clear session after registration
     req.session.email = null;
     req.session.username = null;   
     req.session.password = null;
     req.session.profile_pic_id = null;
-
-    req.session.user = { username: username, isAdmin: false };
 
     res.status(201).json({
       success: true,

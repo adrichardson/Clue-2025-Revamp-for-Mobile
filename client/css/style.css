@@ -19,7 +19,7 @@
   --mrswhite: #808080;
   --mrspeacock: #6CA5B9;
   --match-bg: #6CA5B9;
-
+  --selected-image: #DF4531;
 }
 
 /* Override Chrome autofill styles */
@@ -90,7 +90,6 @@ html, body {
   position: fixed;
   top: 0; left: 0;
   width: 100%;
-  /* height: 100dvh; */
   height: var(--app-height);
   background: var(--clue-brown);
   color: var(--white);
@@ -138,6 +137,16 @@ html, body {
   text-align: center;
 }
 
+.button-wrapper {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;  
+  gap: 20px;
+  margin-bottom: 10%;
+}
+
 /* Logo styling */
 .logo-image {
     width: 80%;
@@ -176,8 +185,6 @@ html, body {
 
 .interactable-button {
     width: 100%;
-    min-width: 295px;
-    min-height: 58px;
     font-family: "Futura-Demi", sans-serif;
     font-size: 2rem;
     background-color: var(--active-button);
@@ -187,6 +194,7 @@ html, body {
     cursor: pointer;
     box-shadow: #333333 0px 4px 10px 0px;
     letter-spacing: 0.2rem;
+    padding: 5px;
 }
 
 
@@ -201,17 +209,6 @@ html, body {
     border: 1px solid var(--disabled-button-txt);
 }
 
-.button-wrapper {
-  width: 80%;
-  min-width: 295px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;  
-  gap: 20px;
-  margin-bottom: 10%;
-}
-
 .form {
   width: 100%;
   height: 100%;
@@ -224,9 +221,7 @@ html, body {
   font-family: "Futura-Book", sans-serif;
   color: var(--white);
   background-color: var(--clue-yellow);
-  width: calc(80% - 11px);
-  min-width: 285px;
-  min-height: 48px;
+  width: calc(100% - 14px);
   font-size: 2rem;
   border: 2px solid var(--white);
   border-radius: 8px;
@@ -244,46 +239,23 @@ html, body {
     font-family: "Futura-Book", sans-serif;
     color: var(--white);
     font-size: 1rem;
-    width: calc(80% - 11px);
-    min-width: 300px;
+    width: 100%;
     text-align: left;
     margin-bottom: 0px;
 }
 
 /* Profile picture selection */
 .profile-pic-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* fixed column width */
   width: 100%;
-  margin: 10% 0;
-  justify-items: center; /* centers images in each column */
-  align-items: center;   /* vertically centers them */  
+  margin-bottom: 10%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
 } 
 
-.profile-pic-option {
-  cursor: pointer;
-  object-fit: cover; /* crop if necessary */
-  display: flex;    /* removes inline spacing issues */
-  margin: 0 auto;    /* center horizontally inside grid cell */ 
-  aspect-ratio: 1 / 1; /* keep square */
-  width: 100%; 
-  height: 100%;
-  max-width: 120px;
-  max-height: 120px;
-  overflow: hidden;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile-pic-option img{
-  width: 80%;
-  height: 80%;
-  overflow: visible;
-}
-
-.profile-pic-option img.selected {
-  transform: scale(1.25);
-  overflow: visible;
+.profile-pic-grid > .character-pic-option img {
+  border-color: var(--clue-brown);
 }
 
 /* Hidden by default */
@@ -409,6 +381,16 @@ html, body {
   margin-bottom: auto;
   margin-top: 16px;
 }
+.screen-text.small{
+  font-size: 1rem;
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+.screen-text.lobbytitle {
+  letter-spacing: 0.05rem;
+  text-align: center;
+}
 
 .gamesarea-wrapper {
   width: 80%;
@@ -416,7 +398,7 @@ html, body {
   height: 100%;
   background-color: var(--clue-brown);
   border-radius: 20px;
-  margin-bottom: 36px;
+  margin-bottom: 20px;
   margin-top: 17px;
   display: flex;
   flex-direction: column;
@@ -483,6 +465,18 @@ html, body {
   display: flex;
 }
 
+.options-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  max-width: calc(80% + 40px);
+  min-width: 80%;
+}
+
 .filtercontrols {
   width: calc(85% - 20px);
   padding-left: 10px;
@@ -532,7 +526,134 @@ html, body {
   font-size: 0.9rem;  
   letter-spacing: 0.12rem;
   color: var(--white);
-  position: relative;    
+  position: relative; 
+}
+
+.newgamehome {
+  width: 100%;
+  min-width: 295px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;  
+  letter-spacing: 0.12rem;
+  color: var(--white);
+  position: relative;  
+}
+
+.setupbutton {
+  min-width: 114px;
+  min-height: 46px;
+  background-color: var(--white);
+  border-radius: 5px;
+  color: var(--active-button);
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 1.25rem;
+  border: 1px solid var(--active-button);
+}
+
+.setupbutton.selected{
+  background-color: var(--active-button);  
+  color: var(--white);
+  border: 1px solid var(--white);  
+}
+
+.password-wrapper input {
+  font-family: "Futura-Book", sans-serif;
+  color: var(--white);
+  background-color: var(--clue-yellow);
+  font-size: 1.5rem;
+  border: 2px solid var(--white);
+  border-radius: 8px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.password-wrapper input:focus {
+  outline: none;
+  border: 2px solid var(--white); /* keep your white border */
+}
+
+.newgamehome.hidden {
+  display: none;
+}
+
+.slider-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 80%;
+  max-width: calc(80% + 40px);
+  margin-bottom: 20px;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+
+#playerslider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 11px;
+  border-radius: 20px;
+  background: var(--disabled-button-bg); /* gray base */
+  outline: none;
+}
+
+#playerslider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 26px;
+  width: 9px;
+  border-radius: 10px;
+  background: var(--active-button);
+  cursor: pointer;
+}
+
+#playerslider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--active-button);
+  cursor: pointer;
+}
+
+/* Thumb on active drag */
+#playerslider:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.matchlisthome {
+  width: 100%;
+  min-width: 295px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  font-family: "Futura-Pt-Medium", sans-serif;
+  font-size: 0.9rem;  
+  letter-spacing: 0.12rem;
+  color: var(--white);
+  position: relative; 
+}
+
+.matchlisthome.hidden {
+  display: none;
 }
 
 .match-subtext {
@@ -555,7 +676,86 @@ html, body {
   width: calc(85% - 20px);
   padding-left: 10px;
   padding-right: 10px;
+}
 
+.gamelobby {
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.characteroption {
+  display: flex;
+  background-color: var(--clue-brown);
+  color: var(--white);
+  border: 1px solid var(--white);
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  font-family: "Futura-Pt-Medium", sans-serif;  
+  font-size: 0.8rem;
+  letter-spacing: 0.08rem;
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;  
+  margin-bottom: 10px;  
+}
+
+.characteroption.selected {
+  background-color: var(--selected-image);
+}
+
+.character-pic-option {
+  cursor: pointer;
+  object-fit: cover;
+  display: flex;
+  flex-direction: column;  
+  aspect-ratio: 1 / 1;
+  align-items: center;
+}
+
+.character-pic-option img{
+  border: 10px solid var(--clue-yellow);  
+  border-radius: 50%;
+  box-shadow: 2px 2px 10px var(--black);
+  margin-bottom: 10px;
+}
+
+.character-pic-option img:not(.selected){
+    box-shadow: none;
+}
+
+.character-pic-option img.selected {
+  border: 10px solid var(--selected-image);
+  border-radius: 50%;
+  overflow: visible;
+}
+
+.fleximage {
+  width: 70%;
+}
+
+.characterinfo-wrapper {
+  display: flex;
+  width: calc(80% - 10px);
+  background-color: var(--selected-image);
+  color: var(--white);
+  font-family: "Futura-Pt-Medium", sans-serif;  
+  font-size: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  padding: 5px;
+}
+
+.characterinfo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Extra small devices (portrait phones, <576px) */
@@ -585,7 +785,10 @@ html, body {
   .version-text {
       margin-left: 70%;
       margin-top: -15%;
-  }   
+  }
+  .options-wrapper {
+    max-width: 50%;
+  }  
 }
 
 /* Medium devices (tablets, ≥768px) */
@@ -600,4 +803,7 @@ html, body {
   .logo-image {
     width: 100%;
   }
+  .options-wrapper {
+    max-width: 50%;
+  }  
 }

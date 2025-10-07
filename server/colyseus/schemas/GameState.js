@@ -13,7 +13,15 @@ export class GameState extends Schema {
 
   removePlayer(id) {
     this.players.delete(id);
-  }  
+  }
+
+  getPlayer(id) {
+    return this.players.get(id);
+  }
+
+  getCurrentPlayers() {
+    return this.players.size;
+  }
 }
 
 defineTypes(GameState, {

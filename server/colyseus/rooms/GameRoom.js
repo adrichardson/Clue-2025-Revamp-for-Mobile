@@ -4,15 +4,16 @@ import { gameroomHandlers } from "../handlers/GameRoomHandler.js";
 import { Player } from "../schemas/Player.js";
 
 export class GameRoom extends Room {
-  onCreate(options) {
-    this.autoDispose = false; // keep game alive
+  onCreate(game) {
+    this.autoDispose = false;
     this.state  = new GameState();
 
     this.setMetadata({
-        owner: options.game.username,
-        type: options.game.type,
-        mode: options.game.mode,
-        maxplayers: options.game.maxplayers,
+        owner: game.owner,
+        type: game.type,
+        mode: game.mode,
+        maxplayers: game.maxplayers,
+        password: game.password,
         game_id: this.roomId
     });  
 
@@ -20,9 +21,9 @@ export class GameRoom extends Room {
 
     for (const [msg, handler] of Object.entries(gameroomHandlers)) {
       this.onMessage(msg, (client, message) => {
-        handler(client, this.state, message);
+        handler(this, client, message);
       });
-    }
+    }  
   }
 
   onJoin(client, options) {
@@ -34,15 +35,23 @@ export class GameRoom extends Room {
       let player = new Player(username, user_id);
       this.state.addPlayer(user_id, player);
       client.player = player;
-      this.broadcast("userJoined", { username }, { except: client });
-      console.log("player " + username + " joined game room: " + this.roomId);          
+
+      console.log("player " + username + " joined game room: " + this.roomId);       
+      client.send("metadata", this.metadata);
+
     } catch (err) {
       console.error("Error in onJoin:", err);
     }
   }
 
-  onLeave(client) {
-    let player = client.player;
+  async onLeave(client) {
+    let player = this.state.getPlayer(client.player.user_id);
     console.log(player.username + " disconnected from game room: " + this.roomId);
+    this.state.removePlayer(client.player.user_id);
+    if (client.player.username == this.metadata.owner){
+      console.log("Owner left. Shutting down room:", this.roomId); 
+      this.disconnect();
+      global.lobbyRoom.broadcast("listgames");           
+    }
   }
 }

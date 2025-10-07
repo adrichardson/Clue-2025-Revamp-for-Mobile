@@ -4,6 +4,7 @@ window.addEventListener("load", () => {
   setUsername();
   joinMainLobby();
   getAvailableGames();
+  updateSliderFill();
 });
 
 function addEventListeners() {
@@ -39,14 +40,69 @@ function addEventListeners() {
     const newgamebtn = document.getElementById("newgamebtn");
     newgamebtn.addEventListener("click", async function(e){
         e.preventDefault();
-        if (!colyseus) return;
-        var user = await getUser();
-        let username = user.username;
-        let game = {username : username, type : `public`, mode : `standard`, maxplayers : 6, game_id : `${username}001`};
-        //TODO - add settings for type/mode/max users
-        colyseus.createnewgame(game, user);    
+        document.getElementById("matchlisthome").classList.add("hidden");        
+        document.getElementById("newgamehome").classList.remove("hidden");
+
     });
+
+    const cancelcreategamebtn = document.getElementById("cancelcreategamebtn");
+    cancelcreategamebtn.addEventListener("click", async function(e){
+        e.preventDefault();
+        document.getElementById("matchlisthome").classList.remove("hidden");        
+        document.getElementById("newgamehome").classList.add("hidden");
+
+    });    
+
+    const creategamebtn = document.getElementById("creategamebtn");
+    creategamebtn.addEventListener("click", async function(e){
+        e.preventDefault();
+        if (!colyseus) return;        
+        var user = await getUser();
+        let owner = user.username;
+        let type = document.getElementsByClassName("type selected")[0].innerText;
+        let mode = document.getElementsByClassName("mode selected")[0].innerText;        
+        let maxplayers = document.getElementById("playerslider").value;        
+        let password = document.getElementById("gamepassword").value;    
+        let game = {owner, type, mode, password, maxplayers };
+
+        colyseus.creategame(game);     
+    });    
+
+    const slider = document.getElementById("playerslider");
+    slider.addEventListener("input", updateSliderFill);
+
+    const groups = ["type", "mode"];
+    const passwordWrapper = document.getElementById("passwordwrapper");
+    groups.forEach(group => {
+        const buttons = document.querySelectorAll(`.${group}`);
+
+        buttons.forEach(button => {
+        button.addEventListener("click", () => {
+            buttons.forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+            // Special logic for type buttons (private/public)
+            if (group === "type") {
+            if (button.id === "setupprivatebtn") {
+                passwordWrapper.classList.remove("hide");
+            } else if (button.id === "setuppublicbtn") {
+                passwordWrapper.classList.add("hide");
+            }
+            }            
+        });
+        });
+    });    
 }
+
+function updateSliderFill() {
+    const slider = document.getElementById("playerslider");    
+    const percent = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.background = `linear-gradient(
+        to right,
+        var(--active-button) 0% ${percent}%,
+        var(--disabled-button-bg) ${percent}% 100%
+    )`;
+}
+
 
 async function listGames(gameslist){
     const searchbox = document.getElementById("searchbox");
@@ -54,6 +110,10 @@ async function listGames(gameslist){
     const filtercontrols = document.getElementById("filtercontrols");
     const matchsubtext = document.getElementById("matchsubtext");
     const nogames = document.getElementById("nogames");
+    const matcheswrapper = document.getElementById("matcheswrapper");
+    const user = await getUser();
+
+    matcheswrapper.innerHTML = "";
 
     if (!gameslist || gameslist.length === 0) {
         searchbox.classList.add("hide");
@@ -71,6 +131,7 @@ async function listGames(gameslist){
       
     gameslist.forEach(game => {
         const { owner, type, mode, maxplayers, game_id } = game.metadata;
+        if (owner == user.username ) return;
         const matchdiv = document.getElementById("matcheswrapper");
 
         const listing = document.createElement("div");
