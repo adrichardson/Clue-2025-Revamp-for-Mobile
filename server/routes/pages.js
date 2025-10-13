@@ -16,9 +16,9 @@ router.get("/home", auth.requireLogin, (req, res) => {
   res.render("homescreen");
 });
 
-router.get("/game", auth.requireLogin, (req, res) => {
+router.get("/gamelobby", auth.requireLogin, (req, res) => {
   const game_id = req.query.id;  
-  res.render("gamescreen", { game_id });
+  res.render("gamelobby", { game_id });
 });
 
 const allowedPartials = ["homearea", "gamearea", "banner"];

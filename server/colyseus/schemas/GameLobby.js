@@ -1,6 +1,6 @@
 import { Schema, type, defineTypes } from "@colyseus/schema";
 
-class Game extends Schema {
+class GameLobby extends Schema {
   constructor(username = "", type = "", mode = "", maxplayers = "", password = "", game_id = "") {
     super();
     this.username = username;
@@ -13,7 +13,7 @@ class Game extends Schema {
 }
 
 // Define schema fields + types
-defineTypes(Game, {
+defineTypes(GameLobby, {
     username: "string",
     type: "string",
     mode: "string",
@@ -21,6 +21,6 @@ defineTypes(Game, {
     game_id: "string"
 });
 
-export { Game };
+export { GameLobby };
 
 //this.state.addUser(client.sessionId, new Player("Alice", "u123", "char01", false));

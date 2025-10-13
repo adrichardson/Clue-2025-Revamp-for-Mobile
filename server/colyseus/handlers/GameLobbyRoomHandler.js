@@ -1,4 +1,4 @@
-export const gameroomHandlers = {
+export const GameLobbyRoomHandlers = {
     toggleready: (room, client, message) => {
         let user = message.user;
         const player = room.state.getPlayer(user.user_id);
@@ -25,5 +25,5 @@ export const gameroomHandlers = {
 
         console.log(room.metadata);
         client.send("metadata", this.metadata);           
-    },  
+    }
 };

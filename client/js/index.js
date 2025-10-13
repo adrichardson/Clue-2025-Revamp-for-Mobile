@@ -191,5 +191,4 @@ function updateSelectedImageTag(imageid , tag) {
   } else {
     tag.removeAttribute('style'); 
   }
-
 }

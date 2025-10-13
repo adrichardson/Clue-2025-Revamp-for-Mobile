@@ -1,7 +1,7 @@
 import { Schema, type, defineTypes } from "@colyseus/schema";
 
 class Player extends Schema {
-  constructor(username = "", user_id = "", character_id = 0, readystate = false) {
+  constructor(username = "", user_id = "", character_id = "", readystate = false) {
     super();
     this.username = username;
     this.user_id = user_id;
@@ -10,7 +10,6 @@ class Player extends Schema {
   }
 }
 
-// Define schema fields + types
 defineTypes(Player, {
   username: "string",
   user_id: "string",
@@ -19,5 +18,3 @@ defineTypes(Player, {
 });
 
 export { Player };
-
-//this.state.addUser(client.sessionId, new Player("Alice", "u123", "char01", false));

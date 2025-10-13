@@ -1,7 +1,3 @@
-/* Basic utilities */
-.hidden { display: none; }
-.hide {visibility: hidden; }
-
 * { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;} /* remove top/left whitespace */
 
 :root {
@@ -20,6 +16,9 @@
   --mrspeacock: #6CA5B9;
   --match-bg: #6CA5B9;
   --selected-image: #DF4531;
+  --chatbox: #0B5077;
+  --error-message: #f44336;
+  --chatuser: #DF4531;
 }
 
 /* Override Chrome autofill styles */
@@ -263,7 +262,7 @@ html, body {
   font-family: "Futura-Book", sans-serif;
   display: block;
   position: absolute;
-  background: #f44336; /* red background */
+  background: var(--error-message); /* red background */
   color: #fff;
   padding: 0.6rem 1rem;
   border-radius: 8px;
@@ -288,7 +287,7 @@ html, body {
   border-style: solid;
   /* Adjust these values to control arrow size and direction */
   border-width: 15px 15px 0 15px; /* Top, Right, Bottom, Left */
-  border-color: #f44336 transparent transparent transparent; /* Match background color for the visible part */
+  border-color: var(--error-message) transparent transparent transparent; /* Match background color for the visible part */
   bottom: -14px; /* Position the arrow below the bubble */
   left: 20px; /* Adjust for horizontal positioning */
 }
@@ -305,7 +304,7 @@ html, body {
 
 .banner {
   width: 100%;
-  height: 15%;
+  height: 10%;
   margin: 0 auto;  
   background-color: var(--clue-brown);
   display: flex;
@@ -578,10 +577,6 @@ html, body {
   border: 2px solid var(--white); /* keep your white border */
 }
 
-.newgamehome.hidden {
-  display: none;
-}
-
 .slider-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -714,6 +709,7 @@ html, body {
   flex-direction: column;  
   aspect-ratio: 1 / 1;
   align-items: center;
+  width: 30%;  
 }
 
 .character-pic-option img{
@@ -737,6 +733,10 @@ html, body {
   width: 70%;
 }
 
+.grayscale {
+   filter: grayscale(1);
+}
+
 .characterinfo-wrapper {
   display: flex;
   width: calc(80% - 10px);
@@ -758,8 +758,184 @@ html, body {
   align-items: center;
 }
 
-/* Extra small devices (portrait phones, <576px) */
-@media (max-width: 575.98px) {  
+.chatbox {
+  position: absolute;
+  top: 11%;
+  right: 0;
+  background-color: var(--chatbox);
+  width: 20%;
+  height: 8%;
+  font-family: "Futura-Pt-Medium", sans-serif;    
+  color: var(--white);
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 10px 0 0 10px;
+  border-bottom: 2px solid var(--white);
+  border-top: 2px solid var(--white);  
+  border-left: 2px solid var(--white);  
+}
+
+/* Floating bubble */
+.chat-notification {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    /* transform: translateX(-50%); */
+    background-color: var(--error-message);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transform: rotate(338deg);
+    animation: pop 0.3s ease-out;    
+}
+
+/* POP ANIMATION */
+@keyframes pop {
+  0% { transform: rotate(338deg) scale(0.5); opacity: 0; }
+  60% { transform: rotate(338deg) scale(1.2); opacity: 1; }
+  100% { transform: rotate(338deg) scale(1); opacity: 1; }
+}
+
+/* Triangle tail */
+.chat-notification::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: var(--error-message) transparent transparent transparent;
+}
+
+.chat-modal {
+  width: 90%;
+  height: 55%;
+  position: absolute;
+  top: 20%;
+  border: 8px solid var(--chatbox);
+  border-radius: 10px;
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  transform-origin: top right; /* Match where your chatbox lives */
+  transform: scale(0);         /* Hidden by default */
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.chat-modal.open {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.chat-close {
+  position: absolute;
+  top: -8px;
+  left: -7px;
+  width: 45px;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  padding: 2px;
+  display: flex;
+  justify-content: center;  
+  background-color: var(--chatbox);
+  border: none;
+  cursor: pointer;
+  color: var(--white);
+  z-index: 2;
+}
+
+.closebuttonicon {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1/1;
+}
+
+.chattitle {
+  font-family: "Futura-Pt-Medium", sans-serif;    
+  color: var(--chatbox);
+  font-size: 1.2rem;
+  position: absolute;
+  top: 2%;
+}
+
+.chatfeed {
+  font-family: "Futura-Pt-Medium", sans-serif; 
+  font-size: 1.2rem;
+  color: var(--black);
+  height: 80%;
+  width: 90%;
+  padding: 20px;
+  margin-top: 10%;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;  
+}
+
+.chatmessage {
+  display: block;
+}
+
+.chatusername {
+  color: var(--chatuser);
+}
+
+.sendarea {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 90%;
+  padding: 10px;  
+}
+
+.chatsendbox {
+  width: 80%;
+  font-family: "Futura-Pt-Medium", sans-serif; 
+  font-size: 1.2rem;
+  padding: 5px;
+  border: 2px solid var(--chatbox);
+  border-radius: 8px;
+  background-color: var(--white);  
+}
+
+.chatsendbox:focus {
+  outline: none;
+  border: 2px solid var(--chatbox);
+}
+
+
+.send-button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--chatbox);
+  border-radius: 10px;
+  background-color: var(--white);
+}
+
+/* Triangle tail */
+.send-button::after {
+  content: "";
+  position: absolute;
+  right: 25px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 20px solid var(--chatbox); /* the triangle points right */
+}
+
+
+/* Styles for small mobile devices */
+@media only screen and (max-width: 320px) {
   .logo-image {
     width: 65%;
   }
@@ -771,39 +947,44 @@ html, body {
       margin-left: 66%;
       margin-top: -15%;
   }
+  
 }
 
-/* Small devices (landscape phones, ≥576px) */
-@media (min-width: 576px) and (max-width: 767.98px) {  
+/* Styles for most smartphones */
+@media only screen and (max-width: 480px) {
+}
+
+/* Styles for larger phones and portrait tablets */
+@media only screen and (min-width: 481px) and (max-width: 767px) {
   .logo-image {
-    width: 65%;
-  }
-  .logo-subtext {
-      font-size: 1.125rem;
-      margin-top: 10%;
-  }
-  .version-text {
-      margin-left: 70%;
-      margin-top: -15%;
-  }
-  .options-wrapper {
-    max-width: 50%;
+    width: 100%;
   }  
 }
 
-/* Medium devices (tablets, ≥768px) */
-@media (min-width: 768px) and (max-width: 991.98px) {  
-  .logo-image {
-    width: 100%;
-  }
-}
-
-/* Large devices (desktops, ≥992px) */
-@media (min-width: 992px) and (max-width: 1199.98px) {  
+ /* Styles for landscape tablets */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .logo-image {
     width: 100%;
   }
   .options-wrapper {
     max-width: 50%;
-  }  
+  }
+  .gamelobby {
+    width: 90%;
+  }    
 }
+
+ /* Styles for large screens and desktops */
+@media only screen and (min-width: 992px) {
+
+  .logo-image {
+    width: 100%;
+  }
+  .options-wrapper {
+    max-width: 50%;
+  }    
+}  
+
+/* Basic utilities -KEEP AT BOTTOM- */
+.hidden { display: none; }
+.hide {visibility: hidden; }

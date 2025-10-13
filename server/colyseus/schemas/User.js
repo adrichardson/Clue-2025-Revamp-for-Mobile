@@ -8,12 +8,9 @@ class User extends Schema {
   }
 }
 
-// Define schema fields + types
 defineTypes(User, {
   username: "string",
   user_id: "string",
 });
 
 export { User };
-
-//this.state.addUser(client.sessionId, new User("Alice", "u123", "char01", false));

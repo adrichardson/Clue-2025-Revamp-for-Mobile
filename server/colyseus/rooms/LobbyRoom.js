@@ -2,7 +2,7 @@
 import { Room } from "colyseus";
 import { LobbyState } from "../schemas/LobbyState.js";
 import { User } from "../schemas/User.js";
-import { lobbyroomHandlers } from "../handlers/LobbyRoomHandler.js";
+import { LobbyRoomHandlers } from "../handlers/LobbyRoomHandler.js";
 
 export class LobbyRoom extends Room {
   onCreate(options) {
@@ -11,7 +11,7 @@ export class LobbyRoom extends Room {
 
     global.lobbyRoom = this; 
 
-    for (const [msg, handler] of Object.entries(lobbyroomHandlers)) {
+    for (const [msg, handler] of Object.entries(LobbyRoomHandlers)) {
       this.onMessage(msg, (client, message) => {
         handler(this, client, message);
       });

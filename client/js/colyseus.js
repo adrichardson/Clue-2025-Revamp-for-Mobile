@@ -14,10 +14,10 @@ async function joinMainLobby() {
 
 async function joinGameLobby(game_id) {
   try {
-    colyseus = new ColyseusGameService();
+    colyseus = new ColyseusGameLobbyService();
     var user = await getUser();
-    await colyseus.connect(user, game_id);  
-    setupGameHandlers();
+    await colyseus.connect(user, game_id);
+    setGameLobbyCallbacks();
   } catch (e) {
     console.error("Failed to join game lobby:", e);
     //TODO: add popup with confirm stating lobby has shutdown
@@ -42,7 +42,8 @@ async function setupLobbyHandlers() {
         console.log("welcome message:", message);
       });
 
-      lobby.onMessage("gamecreated", (message) => {
+      lobby.onMessage("gamelobbycreated", (message) => {
+        console.log("gamelobbycreated message:", message);
         listGames(message);        
       });      
 
@@ -56,48 +57,52 @@ async function setupLobbyHandlers() {
     }
 }
 
-function setMetadata(game) {
-    const players = game.state.players;        
-    game.metadata = data;
-    game.metadata.currentplayers = players.size;
-    setLobbyTitle(data);    
+async function setGameLobbyCallbacks(){
+    if(!colyseus) {
+    return;
+  } else {
+    const user = await getUser();      
+    const gamelobby = colyseus.gamelobbyroom;
+    const $ = Colyseus.getStateCallbacks(gamelobby); 
+    // Listen to 'player' instance additions
+    $(gamelobby.state).players.onAdd((player, sessionId) => {
+        console.log('Player joined:', player);
+        // Listening for any change on the player instance
+        // $(player).onChange(() => {
+        //     console.log('Player changed:', player);
+        // });   
+        $(player).listen("readystate", (readystate) => {
+          if(user.username == player.username) return;
+            console.log('Player readychange:', readystate);
+        });
+        $(player).listen("character_id", (character_id) => {         
+            updateLobbyCharacters(player.username, character_id);
+        });          
+        if(gamelobby.metadata){
+          const players = gamelobby.state.players;        
+          gamelobby.metadata.currentplayers = players.size;
+          console.log("setting lobby title");
+          setLobbyTitle(gamelobby.metadata);
+        }
+    });      
+    $(gamelobby.state).players.onRemove((player, sessionId) => {
+        if(user.username == player.username) return;        
+        console.log('Player left:', player);
+        clearUserCharacter(player.username);       
+        if(gamelobby.metadata){
+          const players = gamelobby.state.players;        
+          gamelobby.metadata.currentplayers = players.size;            
+          setLobbyTitle(gamelobby.metadata);    
+        }          
+    });
+  }
 }
 
-async function setupGameHandlers() {
+async function setupGameLobbyHandlers() {
     if(!colyseus) {
       return;
     } else {
-      const game = colyseus.gameroom;
-      const $ = Colyseus.getStateCallbacks(game);
-      // Listen to 'player' instance additions
-      $(game.state).players.onAdd((player, sessionId) => {
-          console.log('Player joined:', player);
-          // Listening for any change on the player instance
-          // $(player).onChange(() => {
-          //     console.log('Player changed:', player);
-          // });   
-          $(player).listen("readystate", (readystate) => {
-              console.log('Player readychange:', readystate);
-          });
-          $(player).listen("character_id", (character_id) => {
-              console.log(`${player.username} has chosen ${character_id}`);
-              updateLobbyCharacters(player.username, character_id);
-          });          
-          if(game.metadata){
-            const players = game.state.players;        
-            game.metadata.currentplayers = players.size;            
-            setLobbyTitle(game.metadata);    
-          }
-      });      
-      $(game.state).players.onRemove((player, sessionId) => {
-          console.log('Player left:', player);
-          if(game.metadata){
-            const players = game.state.players;        
-            game.metadata.currentplayers = players.size;            
-            setLobbyTitle(game.metadata);    
-          }          
-      });
-
+      const game = colyseus.gamelobbyroom;
       game.onMessage("metadata", (data) => {
         const players = game.state.players;        
         game.metadata = data;
@@ -105,6 +110,9 @@ async function setupGameHandlers() {
         setLobbyTitle(game.metadata);        
       });
 
+      game.onMessage("disconnected", (data) => {
+        window.history.back();
+      });    
     }
 }
 
@@ -146,46 +154,47 @@ class ColyseusLobbyService {
   }
 
   async creategame(game) {
-    const res = await fetch("/api/game/createroom", {
+    const res = await fetch("/api/gamelobby/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ game })
     });
     const { game_id } = await res.json();
     game.game_id = game_id;    
-    this.lobby.send("gamecreated", { game });
+    this.lobby.send("gamelobbycreated", { game });
     this.disconnect();    
-    window.location.href = `/game?id=${game_id}`;    
+    window.location.href = `/gamelobby?id=${game_id}`;    
   }
 
   async joingamelobby(user, game_id) {
     if(this.client){      
       this.disconnect();      
-      window.location.href = `/game?id=${game_id}`; 
+      window.location.href = `/gamelobby?id=${game_id}`; 
     }
   }  
 }
 
-class ColyseusGameService {
+class ColyseusGameLobbyService {
   constructor() {
     this.client = null;
-    this.gameroom = null;
+    this.gamelobbyroom = null;
   }
 
   async connect(user, game_id) {
     if (!this.client) {
       this.client = new Colyseus.Client("ws://192.168.11.2:2567");
     }
-    if (!this.gameroom) {
-      this.gameroom = await this.client.joinById(game_id, { user });  
-      console.log("Joined lobby!", this.gameroom.roomId);  
+    if (!this.gamelobbyroom) {
+      this.gamelobbyroom = await this.client.joinById(game_id, { user });  
+      setupGameLobbyHandlers();
+      console.log("✅ Joined game lobby:", this.gamelobbyroom.roomId);
     }
     return this;
   }
 
   send(type, data) {
-    if (this.gameroom) {
-      this.gameroom.send(type, data);
+    if (this.gamelobbyroom) {
+      this.gamelobbyroom.send(type, data);
     }
   }
 

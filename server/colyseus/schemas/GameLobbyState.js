@@ -1,7 +1,7 @@
 import { Schema, MapSchema, defineTypes } from "@colyseus/schema";
 import { Player } from "./Player.js";
 
-export class GameState extends Schema {
+export class GameLobbyState extends Schema {
   constructor() {
     super();
     this.players = new MapSchema();
@@ -24,6 +24,6 @@ export class GameState extends Schema {
   }
 }
 
-defineTypes(GameState, {
+defineTypes(GameLobbyState, {
   players: { map: Player },
 });

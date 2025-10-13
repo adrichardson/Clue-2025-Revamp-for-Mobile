@@ -1,34 +1,16 @@
 <div class="screen-text lobbytitle" id="lobbytitle"></div>
-<div class="gamelobby" id="gamelobby">
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/msscarlet-thumb.png" alt="Miss Scarlet" class="fleximage selected" id="misscarlet-thumb">
-        <div class="characteroption selected">You</div>
-    </div>
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/mrspeacock-thumb.png" alt="Mrs. Peacock" class="fleximage" id="mrspeacock-thumb">
-        <div class="characteroption">Select</div>            
-    </div>
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/mrswhite-thumb.png" alt="Mrs. White" class="fleximage" id="mrswhite-thumb">
-        <div class="characteroption">Select</div>            
-    </div>
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/mrgreen-thumb.png" alt="Mr. Green" class="fleximage" id="mrgreen-thumb">
-        <div class="characteroption">Select</div>            
-    </div>
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/profplum-thumb.png" alt="Professor Plum" class="fleximage" id="profplum-thumb">
-        <div class="characteroption">Select</div>            
-    </div>
-    <div class="character-pic-option">
-        <img src="../../assets/imgs/people/colmustard-thumb.png" alt="Colonel Mustard" class="fleximage" id="colmustard-thumb">
-        <div class="characteroption">Select</div>            
-    </div>
+<div class="chatbox" id="chatbox">Chat
+  <div class="chat-notification hidden" id="chatnotification">New</div>    
 </div>
+<div class="gamelobby" id="gamelobby">
+    <%- include("partials/character-pic-option") %> 
+</div>
+    <%- include("partials/chat-modal") %>
 <div class="characterinfo-wrapper" id="characterinfowrapper">
     <div class="characterinfo" id="characterinfo"> Miss Scarlet </div>
 </div>
 <div class="button-wrapper">
-    <button class="interactable-button">Ready</button>
-    <button class="interactable-button brown">Leave</button>
+    <button class="interactable-button" id="readybtn">Ready</button>
+    <button class="interactable-button brown hidden" id="cancelbtn">Cancel</button>    
+    <button class="interactable-button brown" id="leavebtn">Leave</button>
 </div>
