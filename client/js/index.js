@@ -131,7 +131,7 @@ async function setUsername() {
 
 function updateSelectedImageColor(imageid) {
   const rootElement = document.documentElement;
-  let hexcolor = '#FFFFFF';
+  let hexcolor = '#333333';
   switch (imageid) {
     case 'misscarlet-thumb':
       hexcolor =  '#DF4531';
@@ -191,4 +191,32 @@ function updateSelectedImageTag(imageid , tag) {
   } else {
     tag.removeAttribute('style'); 
   }
+}
+
+function getCharacterHexColorById(characterId) {
+    switch (characterId) {
+      case 0:
+        hexcolor =  '#DF4531';
+        break;
+      case 1:
+        hexcolor =  '#6CA5B9';
+        break;      
+      case 2:
+        hexcolor =  '#808080';
+        break;      
+      case 3:
+        hexcolor =  '#599B53';
+        break;      
+      case 4:
+        hexcolor =  '#8F5770';
+        break;      
+      case 5:
+        hexcolor =  '#8C5723';
+        break;
+      default:
+        hexcolor = '#333333';
+        break;
+    }
+
+    return hexcolor;
 }

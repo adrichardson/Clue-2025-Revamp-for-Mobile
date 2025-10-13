@@ -62,18 +62,17 @@ async function setGameLobbyCallbacks(){
     return;
   } else {
     const user = await getUser();      
-    const gamelobby = colyseus.gamelobbyroom;
+    const gamelobby = colyseus.gamelobby;
     const $ = Colyseus.getStateCallbacks(gamelobby); 
     // Listen to 'player' instance additions
     $(gamelobby.state).players.onAdd((player, sessionId) => {
-        console.log('Player joined:', player);
         // Listening for any change on the player instance
         // $(player).onChange(() => {
         //     console.log('Player changed:', player);
         // });   
         $(player).listen("readystate", (readystate) => {
           if(user.username == player.username) return;
-            console.log('Player readychange:', readystate);
+            //console.log('Player readychange:', readystate);
         });
         $(player).listen("character_id", (character_id) => {         
             updateLobbyCharacters(player.username, character_id);
@@ -81,7 +80,6 @@ async function setGameLobbyCallbacks(){
         if(gamelobby.metadata){
           const players = gamelobby.state.players;        
           gamelobby.metadata.currentplayers = players.size;
-          console.log("setting lobby title");
           setLobbyTitle(gamelobby.metadata);
         }
     });      
@@ -102,17 +100,22 @@ async function setupGameLobbyHandlers() {
     if(!colyseus) {
       return;
     } else {
-      const game = colyseus.gamelobbyroom;
-      game.onMessage("metadata", (data) => {
-        const players = game.state.players;        
-        game.metadata = data;
-        game.metadata.currentplayers = players.size;
-        setLobbyTitle(game.metadata);        
+      const gamelobby = colyseus.gamelobby;
+      gamelobby.onMessage("metadata", (data) => {
+        const players = gamelobby.state.players;        
+        gamelobby.metadata = data;
+        gamelobby.metadata.currentplayers = players.size;
+        setLobbyTitle(gamelobby.metadata);        
       });
 
-      game.onMessage("disconnected", (data) => {
+      gamelobby.onMessage("disconnected", (data) => {
         window.history.back();
-      });    
+      });
+
+      gamelobby.onMessage("chatmessage", (data) => {
+        var { message, player } = data;
+        newchatmessage(message, player);
+      });
     }
 }
 
@@ -129,7 +132,6 @@ class ColyseusLobbyService {
     if (!this.lobby) {
       this.lobby = await this.client.join("lobby", { username: user.username, user_id: user.user_id });       
       setupLobbyHandlers();
-      console.log("Joined lobby!");
     }
     return this;
   }
@@ -177,24 +179,24 @@ class ColyseusLobbyService {
 class ColyseusGameLobbyService {
   constructor() {
     this.client = null;
-    this.gamelobbyroom = null;
+    this.gamelobby = null;
   }
 
   async connect(user, game_id) {
     if (!this.client) {
       this.client = new Colyseus.Client("ws://192.168.11.2:2567");
     }
-    if (!this.gamelobbyroom) {
-      this.gamelobbyroom = await this.client.joinById(game_id, { user });  
+    if (!this.gamelobby) {
+      this.gamelobby = await this.client.joinById(game_id, { user });  
       setupGameLobbyHandlers();
-      console.log("✅ Joined game lobby:", this.gamelobbyroom.roomId);
+      console.log("✅ Joined game lobby:", this.gamelobby.roomId);
     }
     return this;
   }
 
   send(type, data) {
-    if (this.gamelobbyroom) {
-      this.gamelobbyroom.send(type, data);
+    if (this.gamelobby) {
+      this.gamelobby.send(type, data);
     }
   }
 

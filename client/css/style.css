@@ -839,10 +839,10 @@ html, body {
 .chat-close {
   position: absolute;
   top: -8px;
-  left: -7px;
+  right: -7px;
   width: 45px;
   aspect-ratio: 1/1;
-  border-radius: 10px;
+  border-radius: 10px 10px 10px 0px;
   padding: 2px;
   display: flex;
   justify-content: center;  
@@ -860,24 +860,43 @@ html, body {
 }
 
 .chattitle {
-  font-family: "Futura-Pt-Medium", sans-serif;    
+  font-family: "Futura-Pt-Medium", sans-serif;
   color: var(--chatbox);
   font-size: 1.2rem;
-  position: absolute;
-  top: 2%;
+  justify-content: center;
+  display: flex
+  ;
+  align-items: center;
+  width: 100%;
+  height: 42px;
 }
 
+.chattitle::after {
+  content: "";
+  position: absolute;
+  top: 35px;
+  width: 100%;
+  border-style: solid;
+  border-width: 0px 0px 2px 0px; /* Top, Right, Bottom, Left */
+  border-color: var(--chatbox); /* Match background color for the visible part */
+}
+
+
 .chatfeed {
-  font-family: "Futura-Pt-Medium", sans-serif; 
+  font-family: "Futura-Pt-Medium", sans-serif;
   font-size: 1.2rem;
   color: var(--black);
   height: 80%;
+  max-height: 80%;
   width: 90%;
-  padding: 20px;
-  margin-top: 10%;
+  padding: 0px 20px;
   gap: 10px;
   display: flex;
-  flex-direction: column;  
+  flex-direction: column;
+  overflow-y: scroll;
+  border-bottom: 2px solid var(--chatbox);
+  padding-bottom: 15px;
+  padding-top: 15px;  
 }
 
 .chatmessage {

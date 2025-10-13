@@ -36,19 +36,24 @@ function addEventListeners() {
         button.addEventListener("click", async function(e) {
             e.preventDefault();
             const newtag = button.querySelector(".characteroption");  
-            if(newtag.innerHTML != 'Select') return;
+            if(newtag.innerHTML != 'Select' && newtag.innerHTML != 'You') return;
+
+            if(newtag.innerHTML === 'You'){
+                var character_id = -1
+            } else {
+                const newimage = button.querySelector("img");
+                var character_id = await getCharacterIdByAltTag(newimage.alt);                           
+            }
 
             const newimage = button.querySelector("img");
             var user = await getUser();
-            var character_id = await getCharacterIdByAltTag(newimage.alt); 
             colyseus.send("selectcharacter", { user : user, character_id : character_id});     
         });
     });
 
     document.getElementById("chatbox").addEventListener("click", async function(e) {
         document.getElementById("chatbox").classList.add("hidden");
-        openChatModal();     
-           
+        openChatModal();
     });
 
     document.getElementById("closechat").addEventListener("click", async function(e) {
@@ -67,11 +72,12 @@ function addEventListeners() {
     });
 }
 
-function sendMessage(){
+async function sendMessage(){
+    var user = await getUser();
     var chatbox = document.getElementById("chatsendbox");
     var message = chatbox.value;
-    console.log(message);
     chatbox.value = "";
+    colyseus.send("chatmessage", { message : message, user : user});
 }
 
 function updateChatNotification(count) {
@@ -89,6 +95,41 @@ function updateChatNotification(count) {
     bubble.classList.add("hidden"); // Hide when no messages
   }
 }
+
+async function newchatmessage(message, player){
+    const chatfeed = document.getElementById("chatfeed");
+
+    var chatmessage = document.createElement("div");
+    chatmessage.classList.add("chat-message");
+
+    var username = document.createElement("span");
+    username.classList.add("chat-username");
+
+    var curruser = await getUser();
+    var charactername = getCharacterAltTagById(player.character_id);
+    if(player.username == curruser.username){
+        username.textContent = `You (${charactername}): `;
+    } else {
+        username.textContent = player.username + ` (${charactername}): `;
+    }
+
+    username.style.color = getCharacterHexColorById(player.character_id);
+
+    var messagetext = document.createElement("span");
+    messagetext.classList.add("chat-messagetext");
+    messagetext.textContent = message;
+
+    chatmessage.appendChild(username);
+    chatmessage.appendChild(messagetext);
+    chatfeed.appendChild(chatmessage);
+    chatfeed.scrollTop = chatfeed.scrollHeight;
+
+    if(!document.getElementById("chatmodal").classList.contains("open")){
+        unreadmessagecount++;
+        updateChatNotification(unreadmessagecount);
+    }
+}
+
 
 function closeChatModal() {
     const modal = document.getElementById("chatmodal");
@@ -130,6 +171,7 @@ function getCharacterIdByAltTag(character){
 
 function getCharacterAltTagById(id){
     let characters = {
+        "Spectator" : -1,
         "Miss Scarlet" : 0, 
         "Mrs. Peacock" : 1,         
         "Mrs. White" : 2,         
@@ -213,18 +255,27 @@ async function updateLobbyCharacters(username, character_id){
 
     clearUserCharacter(username);
 
-    const newimagealt = getCharacterAltTagById(character_id);
-    const newtag = getTagByImageAltTag(newimagealt);
-    const newimage = getImageByAltTag(newimagealt);
-    newtag.innerHTML = username;
-    toggleGrayscale(newimage);
-    updateSelectedImageTag(newimage.id, newtag);
-    if (self){
-        const characterinfo = document.getElementById("characterinfowrapper");        
-        newimage.classList.add("selected");
-        newtag.classList.add("selected");        
-        updateSelectedImageColor(newimage.id);
-        characterinfo.innerHTML = newimage.alt;  
+    if(character_id == -1 && self) {
+        const characterinfo = document.getElementById("characterinfowrapper");             
+        updateSelectedImageColor('spectator');
+        characterinfo.innerHTML = 'Spectator';          
+
+    } else if (character_id== -1) {
+        return;
+    } else {
+        const newimagealt = getCharacterAltTagById(character_id);
+        const newtag = getTagByImageAltTag(newimagealt);
+        const newimage = getImageByAltTag(newimagealt);
+        newtag.innerHTML = username;
+        toggleGrayscale(newimage);
+        updateSelectedImageTag(newimage.id, newtag);
+        if (self){
+            const characterinfo = document.getElementById("characterinfowrapper");        
+            newimage.classList.add("selected");
+            newtag.classList.add("selected");        
+            updateSelectedImageColor(newimage.id);
+            characterinfo.innerHTML = newimage.alt;  
+        }
     }
 }
 

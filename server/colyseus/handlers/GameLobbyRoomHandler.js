@@ -13,6 +13,12 @@ export const GameLobbyRoomHandlers = {
             player.character_id = message.character_id;
         }
     },
+    chatmessage: (room, client, message) => {
+        let user = message.user;
+        let chatmessage = message.message;
+        const player = room.state.getPlayer(user.user_id);        
+        room.broadcast("chatmessage", { message: chatmessage, player : player });
+    },    
     updatemetadata: async (room, client, message) => {
         const value = message.newKey;
 
