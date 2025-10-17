@@ -18,9 +18,7 @@ function addEventListeners() {
                 var user = await getUser();                
                 colyseus.send("toggleready", { user });
                 button.classList.add("hidden");
-                document.getElementById("cancelbtn").classList.remove("hidden");
-                unreadmessagecount++;
-                updateChatNotification(unreadmessagecount)                
+                document.getElementById("cancelbtn").classList.remove("hidden");              
             } else if (button.textContent === "Leave") {
                  window.history.back();
             } else if(button.textContent === "Cancel"){
@@ -96,38 +94,112 @@ function updateChatNotification(count) {
   }
 }
 
-async function newchatmessage(message, player){
+function createChatMessage(usernametext, color, message) {
     const chatfeed = document.getElementById("chatfeed");
 
     var chatmessage = document.createElement("div");
     chatmessage.classList.add("chat-message");
 
-    var username = document.createElement("span");
-    username.classList.add("chat-username");
-
-    var curruser = await getUser();
-    var charactername = getCharacterAltTagById(player.character_id);
-    if(player.username == curruser.username){
-        username.textContent = `You (${charactername}): `;
-    } else {
-        username.textContent = player.username + ` (${charactername}): `;
+    if(usernametext != "") {
+        var username = document.createElement("span");
+        username.classList.add("chat-username");
+        username.textContent = usernametext;
+        username.style.color = color;
+        chatmessage.appendChild(username);        
     }
-
-    username.style.color = getCharacterHexColorById(player.character_id);
 
     var messagetext = document.createElement("span");
     messagetext.classList.add("chat-messagetext");
     messagetext.textContent = message;
 
-    chatmessage.appendChild(username);
+    if(usernametext == "") {
+        messagetext.style.fontStyle = "italic";
+        messagetext.style.color = "#555555";        
+    }
+
     chatmessage.appendChild(messagetext);
     chatfeed.appendChild(chatmessage);
-    chatfeed.scrollTop = chatfeed.scrollHeight;
+    chatfeed.scrollTop = chatfeed.scrollHeight;     
 
     if(!document.getElementById("chatmodal").classList.contains("open")){
         unreadmessagecount++;
         updateChatNotification(unreadmessagecount);
+    } else {
+        unreadmessagecount = 0;
+        updateChatNotification(unreadmessagecount);        
     }
+}
+
+async function newservermessage(messagetype, player){
+    var usernametext = "";
+    var color = '#333333';
+    let message = "";
+
+    if(messagetype == "toggleready"){
+        var username = player.username;
+        var curruser = await getUser();
+        var charactername = getCharacterAltTagById(player.character_id);
+
+        if(username != curruser.username){
+            var readymessage = player.readystate ? `${username} (${charactername}) is ready.` : `${username} (${charactername}) is not ready.`;        
+        } else {
+            var readymessage = player.readystate ? `You (${charactername}) are ready.` : `You (${charactername}) are not ready.`;
+        }
+
+        message = readymessage;
+    } else if (messagetype == "character_id"){
+        var username = player.username;
+        var curruser = await getUser();
+        var charactername = getCharacterAltTagById(player.character_id);
+
+        if(charactername === "Spectator"){
+            if(username != curruser.username){
+                var characterselectmessage = `${username} has selected Spectator mode.`; 
+            } else {
+                var characterselectmessage =  `You have selected Spectator mode.`;
+            }  
+        } else {
+            if(username != curruser.username){
+                var characterselectmessage = `${username} changed their character to ${charactername}.`; 
+            } else {
+                var characterselectmessage =  `You changed your character to ${charactername}.`;
+            }
+        } 
+        message = characterselectmessage;        
+    } 
+    else if (messagetype == "playerjoined"){
+        var username = player.username;
+        var curruser = await getUser();
+        var charactername = getCharacterAltTagById(player.character_id);      
+
+        if(username != curruser.username){
+            var joinmessage = `${username} joined the lobby as ${charactername}.`; 
+        } else {
+            var joinmessage =  `You joined the lobby as ${charactername}.`;
+        }
+        message = joinmessage;
+    }
+    else if (messagetype == "playerleft"){
+        var username = player.username;
+        var leftmessage = `${username} left the lobby.`;
+        message = leftmessage;
+    }    
+
+
+    createChatMessage(usernametext, color, message); 
+}
+
+async function newchatmessage(message, player){
+    var curruser = await getUser();
+    var charactername = getCharacterAltTagById(player.character_id);
+    var usernametext = player.username + ` (${charactername}): `;
+    var color = getCharacterHexColorById(player.character_id);    
+
+    if(player.username == curruser.username){
+        usernametext = `You (${charactername}): `;
+    }
+
+    createChatMessage(usernametext, color, message); 
 }
 
 
@@ -154,7 +226,8 @@ function openChatModal() {
     modal.style.transform = 'scale(1)';
     modal.style.opacity = '1';
     modal.classList.add("open");
-    updateChatNotification(0);
+    unreadmessagecount = 0;
+    updateChatNotification(unreadmessagecount);       
 }
 
 function getCharacterIdByAltTag(character){

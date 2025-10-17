@@ -70,11 +70,16 @@ async function setGameLobbyCallbacks(){
         // $(player).onChange(() => {
         //     console.log('Player changed:', player);
         // });   
-        $(player).listen("readystate", (readystate) => {
-          if(user.username == player.username) return;
-            //console.log('Player readychange:', readystate);
-        });
-        $(player).listen("character_id", (character_id) => {         
+        $(player).listen("readystate", (readystate, previousValue) => {
+            if (previousValue === undefined) return;
+            newservermessage("toggleready", player);
+        });     
+        $(player).listen("character_id", (character_id, previousValue) => {  
+            if (previousValue === undefined) {
+              updateLobbyCharacters(player.username, character_id);
+              return;            
+            }
+            newservermessage("character_id", player);
             updateLobbyCharacters(player.username, character_id);
         });          
         if(gamelobby.metadata){
@@ -91,7 +96,8 @@ async function setGameLobbyCallbacks(){
           const players = gamelobby.state.players;        
           gamelobby.metadata.currentplayers = players.size;            
           setLobbyTitle(gamelobby.metadata);    
-        }          
+        }
+        newservermessage("playerleft", player);        
     });
   }
 }
@@ -116,6 +122,11 @@ async function setupGameLobbyHandlers() {
         var { message, player } = data;
         newchatmessage(message, player);
       });
+
+      gamelobby.onMessage("playerjoined", (data) => {
+        var { player } = data;
+        newservermessage("playerjoined", player);
+      });         
     }
 }
 

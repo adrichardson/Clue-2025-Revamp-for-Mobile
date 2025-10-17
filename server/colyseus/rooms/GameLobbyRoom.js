@@ -49,6 +49,8 @@ export class GameLobbyRoom extends Room {
 
       console.log("player " + username + " joined game room: " + this.roomId);       
       client.send("metadata", this.metadata);
+      this.broadcast("playerjoined", { player : player });    
+      player.user_id = user_id;
 
     } catch (err) {
       console.error("Error in onJoin:", err);

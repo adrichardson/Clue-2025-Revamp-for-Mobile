@@ -5,6 +5,7 @@ export const GameLobbyRoomHandlers = {
         if (player) {
             player.readystate = !player.readystate;
         }
+        //notifcations handled in client state change listener  
     },
     selectcharacter: (room, client, message) => {
         let user = message.user;        
@@ -18,7 +19,7 @@ export const GameLobbyRoomHandlers = {
         let chatmessage = message.message;
         const player = room.state.getPlayer(user.user_id);        
         room.broadcast("chatmessage", { message: chatmessage, player : player });
-    },    
+    },
     updatemetadata: async (room, client, message) => {
         const value = message.newKey;
 
