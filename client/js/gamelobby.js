@@ -42,8 +42,6 @@ function addEventListeners() {
                 const newimage = button.querySelector("img");
                 var character_id = await getCharacterIdByAltTag(newimage.alt);                           
             }
-
-            const newimage = button.querySelector("img");
             var user = await getUser();
             colyseus.send("selectcharacter", { user : user, character_id : character_id});     
         });
@@ -139,11 +137,40 @@ async function newservermessage(messagetype, player){
         var username = player.username;
         var curruser = await getUser();
         var charactername = getCharacterAltTagById(player.character_id);
+        var checkboxColor = getCharacterHexColorById(player.character_id);     
 
         if(username != curruser.username){
-            var readymessage = player.readystate ? `${username} (${charactername}) is ready.` : `${username} (${charactername}) is not ready.`;        
+            var youOption = [...document.querySelectorAll(".character-pic-option")];
+            const selectedElement = youOption.find(el => {
+                const characterText = el.querySelector(".characteroption")?.textContent?.trim();
+                return characterText === username;
+            });
+            var checkbox = selectedElement.querySelector(".checksvg");
+            checkbox.style.setProperty('--checkmark-color', checkboxColor);
+
+            if(player.readystate){
+                var readymessage = `${username} (${charactername}) is ready.`;             
+                checkbox.classList.add("selected");                
+            } else {
+                var readymessage = `${username} (${charactername}) is not ready.`;
+                checkbox.classList.remove("selected");                 
+            }
+            
         } else {
-            var readymessage = player.readystate ? `You (${charactername}) are ready.` : `You (${charactername}) are not ready.`;
+            var youOption = [...document.querySelectorAll(".character-pic-option")];
+            const selectedElement = youOption.find(el => {
+                const characterText = el.querySelector(".characteroption")?.textContent?.trim();
+                return characterText === "You";
+            });
+            var checkbox = selectedElement.querySelector(".checksvg");
+            checkbox.style.setProperty('--checkmark-color', checkboxColor);
+            if(player.readystate){
+                var readymessage = `You (${charactername}) are ready.`;             
+                checkbox.classList.add("selected");                
+            } else {
+                var readymessage = `You (${charactername}) are not ready.`;
+                checkbox.classList.remove("selected");                 
+            }
         }
 
         message = readymessage;
@@ -308,22 +335,26 @@ function clearUserCharacter(username){
     previmage = prevelements.image;
     if (prevtag != null) {
         prevtag.innerHTML = 'Select';
+        prevcheck = prevtag.parentElement.querySelector(".checksvg");        
         updateSelectedImageTag("remove", prevtag);
         toggleGrayscale(previmage);
         if(self){
             prevtag.classList.remove("selected");
             previmage.classList.remove("selected");
+            prevcheck.classList.remove("selected");
         }
     }
 }
 
-async function updateLobbyCharacters(username, character_id){
+async function updateLobbyCharacters(player, character_id){
     let self = false;
 
     let user = await getUser();
-    if(user.username == username) {
+    if(user.username == player.username) {
         self = true;
         username = "You";
+    } else {
+        username = player.username;
     }
 
     clearUserCharacter(username);
@@ -339,15 +370,23 @@ async function updateLobbyCharacters(username, character_id){
         const newimagealt = getCharacterAltTagById(character_id);
         const newtag = getTagByImageAltTag(newimagealt);
         const newimage = getImageByAltTag(newimagealt);
+        const newcheck = newimage.parentElement.querySelector(".checksvg");
+        if(player.readystate){
+            var checkboxColor = getCharacterHexColorById(character_id); 
+            newcheck.style.setProperty('--checkmark-color', checkboxColor);
+            newcheck.classList.add("selected");         
+        } else {
+            newcheck.classList.remove("selected");
+        }
         newtag.innerHTML = username;
         toggleGrayscale(newimage);
         updateSelectedImageTag(newimage.id, newtag);
         if (self){
             const characterinfo = document.getElementById("characterinfowrapper");        
             newimage.classList.add("selected");
-            newtag.classList.add("selected");        
+            newtag.classList.add("selected");              
             updateSelectedImageColor(newimage.id);
-            characterinfo.innerHTML = newimage.alt;  
+            characterinfo.innerHTML = newimage.alt; 
         }
     }
 }

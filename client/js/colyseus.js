@@ -76,11 +76,11 @@ async function setGameLobbyCallbacks(){
         });     
         $(player).listen("character_id", (character_id, previousValue) => {  
             if (previousValue === undefined) {
-              updateLobbyCharacters(player.username, character_id);
+              updateLobbyCharacters(player, character_id);
               return;            
             }
             newservermessage("character_id", player);
-            updateLobbyCharacters(player.username, character_id);
+            updateLobbyCharacters(player, character_id);
         });          
         if(gamelobby.metadata){
           const players = gamelobby.state.players;        

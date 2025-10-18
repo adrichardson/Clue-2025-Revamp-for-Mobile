@@ -705,11 +705,11 @@ html, body {
 .character-pic-option {
   cursor: pointer;
   object-fit: cover;
-  display: flex;
-  flex-direction: column;  
+  display: inline-block;
   aspect-ratio: 1 / 1;
   align-items: center;
-  width: 30%;  
+  width: 30%;
+  position: relative;
 }
 
 .character-pic-option img{
@@ -727,6 +727,36 @@ html, body {
   border: 10px solid var(--selected-image);
   border-radius: 50%;
   overflow: visible;
+}
+
+.checkmark {
+    --checkmark-color: white;  
+    content: "\2714";
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    color: var(--checkmark-color);
+    font-size: 4.4rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.checksvg {
+  position: absolute;
+  top: -26px;
+  left: 0px;
+  width: 90%;
+  height: 100%;
+  display: none;
+  color: var(--checkmark-color, #d71643);
+}
+.checksvg.selected{
+  display: block;
+}
+
+.checkmark.selected {
+    display: flex;
 }
 
 .fleximage {
