@@ -13,13 +13,12 @@ function addEventListeners() {
             e.preventDefault();
             if (button.classList.contains("disabled")) return;
             if (button.textContent === "Join") {
-                let game_id = "";
+                let gamelobby_id = "";
                 document.querySelectorAll(".selected-game").forEach(selectedgame => {
-                    game_id = selectedgame.id;
+                    gamelobby_id = selectedgame.id;
                 });
-                var user = await getUser();            
-                console.log(`attempting to join game lobby with id: ${game_id} as ${user.username}`)
-                colyseus.joingamelobby(user, game_id); 
+                var user = await getUser();
+                colyseus.joingamelobby(user, gamelobby_id);
             } else if (button.textContent === "Match History") {
                 window.location.href = "/history";
             }
@@ -63,9 +62,9 @@ function addEventListeners() {
         let mode = document.getElementsByClassName("mode selected")[0].innerText;        
         let maxplayers = document.getElementById("playerslider").value;        
         let password = document.getElementById("gamepassword").value;    
-        let game = {owner, type, mode, password, maxplayers };
+        let gamelobby = {owner, type, mode, password, maxplayers };
 
-        colyseus.creategame(game);     
+        colyseus.creategamelobby(gamelobby);
     });    
 
     const slider = document.getElementById("playerslider");
@@ -130,12 +129,12 @@ async function listGames(gameslist){
     nogames.classList.add("hidden"); 
       
     gameslist.forEach(game => {
-        const { owner, type, mode, maxplayers, game_id } = game.metadata;
+        const { owner, type, mode, maxplayers, gamelobby_id } = game.metadata;
         if (owner == user.username ) return;
         const matchdiv = document.getElementById("matcheswrapper");
 
         const listing = document.createElement("div");
-        listing.id = game_id;
+        listing.id = gamelobby_id;
         listing.classList.add("matchlisting");
         listing.addEventListener("click", function () {
             if (listing.classList.contains("selected-game")){

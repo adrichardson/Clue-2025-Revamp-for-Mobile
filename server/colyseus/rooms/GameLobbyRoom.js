@@ -14,10 +14,10 @@ export class GameLobbyRoom extends Room {
         mode: game.mode,
         maxplayers: game.maxplayers,
         password: game.password,
-        game_id: this.roomId
+        gamelobby_id: this.roomId
     });  
 
-    console.log("GameRoom ("+ this.roomId +") created!");
+    console.log("GameLobbyRoom ("+ this.roomId +") created!");
 
     for (const [msg, handler] of Object.entries(GameLobbyRoomHandlers)) {
       this.onMessage(msg, (client, message) => {

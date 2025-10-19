@@ -982,6 +982,42 @@ html, body {
   border-left: 20px solid var(--chatbox); /* the triangle points right */
 }
 
+.gamecanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.canvaswrapper {
+  width: 100%;
+  height: 81%;
+}
+
+.gamemenu {
+  width: 100%;
+  height: 9%;  
+  background-color: var(--clue-brown);
+  position: relative;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: row;
+  padding-top: 10px;
+  padding-bottom: 10px;  
+}
+
+.gamemenuitem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Futura-Pt-Medium", sans-serif; 
+  font-size: 1.25rem;
+  color: var(--white);
+}
+
 
 /* Styles for small mobile devices */
 @media only screen and (max-width: 320px) {

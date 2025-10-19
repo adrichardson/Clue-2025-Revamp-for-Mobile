@@ -16,10 +16,16 @@ router.get("/home", auth.requireLogin, (req, res) => {
   res.render("homescreen");
 });
 
-router.get("/gamelobby", auth.requireLogin, (req, res) => {
+router.get("/game", auth.requireLogin, (req, res) => {
   const game_id = req.query.id;  
-  res.render("gamelobby", { game_id });
+  res.render("game", { game_id });
 });
+
+router.get("/gamelobby", auth.requireLogin, (req, res) => {
+  const gamelobby_id = req.query.id;  
+  res.render("gamelobby", { gamelobby_id });
+});
+
 
 const allowedPartials = ["homearea", "gamearea", "banner"];
 router.get("/partials/:view", (req, res) => {

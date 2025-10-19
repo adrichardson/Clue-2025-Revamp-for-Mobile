@@ -12,14 +12,27 @@ async function joinMainLobby() {
   }
 }
 
-async function joinGameLobby(game_id) {
+async function joinGameLobby(gamelobby_id) {
   try {
     colyseus = new ColyseusGameLobbyService();
     var user = await getUser();
-    await colyseus.connect(user, game_id);
+    await colyseus.connect(user, gamelobby_id);
     setGameLobbyCallbacks();
   } catch (e) {
     console.error("Failed to join game lobby:", e);
+    //TODO: add popup with confirm stating lobby has shutdown
+    window.history.back();
+  }
+}
+
+async function joinGame(game_id) {
+  try {
+    colyseus = new ColyseusGameService();
+    var user = await getUser();
+    await colyseus.connect(user, game_id);
+    setGameCallbacks();
+  } catch (e) {
+    console.error("Failed to join game:", e);
     //TODO: add popup with confirm stating lobby has shutdown
     window.history.back();
   }
@@ -66,10 +79,6 @@ async function setGameLobbyCallbacks(){
     const $ = Colyseus.getStateCallbacks(gamelobby); 
     // Listen to 'player' instance additions
     $(gamelobby.state).players.onAdd((player, sessionId) => {
-        // Listening for any change on the player instance
-        // $(player).onChange(() => {
-        //     console.log('Player changed:', player);
-        // });   
         $(player).listen("readystate", (readystate, previousValue) => {
             if (previousValue === undefined) return;
             newservermessage("toggleready", player);
@@ -130,6 +139,40 @@ async function setupGameLobbyHandlers() {
     }
 }
 
+async function setGameCallbacks(){
+    if(!colyseus) {
+    return;
+  } else {
+    const game = colyseus.game;
+    const $ = Colyseus.getStateCallbacks(game); 
+    // Listen to 'player' instance additions
+    $(game.state).players.onAdd((player, sessionId) => {        
+        if(game.metadata){
+          const players = game.state.players;        
+          game.metadata.currentplayers = players.size;
+        }
+    }); 
+  }
+}
+
+async function setupGameHandlers() {
+    if(!colyseus) {
+      return;
+    } else {
+      const game = colyseus.game;
+      game.onMessage("metadata", (data) => {
+        const players = game.state.players;
+        game.metadata = data;
+        game.metadata.currentplayers = players.size;
+      });
+ 
+      game.onMessage("chatmessage", (data) => {
+        var { message, player } = data;
+        newchatmessage(message, player);
+      });        
+    }
+}
+
 class ColyseusLobbyService {
   constructor() {
     this.client = null;
@@ -166,23 +209,24 @@ class ColyseusLobbyService {
     }
   }
 
-  async creategame(game) {
+  async creategamelobby(gamelobbydata) {
     const res = await fetch("/api/gamelobby/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ game })
+      body: JSON.stringify({ gamelobbydata })
     });
-    const { game_id } = await res.json();
-    game.game_id = game_id;    
-    this.lobby.send("gamelobbycreated", { game });
-    this.disconnect();    
-    window.location.href = `/gamelobby?id=${game_id}`;    
+    const { gamelobby_id } = await res.json();
+    gamelobbydata.gamelobby_id = gamelobby_id;
+    console.log("Created game lobby with ID:", gamelobby_id);
+    this.lobby.send("gamelobbycreated", { gamelobbydata });
+    this.disconnect();
+    window.location.href = `/gamelobby?id=${gamelobby_id}`;
   }
 
-  async joingamelobby(user, game_id) {
+  async joingamelobby(user, gamelobby_id) {
     if(this.client){      
       this.disconnect();      
-      window.location.href = `/gamelobby?id=${game_id}`; 
+      window.location.href = `/gamelobby?id=${gamelobby_id}`; 
     }
   }  
 }
@@ -193,12 +237,12 @@ class ColyseusGameLobbyService {
     this.gamelobby = null;
   }
 
-  async connect(user, game_id) {
+  async connect(user, gamelobby_id) {
     if (!this.client) {
       this.client = new Colyseus.Client("ws://192.168.11.2:2567");
     }
     if (!this.gamelobby) {
-      this.gamelobby = await this.client.joinById(game_id, { user });  
+      this.gamelobby = await this.client.joinById(gamelobby_id, { user });
       setupGameLobbyHandlers();
       console.log("✅ Joined game lobby:", this.gamelobby.roomId);
     }
@@ -211,7 +255,45 @@ class ColyseusGameLobbyService {
     }
   }
 
-  async disconnect(){
+  async creategame(players) {
+    const res = await fetch("/api/game/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ players })
+    });
+    const { game_id } = await res.json();
+    this.disconnect();
+    window.location.href = `/game?id=${game_id}`;
+  }
 
+  async disconnect(){
+  }
+}
+
+class ColyseusGameService {
+  constructor() {
+    this.client = null;
+    this.game = null;
+  }
+  
+  async connect(user, game_id) {
+    if (!this.client) {
+      this.client = new Colyseus.Client("ws://192.168.11.2:2567");
+    }
+    if (!this.game) {
+      this.game = await this.client.joinById(game_id, { user });
+      setupGameHandlers();
+      console.log("✅ Joined game:", this.game.roomId);
+    }
+    return this;
+  }
+
+  send(type, data) {
+    if (this.game) {
+      this.game.send(type, data);
+    }
+  }
+
+  async disconnect(){
   }
 }

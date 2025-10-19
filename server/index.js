@@ -15,11 +15,13 @@ import adminRoutes from "./routes/admin.js";
 import pageRoutes from "./routes/pages.js"; 
 import registraionRoutes from "./routes/registraion.js";
 import gameLobbyRoutes from "./routes/gamelobby.js";
+import gameRoutes from "./routes/game.js";
 
 import { Server, matchMaker } from "colyseus";
 import { LobbyRoom } from "./colyseus/rooms/LobbyRoom.js";
 import { AdminRoom } from "./colyseus/rooms/AdminRoom.js";
 import { GameLobbyRoom } from "./colyseus/rooms/GameLobbyRoom.js";
+import { GameRoom } from "./colyseus/rooms/GameRoom.js";
 
 import { APP_VERSION } from "./db/config/version.js";
 
@@ -67,6 +69,7 @@ app.use("/api/users", userRoutes);          // /api/users
 app.use("/api/user", userRoute);            // /api/user
 app.use("/admin", adminRoutes);             // /admin
 app.use("/register", registraionRoutes);    // /register
+app.use("/api/game", gameRoutes);           // /api/game
 app.use("/api/gamelobby", gameLobbyRoutes); // /api/gamelobby
 
 // Colyseus game server
@@ -77,6 +80,7 @@ const gameServer = new Server({
 // Define Lobby and GameLobbyRoom
 gameServer.define("lobby", LobbyRoom);
 gameServer.define("admin", AdminRoom);
+gameServer.define("game", GameRoom).enableRealtimeListing();
 gameServer.define("gamelobby", GameLobbyRoom).enableRealtimeListing();
 
 //Force create a persistent lobby on startup

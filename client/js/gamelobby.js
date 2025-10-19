@@ -18,7 +18,8 @@ function addEventListeners() {
                 var user = await getUser();                
                 colyseus.send("toggleready", { user });
                 button.classList.add("hidden");
-                document.getElementById("cancelbtn").classList.remove("hidden");              
+                document.getElementById("cancelbtn").classList.remove("hidden");
+                colyseus.creategame(colyseus.gamelobby.state.players);
             } else if (button.textContent === "Leave") {
                  window.history.back();
             } else if(button.textContent === "Cancel"){
@@ -110,6 +111,7 @@ function createChatMessage(usernametext, color, message) {
     messagetext.classList.add("chat-messagetext");
     messagetext.textContent = message;
 
+    //server messages styling
     if(usernametext == "") {
         messagetext.style.fontStyle = "italic";
         messagetext.style.color = "#555555";        

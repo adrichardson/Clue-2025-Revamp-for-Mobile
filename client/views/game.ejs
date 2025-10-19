@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<%- include("partials/header", { title: `Game(${gamelobby_id}) Lobby` }) %>
+<%- include("partials/header", { title: `Game (${game_id})` }) %>
 <body>
 <div class="container">
   <div class="landscape-warning">
       Sorry Clue Online does not support landscape mode. <br /> Please rotate your device to portrait.
   </div>
   <div class="wrapper app-wrapper">
-    <%- include("partials/banner") %>    
-    <%- include("partials/gamelobbyarea") %>
+    <%- include("partials/banner") %>
+    <%- include("partials/gamearea") %>    
   </div>
-      <%- include("partials/footer", { pagename: "gamelobby" }) %>
+      <%- include("partials/footer", { pagename: "game" }) %>
 </div>
 </body>
 </html>
