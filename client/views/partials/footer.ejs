@@ -2,5 +2,8 @@
   <script src="https://unpkg.com/colyseus.js@^0.16.0/dist/colyseus.js"></script>
   <script src="/js/colyseus.js?v=<%= version %>"></script>  
 <% } %>
+<% if (pagename === "game") { %>
+  <script type="module" src="/js/canvas/gameMain.js?v=M0.0.1"></script>
+<% } %>
 <script src="/js/index.js?v=<%= version %>"></script>
 <script src="/js/<%= pagename %>.js?v=<%= version %>"></script>

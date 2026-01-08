@@ -988,6 +988,11 @@ html, body {
   display: block;
 }
 
+#gameCanvas {
+    touch-action: none;        /* Prevents scrolling/zoom gestures */
+    -ms-touch-action: none;    /* For older mobile browsers */
+}
+
 .canvaswrapper {
   width: 100%;
   height: 81%;

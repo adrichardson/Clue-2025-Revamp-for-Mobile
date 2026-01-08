@@ -4,54 +4,63 @@ window.addEventListener("load", () => {
     setUsername();    
     const params = new URLSearchParams(window.location.search);
     const game_id = params.get("id");
-    resizeCanvas();
+    // resizeCanvas();
 });
 
 function addEventListeners() {
-    document.querySelectorAll(".interactable-button").forEach(button => {
+    document.querySelectorAll(".gamemenuitem").forEach(button => {
         button.addEventListener("click", async function(e) {
             e.preventDefault();
-            if (button.classList.contains("disabled")) return;
-            if (button.textContent === "Ready") {
-                var user = await getUser();                
-                colyseus.send("toggleready", { user });
-                button.classList.add("hidden");
-                document.getElementById("cancelbtn").classList.remove("hidden");
-                colyseus.createGame(colyseus.gamelobby.state.players);
-            } else if (button.textContent === "Leave") {
-                 window.history.back();
-            } else if(button.textContent === "Cancel"){
-                var user = await getUser();                
-                colyseus.send("toggleready", { user });
-                button.classList.add("hidden");
-                document.getElementById("readybtn").classList.remove("hidden");                
-            }
+            console.log("Gamemenu item clicked:", button.id);
         });
     });
-}
 
-function resizeCanvas() {
-  const canvas = document.getElementById("gameCanvas");
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-  drawInitialGameArea();  
-}
-
-window.addEventListener("resize", resizeCanvas);
-
-function drawInitialGameArea() {
     const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
 
-    // Calculate center based on actual canvas size
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    // Choose a radius - can scale based on canvas size if you want
-    const radius = Math.min(canvas.width, canvas.height) * 0.1; // 10% of smallest dimension
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Optional: clear before drawing
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.stroke();    
+    // Disable default touch scrolling on mobile
+    canvas.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+    canvas.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+    canvas.addEventListener("touchend", e => e.preventDefault(), { passive: false });    
 }
+
+// function resizeCanvas() {
+//   const canvas = document.getElementById("gameCanvas");
+//   canvas.width = canvas.clientWidth;
+//   canvas.height = canvas.clientHeight;
+//   drawInitialGameArea();  
+// }
+
+// function setupHiDPICanvas(canvas) {
+//     const ctx = canvas.getContext('2d');
+//     const dpr = window.devicePixelRatio || 1;
+
+//     // Get the CSS pixel size of the canvas
+//     const rect = canvas.getBoundingClientRect();
+
+//     // Only update if necessary to avoid infinite resize loops
+//     if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+//         canvas.width = rect.width * dpr;
+//         canvas.height = rect.height * dpr;
+//         ctx.scale(dpr, dpr);
+//     }
+
+//     return ctx;
+// }
+
+
+// window.addEventListener("resize", resizeCanvas);
+
+// function drawInitialGameArea() {
+//     const canvas = document.getElementById("gameCanvas");
+//     const ctx = setupHiDPICanvas(canvas);
+
+//     const rect = canvas.getBoundingClientRect();
+//     const centerX = rect.width / 2;
+//     const centerY = rect.height / 2;
+//     const radius = 40;
+
+//     ctx.clearRect(0, 0, rect.width, rect.height); // Clear before redraw
+//     ctx.beginPath();
+//     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+//     ctx.stroke();
+// }
