@@ -1,18 +1,17 @@
 export class Piece {
   constructor(startTile, color) {
-    this.col = startTile.col;
-    this.row = startTile.row;
-    this.w = startTile.w;
-    this.h = startTile.h;
+    this.startTile = startTile;
     this.color = color;
+    this.x = startTile.x;
+    this.y = startTile.y;
   }
 
   get x() {
-    return this.col * this.w;
+    return this.x;
   }
 
   get y() {
-    return this.row * this.h;
+    return this.y;
   }
 
   containsWorld(worldX, worldY) {

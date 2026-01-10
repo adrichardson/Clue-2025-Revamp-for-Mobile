@@ -1,7 +1,25 @@
-export const BOARD_ORIGIN_PX = { x: 73, y: 48 };
-export const TILE_SIZE = { w: 44, h: 44 };
-export const BOARD_COLS = 24;
+export const BOARD_ORIGIN_PX = { x: 73, y: 50};
+export const TILE_SIZE = { w: 42, h: 42 };
+
+
 export const BOARD_ROWS = 25;
+export const ROW_OFFSETS = [
+  0, 42, 84, 126, 168, 
+  210, 252, 294, 336, 378,
+  420, 462, 504, 546, 588,
+  630, 672, 714, 756, 798,
+  840, 882, 924, 966, 1008
+];
+
+export const BOARD_COLS = 24;
+export const COL_OFFSETS = [
+  0.5, 43, 85.5, 128.3, 170, 
+  212, 255, 297, 336, 378,
+  420, 462, 504, 546, 588,
+  630, 672, 714, 756, 798,
+  840, 882, 924, 966
+];
+
 
 export const ROOM_DEFS = [
   {

@@ -1,6 +1,6 @@
 // board/boardUtils.js
 import { ROOMS, TILE_SIZE, BOARD_COLS, BOARD_ROWS, BOARD_ORIGIN_PX } from "./boardData-old.js";
-import { showToast } from "../utils.js";
+import { showToast } from "../utils/utils.js";
 
 export function worldToGrid(worldX, worldY) {
   // Convert world coords to image pixel coords
