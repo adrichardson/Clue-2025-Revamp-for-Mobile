@@ -91,7 +91,7 @@ export function setupInput(canvas, state, redraw) {
       if (roomTile) {
         showToast(roomTile.roomId);
       } else if (tile) {
-        showToast(`Hallway ${tile.col},${tile.row}`);
+        showToast(`Hallway ${tile.col},${tile.row} (${tile.x},${tile.y})`);
       }      
       state.circle.x = worldX;
       state.circle.y = worldY;
@@ -169,10 +169,10 @@ function endGesture(e) {
     const cy = state.circle.y;
 
     // World → tile
-    const tile = state.board.worldToTile(cx, cy);
+    const tile = state.board.getTileAtWorld(cx, cy);
     if (tile) {
       // Tile → world center
-      const center = state.board.tileToWorldCenter(tile.col, tile.row);
+      const center = state.board.tileToWorldCenter(tile);  
       state.circle.x = center.x;
       state.circle.y = center.y;
       if (state.debug.hoveredTile) {

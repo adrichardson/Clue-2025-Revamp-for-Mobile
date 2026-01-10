@@ -1,6 +1,5 @@
 import { setupCanvas } from "./canvasEngine.js";
 import { setupInput } from "./utils/input.js";
-import { TILE_SIZE } from "./board/boardData-old.js";
 import { Camera } from "./utils/camera.js";
 import { Board } from "./board/Board.js";
 
@@ -23,7 +22,7 @@ export const state = {
   },
   debug: {
     showTiles: false,
-    showRooms: true,
+    showRooms: false,
     hoveredTile: null,
     hoveredRoom: null
   }
@@ -72,7 +71,6 @@ function draw(ctx, w, h) {
     drawRoomDebug(ctx, state.board);
   }
   if (state.debug.hoveredTile) {
-    console.log("Drawing hover tile highlight");
     const tile = state.debug.hoveredTile;
     ctx.fillStyle = "rgba(0,255,0,0.3)";
     ctx.fillRect(
@@ -94,7 +92,7 @@ function drawCircle(ctx) {
 }
 
 function drawTileDebug(ctx, board) {
-  ctx.lineWidth = 1 / state.camera.scale;
+  ctx.lineWidth = 1 / state.camera.scale + 1;
   ctx.strokeStyle = "rgba(0, 4, 255, 0.6)";
 
   for (const tile of board.tiles.values()) {

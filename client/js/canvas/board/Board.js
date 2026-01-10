@@ -131,14 +131,19 @@ export class Board {
     return { col, row };
   }
 
-  tileToWorldCenter(col, row) {
+    tileToWorld(tile) {
     return {
-    //   x: this.origin.x + col * this.tileSize.w + this.tileSize.w / 2,
-    //   y: this.origin.y + row * this.tileSize.h + this.tileSize.h / 2
-        x: this.origin.x + this.colOffsets[col] + this.tileSize.w / 2,
-        y: this.origin.y + this.rowOffsets[row] + this.tileSize.h / 2    
+        x: this.origin.x + tile.x,
+        y: this.origin.y + tile.y
     };
-  }
+    }
+
+    tileToWorldCenter(tile) {
+    return {
+        x: this.origin.x + tile.x + tile.w / 2,
+        y: this.origin.y + tile.y + tile.h / 2
+    };
+    }
 
   tileToWorldRect(col, row) {
     return {
@@ -153,19 +158,27 @@ export class Board {
      QUERIES (THIS IS GOLD ✨)
   ========================= */
 
-  getTile(col, row) {
-    return this.tiles.get(`${col},${row}`) || null;
-  }
+    getTile(col, row) {
+        return this.tiles.get(`${col},${row}`) || null;
+    }
 
-  getRoomTile(col, row) {
-    return this.roomTiles.get(`${col},${row}`) || null;
-  }
+    getRoomTile(col, row) {
+        return this.roomTiles.get(`${col},${row}`) || null;
+    }
 
-  getTileAtWorld(worldX, worldY) {
-    const tile = this.worldToTile(worldX, worldY);
-    if (!tile) return null;
-    return this.getTile(tile.col, tile.row);
-  }
+    getTileAtWorld(worldX, worldY) {
+    const boardX = worldX - this.origin.x;
+    const boardY = worldY - this.origin.y;
+
+    for (const tile of this.tiles.values()) {
+        if (tile.containsBoard(boardX, boardY)) {
+        return tile;
+        }
+    }
+
+    return null;
+    }
+
 
   getRoomAtWorld(worldX, worldY) {
     const tile = this.worldToTile(worldX, worldY);
