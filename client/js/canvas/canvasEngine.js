@@ -1,6 +1,6 @@
 // canvasEngine.js
 
-export function setupCanvas(canvas, onDraw) {
+export function setupCanvas(canvas) {
   const ctx = canvas.getContext("2d");
 
   function resize() {
@@ -17,9 +17,6 @@ export function setupCanvas(canvas, onDraw) {
 
     // Reset transform before scaling (VERY IMPORTANT)
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // Redraw after resize
-    if (onDraw) onDraw(ctx, cssWidth, cssHeight);
   }
 
   // Initial sizing

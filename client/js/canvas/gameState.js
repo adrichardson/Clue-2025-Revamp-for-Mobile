@@ -1,20 +1,19 @@
+import { Camera } from "./utils/camera.js";
+import { Board } from "./board/Board.js";
+
 export const state = {
   boardImage: new Image(),
   imageLoaded: false,
-
-  camera: {
-    x: 0,
-    y: 0,
-    scale: 1,
-    minScale: 1,
-    maxScale: 3
-  },
-
-  circle: {
-    x: 0,
-    y: 0,
-    radius: 20,
-    dragging: false,
-    dragPointerId: null
+  camera: new Camera(),
+  board: new Board(),
+  pieces: new Map(),
+  playerPiece: 'msscarlet',
+  debug: {
+    showTiles: false,
+    showRooms: false,
+    hoveredTile: null,
+    hoveredRoom: null
   }
 };
+
+state.boardImage.src = "../../assets/imgs/board/ClueBoard.jpg";

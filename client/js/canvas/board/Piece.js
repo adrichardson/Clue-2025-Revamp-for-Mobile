@@ -1,29 +1,44 @@
 export class Piece {
-  constructor(startTile, color) {
-    this.startTile = startTile;
+  constructor({ tile, owner, id, radius = 20, color }) {
+    this.tile = tile;          // Tile instance (current)
+    this.owner = owner;        // string | player id | enum
+    this.id = id;    
+    this.radius = radius;
     this.color = color;
-    this.x = startTile.x;
-    this.y = startTile.y;
+
+    // World position (used while dragging)
+    this.x = 0;
+    this.y = 0;
+
+    this.dragging = false;
+    this.dragPointerId = null;
   }
 
-  get x() {
-    return this.x;
+  /** Sync world position from tile */
+  snapToTile(boardOrigin) {
+    if (!this.tile) return;
+
+    const center = this.tile.getWorldCenter(boardOrigin);
+    this.x = center.x;
+    this.y = center.y;
   }
 
-  get y() {
-    return this.y;
+  /** Start dragging */
+  beginDrag(pointerId) {
+    this.dragging = true;
+    this.dragPointerId = pointerId;
   }
 
-  containsWorld(worldX, worldY) {
-    return (
-      worldX >= this.x &&
-      worldX < this.x + this.w &&
-      worldY >= this.y &&
-      worldY < this.y + this.h
-    );
+  /** End dragging */
+  endDrag() {
+    this.dragging = false;
+    this.dragPointerId = null;
   }
 
-  key() {
-    return `${this.col},${this.row}`;
+  /** Hit test in world space */
+  containsWorld(x, y) {
+    const dx = x - this.x;
+    const dy = y - this.y;
+    return dx * dx + dy * dy <= this.radius * this.radius;
   }
 }

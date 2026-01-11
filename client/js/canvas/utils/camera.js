@@ -8,6 +8,19 @@ export class Camera {
     this.maxScale = maxScale;
   }
 
+    fitImageToCanvas(canvas, image) {
+    const scale = canvas.height / image.height;
+
+    this.scale = scale;
+    this.minScale = scale;
+    this.maxScale = scale * 3;
+
+    this.x = 0;
+    this.y = 0;
+
+    this.clampToImage(canvas, image);
+    }
+
   zoomAtPoint(factor, canvasX, canvasY) {
     // stabilize pinch
     factor = Math.max(0.9, Math.min(1.1, factor));

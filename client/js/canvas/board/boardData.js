@@ -41,14 +41,14 @@ export const ROOM_DEFS = [
     name: "Lounge",
     rect: { x: 17, y: 0, w: 7, h: 6 },
     doors: ["17,6"],
-    excludes: []
+    excludes: ["17,0"]
   },
   {
     id: "library",
     name: "Library",
     rect: { x: 0, y: 6, w: 7, h: 5 },
     doors: ["7,8", "3,11"],
-    excludes: ["6,6", "6,10"]
+    excludes: ["6,6", "6,10", "0,6", "0,10"]
   },
   {
     id: "billiard",
@@ -60,7 +60,7 @@ export const ROOM_DEFS = [
   {
     id: "dining",
     name: "Dining Room",
-    rect: { x: 16, y: 9, w: 6, h: 7 },
+    rect: { x: 16, y: 9, w: 8, h: 7 },
     doors: ["17,8", "15,12"],
     excludes: ["16,15", "17,15", "18,15"]
   },
@@ -69,20 +69,27 @@ export const ROOM_DEFS = [
     name: "Conservatory",
     rect: { x: 0, y: 19, w: 6, h: 5 },
     doors: ["5,19"],
-    excludes: ["5,19"]
+    excludes: ["5,19", "0,19"]
   },
   {
     id: "ballroom",
     name: "Ballroom",
     rect: { x: 8, y: 17, w: 8, h: 8 },
     doors: ["7,19", "9,16", "14,16", "16,19"],
-    excludes: ["8,23", "9,23", "9,24", "14,23", "14,24", "15,23"]
+    excludes: ["8,23", "9,23", "9,24", "14,23", "14,24", "15,23", "8,24", "15,24"]
   },
   {
     id: "kitchen",
     name: "Kitchen",
-    rect: { x: 18, y: 18, w: 6, h: 7 },
+    rect: { x: 18, y: 18, w: 6, h: 6 },
     doors: ["19,17"],
+    excludes: ["23,18"]
+  },
+  {
+    id: "stairs",
+    name: "Stairs",
+    rect: { x: 9, y: 8, w: 5, h: 7 },
+    doors: [],
     excludes: []
-  }
+  }  
 ];

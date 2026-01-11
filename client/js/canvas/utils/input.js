@@ -1,11 +1,14 @@
 import { showToast } from "./utils.js";
+import { redraw } from "./renderer.js";
 
-export function setupInput(canvas, state, redraw) {
+export function setupInput(canvas, state) {
   const pointers = new Map();
+
   let lastPinchDistance = null;
   let lastPinchMidpoint = null;
+
   let isPCPanning = false;
-  let lastPanPos = null;  
+  let lastPanPos = null;
 
   /* =========================
      COORD CONVERSIONS
@@ -35,113 +38,146 @@ export function setupInput(canvas, state, redraw) {
   ========================= */
 
   canvas.addEventListener("pointerdown", e => {
+    // ---- ALT / PC PAN START ----
     if (e.altKey && pointers.size === 0) {
       isPCPanning = true;
       lastPanPos = getCanvasCoords(e);
+
+      // 🔑 Clear pinch state when entering single-finger pan
+      lastPinchDistance = null;
+      lastPinchMidpoint = null;
+
       pointers.set(e.pointerId, e);
-    } else {
-      pointers.set(e.pointerId, e);
+      return;
     }
+
+    pointers.set(e.pointerId, e);
 
     if (pointers.size !== 1) return;
 
     const { worldX, worldY } = getWorldCoords(e);
 
-    // ---- CIRCLE DRAG ----
-    const dx = worldX - state.circle.x;
-    const dy = worldY - state.circle.y;
-
-    if (dx * dx + dy * dy <= state.circle.radius ** 2) {
-      state.circle.dragging = true;
-      state.circle.dragPointerId = e.pointerId;
+    for (const piece of state.pieces.values()) {
+      if (piece.containsWorld(worldX, worldY)) {
+        piece.beginDrag(e.pointerId);
+        break;
+      }
     }
   });
+
+  /* =========================
+     MOUSE WHEEL ZOOM
+  ========================= */
+
+  canvas.addEventListener(
+    "wheel",
+    event => {
+      event.preventDefault();
+
+      const { x, y } = getCanvasCoords(event);
+
+      const ZOOM_SPEED = 0.0015; // sane, stable zoom
+      const factor = 1 - event.deltaY * ZOOM_SPEED;
+
+      state.camera.zoomAtPoint(factor, x, y);
+      state.camera.clampToImage(canvas, state.boardImage);
+      redraw();
+    },
+    { passive: false }
+  );
 
   /* =========================
      POINTER MOVE
   ========================= */
 
-  canvas.addEventListener("wheel", (event) => {
-    event.preventDefault();
-
-    const { x, y } = getCanvasCoords(event);
-
-    // Normalize wheel direction
-    const ZOOM_SPEED = 5; // tweak to taste
-    const factor = 1 - event.deltaY * ZOOM_SPEED;
-
-    state.camera.zoomAtPoint(factor, x, y);
-    state.camera.clampToImage(canvas, state.boardImage);
-    redraw();
-  }, { passive: false });
-
   canvas.addEventListener("pointermove", e => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, e);
 
-    // ---- DRAG CIRCLE ----
-    if (state.circle.dragging && state.circle.dragPointerId === e.pointerId && pointers.size === 1) {
-      const board = state.board;
-      const { worldX, worldY } = getWorldCoords(e);
+    /* =========================
+       DRAG PIECE
+    ========================= */
 
-      const tile = board.getTileAtWorld(worldX, worldY);
-      state.debug.hoveredTile = tile;            
-      const roomTile = board.getRoomAtWorld(worldX, worldY);
+    for (const piece of state.pieces.values()) {
+      if (
+        piece.dragging &&
+        piece.dragPointerId === e.pointerId
+      ) {
+          const board = state.board;
+          const { worldX, worldY } = getWorldCoords(e);
 
-      if (roomTile) {
-        showToast(roomTile.roomId);
-      } else if (tile) {
-        showToast(`Hallway ${tile.col},${tile.row} (${tile.x},${tile.y})`);
-      }      
-      state.circle.x = worldX;
-      state.circle.y = worldY;
+          const tile = board.getTileAtWorld(worldX, worldY);
+          const room = board.getRoomAtWorld(worldX, worldY);
 
+          if (room) {
+            state.debug.hoveredRoom = room;
+            showToast(room.name);
+          } else {
+            state.debug.hoveredRoom = null;
+          }
+
+          if (tile && !board.isRoom(tile.col, tile.row)) {
+            state.debug.hoveredTile = tile;
+            showToast(`Hallway ${tile.col},${tile.row}`);
+          } else {
+            state.debug.hoveredTile = null;
+          }
+
+        piece.x = worldX;
+        piece.y = worldY;
+
+        redraw();
+        return;
+        }
+    }
+
+    /* =========================
+       SINGLE-FINGER PAN (PC / ALT)
+    ========================= */
+
+    if (isPCPanning && pointers.size === 1) {
+      const pos = getCanvasCoords(e);
+
+      const dx = pos.x - lastPanPos.x;
+      const dy = pos.y - lastPanPos.y;
+
+      state.camera.x += dx;
+      state.camera.y += dy;
+
+      lastPanPos = pos;
+
+      state.camera.clampToImage(canvas, state.boardImage);
       redraw();
       return;
     }
-    // ---- PINCH PAN + ZOOM ----
-    if (pointers.size === 2 || (isPCPanning && pointers.size === 1)) {
 
-      if (isPCPanning && pointers.size === 1) {
-        const pos = getCanvasCoords(e);
+    /* =========================
+       PINCH PAN + ZOOM (MOBILE)
+    ========================= */
 
-        const dx = pos.x - lastPanPos.x;
-        const dy = pos.y - lastPanPos.y;
+    if (pointers.size === 2) {
+      const pts = [...pointers.values()];
+      const p0 = getCanvasCoords(pts[0]);
+      const p1 = getCanvasCoords(pts[1]);
 
-        const PAN_SPEED = 1.0;
-        state.camera.x += dx * PAN_SPEED;
-        state.camera.y += dy * PAN_SPEED;
+      const midX = (p0.x + p1.x) / 2;
+      const midY = (p0.y + p1.y) / 2;
 
-        lastPanPos = pos;
+      const dx = p0.x - p1.x;
+      const dy = p0.y - p1.y;
+      const dist = Math.hypot(dx, dy);
 
-        state.camera.clampToImage(canvas, state.boardImage);
-        redraw();
-        return;
-      } else {
-        const pts = [...pointers.values()];
-        const p0 = getCanvasCoords(pts[0]);
-        const p1 = getCanvasCoords(pts[1]);
-
-        const midX = (p0.x + p1.x) / 2;
-        const midY = (p0.y + p1.y) / 2;
-
-        const dx = p0.x - p1.x;
-        const dy = p0.y - p1.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (lastPinchMidpoint) {
-          const PAN_SPEED = 1.0;
-          state.camera.x += (midX - lastPinchMidpoint.x) * PAN_SPEED;
-          state.camera.y += (midY - lastPinchMidpoint.y) * PAN_SPEED;
-        }
-
-        if (lastPinchDistance) {
-          state.camera.zoomAtPoint(dist / lastPinchDistance, midX, midY);
-        }
-
-        lastPinchDistance = dist;
-        lastPinchMidpoint = { x: midX, y: midY };
+      if (lastPinchMidpoint) {
+        state.camera.x += midX - lastPinchMidpoint.x;
+        state.camera.y += midY - lastPinchMidpoint.y;
       }
+
+      if (lastPinchDistance) {
+        state.camera.zoomAtPoint(dist / lastPinchDistance, midX, midY);
+      }
+
+      lastPinchDistance = dist;
+      lastPinchMidpoint = { x: midX, y: midY };
 
       state.camera.clampToImage(canvas, state.boardImage);
       redraw();
@@ -155,46 +191,48 @@ export function setupInput(canvas, state, redraw) {
   canvas.addEventListener("pointerup", endGesture);
   canvas.addEventListener("pointercancel", endGesture);
 
-function endGesture(e) {
-  pointers.delete(e.pointerId);
+  function endGesture(e) {
+    pointers.delete(e.pointerId);
 
-  let didSnap = false;
-
-  if (state.circle.dragPointerId === e.pointerId) {
-    state.circle.dragging = false;
-    state.circle.dragPointerId = null;
-
-    // --- SNAP CIRCLE TO TILE ---
-    const cx = state.circle.x;
-    const cy = state.circle.y;
-
-    // World → tile
-    const tile = state.board.getTileAtWorld(cx, cy);
-    if (tile) {
-      // Tile → world center
-      const center = state.board.tileToWorldCenter(tile);  
-      state.circle.x = center.x;
-      state.circle.y = center.y;
-      if (state.debug.hoveredTile) {
-        state.debug.hoveredTile = null;
-      }
-
-      didSnap = true;
+    // ---- STOP PC PAN ----
+    if (isPCPanning) {
+      isPCPanning = false;
+      lastPanPos = null;
     }
-  }
-  if (isPCPanning) {
-    isPCPanning = false;
-    lastPanPos = null;
-  }
-  if (pointers.size < 2) {
-    lastPinchDistance = null;
-    lastPinchMidpoint = null;
+
+    // ---- CLEAR PINCH STATE WHEN < 2 POINTERS ----
+    if (pointers.size < 2) {
+      lastPinchDistance = null;
+      lastPinchMidpoint = null;
+    }
+
+    /* =========================
+       SNAP PIECES
+    ========================= */
+
+    if( state.pieces) {
+      for (const piece of state.pieces.values()) {
+        if (piece.dragPointerId === e.pointerId) {
+          piece.endDrag();
+
+          const cx = piece.x;
+          const cy = piece.y;
+
+          const tile = state.board.getTileAtWorld(cx, cy);
+          const room = state.board.getRoomAtWorld(cx, cy);
+
+          if (tile && !room) {
+            piece.tile = tile;
+            piece.snapToTile(state.board.origin);
+     
+          } else if (room) {
+            state.debug.hoveredRoom = null;
+          }
+        }
+      }
+    }
 
     state.camera.clampToImage(canvas, state.boardImage);
-
-    if (didSnap) redraw();
-    else redraw();
+    redraw();
   }
-}
-
 }
