@@ -54,8 +54,24 @@ function draw(ctx, w, h) {
 }
 
 function drawPiece(piece) {
+  const BORDER = 2;
+
+  // --- Fill ---
   ctx.beginPath();
   ctx.arc(piece.x, piece.y, piece.radius, 0, Math.PI * 2);
   ctx.fillStyle = piece.color;
   ctx.fill();
+
+  // --- Inner border ---
+  ctx.beginPath();
+  ctx.arc(
+    piece.x,
+    piece.y,
+    piece.radius - BORDER / 2, // keep stroke inside
+    0,
+    Math.PI * 2
+  );
+  ctx.strokeStyle = "rgba(0,0,0,0.9)";
+  ctx.lineWidth = BORDER;
+  ctx.stroke();
 }

@@ -3,6 +3,7 @@ export class Room {
     this.id = id;
     this.name = name;
     this.tiles = tiles;
+    this.pieces = new Set();
 
     this._outlineEdges = null;
 
@@ -20,6 +21,22 @@ export class Room {
 
   getTileKeys() {
     return new Set(this.tiles.map(t => t.key()));
+  }
+
+  addPiece(piece) {
+    this.pieces.add(piece);
+  }
+
+  removePiece(piece) {
+    this.pieces.delete(piece);
+  }
+
+  getPiecesInRoom() {
+    const result = [];
+    for (const p of this.pieces) {
+      result.push(p);
+    }
+    return result;
   }
 
   /* =========================
@@ -63,6 +80,42 @@ export class Room {
   invalidateOutline() {
     this._outlineEdges = null;
   }
+
+  getCenterWorld(boardOrigin) {
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+
+    for (const tile of this.tiles) {
+      minX = Math.min(minX, tile.x);
+      minY = Math.min(minY, tile.y);
+      maxX = Math.max(maxX, tile.x + tile.w);
+      maxY = Math.max(maxY, tile.y + tile.h);
+    }
+
+    return {
+      x: boardOrigin.x + (minX + maxX) / 2,
+      y: boardOrigin.y + (minY + maxY) / 2
+    };
+  }
+
+  getBoundsWorld(boardOrigin) {
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+
+    for (const tile of this.tiles) {
+      minX = Math.min(minX, tile.x);
+      minY = Math.min(minY, tile.y);
+      maxX = Math.max(maxX, tile.x + tile.w);
+      maxY = Math.max(maxY, tile.y + tile.h);
+    }
+
+    return {
+      x: boardOrigin.x + minX,
+      y: boardOrigin.y + minY,
+      w: maxX - minX,
+      h: maxY - minY
+    };
+  }  
 
   /* =========================
      ANIMATION

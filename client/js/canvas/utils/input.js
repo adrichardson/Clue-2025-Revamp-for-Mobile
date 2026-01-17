@@ -223,9 +223,13 @@ export function setupInput(canvas, state) {
 
           if (tile && !room) {
             piece.tile = tile;
-            piece.snapToTile(state.board.origin);
+            piece.snapToTile(state.board.origin); //contains room removal
+            state.debug.hoveredTile = null;
      
           } else if (room) {
+            room.addPiece(piece);
+            piece.room = room;
+            piece.snapToRoom(room, state.board.origin); //contains tile removal
             state.debug.hoveredRoom = null;
           }
         }

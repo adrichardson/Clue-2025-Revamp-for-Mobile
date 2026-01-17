@@ -1,6 +1,7 @@
 export class Piece {
   constructor({ tile, owner, id, radius = 20, color }) {
     this.tile = tile;          // Tile instance (current)
+    this.room = null;         // Room instance (current)
     this.owner = owner;        // string | player id | enum
     this.id = id;    
     this.radius = radius;
@@ -17,11 +18,76 @@ export class Piece {
   /** Sync world position from tile */
   snapToTile(boardOrigin) {
     if (!this.tile) return;
+    if (this.room) {
+      this.room.removePiece(this);
+      this.room = null;
+    }
 
     const center = this.tile.getWorldCenter(boardOrigin);
     this.x = center.x;
     this.y = center.y;
   }
+
+  circlesOverlap(a, b, margin = 0) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    const dist = Math.hypot(dx, dy);
+    return dist < a.radius + b.radius + margin;
+  }  
+
+  snapToRoom(room, boardOrigin) {
+    this.tile = null;
+
+    const center = room.getCenterWorld(boardOrigin);
+    const others = room.getPiecesInRoom();
+
+    // Try center first
+    let candidate = {
+      x: center.x,
+      y: center.y,
+      radius: this.radius
+    };
+
+    const MARGIN = 6;
+
+    let blocked = others.some(p =>
+      this.circlesOverlap(candidate, p, MARGIN)
+    );
+
+    if (!blocked) {
+      this.x = candidate.x;
+      this.y = candidate.y;
+      return;
+    }
+
+    // Spiral placement
+    const STEP_ANGLE = Math.PI / 6;
+    const STEP_RADIUS = this.radius * 2 + MARGIN;
+    const MAX_RINGS = 10;
+
+    for (let ring = 1; ring <= MAX_RINGS; ring++) {
+      const r = ring * STEP_RADIUS;
+
+      for (let a = 0; a < Math.PI * 2; a += STEP_ANGLE) {
+        candidate.x = center.x + Math.cos(a) * r;
+        candidate.y = center.y + Math.sin(a) * r;
+
+        blocked = others.some(p =>
+          this.circlesOverlap(candidate, p, MARGIN)
+        );
+
+        if (!blocked) {
+          this.x = candidate.x;
+          this.y = candidate.y;
+          return;
+        }
+      }
+    }
+
+    // Fallback: still place near center
+    this.x = center.x;
+    this.y = center.y;
+  }  
 
   /** Start dragging */
   beginDrag(pointerId) {
