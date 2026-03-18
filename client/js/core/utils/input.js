@@ -1,7 +1,7 @@
 import { showToast } from "./utils.js";
 import { redraw } from "./renderer.js";
 
-export function setupInput(canvas, state) {
+export function setupInput(canvas, state, onPointerDown) {
   const pointers = new Map();
 
   let lastPinchDistance = null;
@@ -38,6 +38,21 @@ export function setupInput(canvas, state) {
   ========================= */
 
   canvas.addEventListener("pointerdown", e => {
+
+    if (onPointerDown) {
+      const canvasPos = getCanvasCoords(e);
+      const { worldX, worldY } = getWorldCoords(e);
+
+      const consumed = onPointerDown({
+        canvasX: canvasPos.x,
+        canvasY: canvasPos.y,
+        worldX,
+        worldY,
+        event: e
+      });
+      if (consumed) return;
+    }    
+  
     // ---- ALT / PC PAN START ----
     if (e.altKey && pointers.size === 0) {
       isPCPanning = true;

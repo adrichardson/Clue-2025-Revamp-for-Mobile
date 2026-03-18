@@ -1,4 +1,4 @@
-import { state } from "../../canvas/gameState.js";
+import { state } from "../gameState.js";
 
 let ctx, canvasWidth, canvasHeight;
 
