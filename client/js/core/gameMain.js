@@ -43,8 +43,6 @@ initRenderer(ctx, canvas.width, canvas.height);
 
 state.boardImage.onload = () => {
   state.imageLoaded = true;
-
-  // 🔑 Fit board to screen (height-based like before)
   state.camera.fitImageToCanvas(canvas, state.boardImage);
 };
 
@@ -69,6 +67,7 @@ function initPieces() {
 
   for (const data of pieceData) {
     const piece = new Piece({ tile: data.tile, owner: data.owner, id: data.id, radius: 20, color: data.color });
+    piece.tile = data.tile;
     piece.snapToTile(state.board.origin);
     state.pieces.set(data.id, piece);
   }

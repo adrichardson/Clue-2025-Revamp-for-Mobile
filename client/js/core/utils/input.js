@@ -138,11 +138,11 @@ export function setupInput(canvas, state, onPointerDown) {
             state.debug.hoveredTile = null;
           }
 
-        piece.x = worldX;
-        piece.y = worldY;
+          piece.x = worldX;
+          piece.y = worldY;
 
-        redraw();
-        return;
+          redraw();
+          return;
         }
     }
 
@@ -241,10 +241,14 @@ export function setupInput(canvas, state, onPointerDown) {
             piece.snapToTile(state.board.origin); //contains room removal
             state.debug.hoveredTile = null;
      
-          } else if (room) {
+          } else if (room && room.canEnter) {
             room.addPiece(piece);
             piece.room = room;
             piece.snapToRoom(room, state.board.origin); //contains tile removal
+            state.debug.hoveredRoom = null;
+          } else {
+            piece.tile !== null ? piece.snapToTile(state.board.origin) : piece.snapToRoom(piece.room, state.board.origin);
+            state.debug.hoveredTile = null;
             state.debug.hoveredRoom = null;
           }
         }

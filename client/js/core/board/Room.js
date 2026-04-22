@@ -1,12 +1,12 @@
 export class Room {
-  constructor(id, name, tiles = []) {
+  constructor(id, name, tiles = [], canEnter) {
     this.id = id;
     this.name = name;
     this.tiles = tiles;
     this.pieces = new Set();
-
     this._outlineEdges = null;
-
+    this.canEnter = canEnter;
+    this.validMove = false; //init valid move
     // animation state
     this.pulseTime = 0;
   }

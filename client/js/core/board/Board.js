@@ -7,6 +7,7 @@ import {
   BOARD_COLS,
   BOARD_ROWS,
   ROOM_DEFS,
+  EXCLUDE_TILES,
   BOARD_ORIGIN_PX,
   COL_OFFSETS,
   ROW_OFFSETS 
@@ -35,8 +36,11 @@ export class Board {
   ========================= */
 
   #buildGrid() {
+    const excludeSet = EXCLUDE_TILES;
     for (let r = 0; r < this.rows; r++) {
       for (let c = 0; c < this.cols; c++) {
+        const key = `${c},${r}`;
+        if (excludeSet.has(key)) continue;
         const tile = new Tile(c, r, this.tileSize.w, this.tileSize.h);
         this.tiles.set(tile.key(), tile);
       }
@@ -69,7 +73,7 @@ export class Board {
         }
       }
 
-      const room = new Room(def.id, def.name, tiles);
+      const room = new Room(def.id, def.name, tiles, def.canEnter == undefined ? true : def.canEnter);
       this.rooms.set(def.id, room);
     }
   }

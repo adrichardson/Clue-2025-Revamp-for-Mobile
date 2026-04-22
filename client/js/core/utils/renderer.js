@@ -25,14 +25,6 @@ function draw(ctx, w, h) {
     ctx.drawImage(state.boardImage, 0, 0);
   }
 
-  if (state.debug.showTiles) {
-    drawTileDebug(ctx, state.board);
-  }
-
-  if (state.debug.showRooms) {
-    drawRoomDebug(ctx, state.board);
-  }
-
   if (state.debug.hoveredTile) {
     state.debug.hoveredTile.drawHighlight(
       ctx,
@@ -45,7 +37,7 @@ function draw(ctx, w, h) {
     drawPiece(piece);
   }    
 
-  if (state.debug.hoveredRoom) {
+  if (state.debug.hoveredRoom && state.debug.hoveredRoom.canEnter) {
     state.debug.hoveredRoom.update(1 / 60);
     state.debug.hoveredRoom.drawOutline(ctx, state.board.origin);
   }
