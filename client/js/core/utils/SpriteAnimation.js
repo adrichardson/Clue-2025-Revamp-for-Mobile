@@ -38,19 +38,16 @@ export class SpriteAnimation {
     const t = Math.min(this.elapsed / this.duration, 1);
 
     if (t < 1) {
-      // 🔑 Ease-out slowing (fast → slow)
       const speed = lerp(20, 2, t); // frames per second
       this.currentFrame =
         Math.floor((this.elapsed / 1000) * speed) % this.frameCount;
 
     } else {
-        // 🔒 Lock final face
         this.currentFrame = this.finalFrame;
         this.yOffset = 0;
         this.squashX = 1;
         this.squashY = 1;
-
-        // ⛔ DO NOT finish yet
+        
         this.waitForClick = true;
         this.interactive = true;
     }
@@ -76,7 +73,7 @@ export class SpriteAnimation {
     ctx.restore();
   }
 
-    containsPoint(x, y) {
+  containsPoint(x, y) {
     const halfW = (this.frameWidth * this.scale) / 2;
     const halfH = (this.frameHeight * this.scale) / 2;
 
@@ -86,7 +83,7 @@ export class SpriteAnimation {
         y >= this.position.y - halfH &&
         y <= this.position.y + halfH
     );
-    }
+  }
 
 }
 

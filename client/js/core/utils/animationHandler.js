@@ -27,7 +27,7 @@ export class AnimationHandler {
     this.animations.length = 0;
   }
 
-    handleClick(x, y) {
+  handleClick(x, y) {
     for (const anim of this.animations) {
         if (anim.interactive && anim.containsPoint(x, y)) {
         anim.finished = true;
@@ -35,6 +35,6 @@ export class AnimationHandler {
         }
     }
     return false;
-    }
+  }
 
 }

@@ -2,20 +2,54 @@
     <canvas id="gameCanvas" class="gamecanvas"></canvas>
 </div>
 <div id="gamemenu" class="gamemenu">
-    <div class="gamemenuitem" id="gamechatbtn">
-        <img src="../../assets/icons/chaticon.png" class="gamemenuitemicon">
-        <div class="gamemenuitemlabel">Chat</div>
-    </div>
-    <div class="gamemenuitem" id="gamecardsbtn">
+    <div class="gamemenuitem" id="gameactionbtn">
+        <img src="../../assets/icons/guessicon.png" class="gamemenuitemicon">
+        <div class="gamemenuitemlabel">Action</div>
+    </div>    
+    <div class="gamemenuitem" id="gamehandbtn">
         <img src="../../assets/icons/cardsicon.png" class="gamemenuitemicon">
-        <div class="gamemenuitemlabel">Cards</div>
+        <div class="gamemenuitemlabel">Hand</div>
     </div>
     <div class="gamemenuitem" id="gamesheetbtn">
         <img src="../../assets/icons/sheeticon.png" class="gamemenuitemicon">
         <div class="gamemenuitemlabel">Sheet</div>
     </div>
-    <div class="gamemenuitem" id="gameguessbtn">
-        <img src="../../assets/icons/guessicon.png" class="gamemenuitemicon">
-        <div class="gamemenuitemlabel">Guess</div>
+    <div class="gamemenuitem" id="gamemessagebtn">
+        <img src="../../assets/icons/chaticon.png" class="gamemenuitemicon">
+        <div class="gamemenuitemlabel">Messages</div>
     </div>
+</div>
+<div id="ui-layer">
+  <%- include("./draggableModal", {
+    id: "gameactionModal",
+    title: "Action",
+    content: `
+      <div>Action content here</div>
+    `
+  }) %>
+
+  <%- include("./draggableModal", {
+    id: "gamehandModal",
+    title: "Your Hand",
+    content: `
+      <div class="card">Card 1</div>
+      <div class="card">Card 2</div>
+    `
+  }) %>
+
+  <%- include("./draggableModal", {
+    id: "gamesheetModal",
+    title: "Clue Sheet",
+    content: `
+      <div>Sheet content here</div>
+    `
+  }) %>
+  
+  <%- include("./draggableModal", {
+    id: "gamemessageModal",
+    title: "Messages",
+    content: `
+      <div>Message content here</div>
+    `
+  }) %>  
 </div>

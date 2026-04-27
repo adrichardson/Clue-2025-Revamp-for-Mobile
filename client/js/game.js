@@ -1,7 +1,8 @@
 window.addEventListener("load", () => {
     addEventListeners();  
     setProfilePicId();
-    setUsername();    
+    setUsername();
+    setupModal();
     const params = new URLSearchParams(window.location.search);
     const game_id = params.get("id");
     // resizeCanvas();
@@ -11,11 +12,34 @@ function addEventListeners() {
     document.querySelectorAll(".gamemenuitem").forEach(button => {
         button.addEventListener("click", async function(e) {
             e.preventDefault();
-            console.log("Gamemenu item clicked:", button.id);
+            switch(this.id) {
+                case "gameactionbtn":
+                    toggleModal("gameactionModal", this);
+                    break;
+                case "gamehandbtn":
+                    toggleModal("gamehandModal", this);
+                    break;
+                case "gamesheetbtn":
+                    toggleModal("gamesheetModal", this);
+                    break;
+                case "gamemessagebtn":
+                    toggleModal("gamemessageModal", this);
+                    break;
+                default:
+                    break;
+            }
         });
     });
 
     const canvas = document.getElementById("gameCanvas");
+
+    // Close buttons
+    document.querySelectorAll(".modal-close").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const modal = e.target.closest(".modal");
+            closeModal(modal);
+        });
+    });    
 
     // Disable default touch scrolling on mobile
     canvas.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
@@ -23,44 +47,78 @@ function addEventListeners() {
     canvas.addEventListener("touchend", e => e.preventDefault(), { passive: false });    
 }
 
-// function resizeCanvas() {
-//   const canvas = document.getElementById("gameCanvas");
-//   canvas.width = canvas.clientWidth;
-//   canvas.height = canvas.clientHeight;
-//   drawInitialGameArea();  
-// }
+function setupModal() {
+    document.querySelectorAll(".modal").forEach(modal => {
 
-// function setupHiDPICanvas(canvas) {
-//     const ctx = canvas.getContext('2d');
-//     const dpr = window.devicePixelRatio || 1;
+        const header = modal.querySelector(".modal-header");
 
-//     // Get the CSS pixel size of the canvas
-//     const rect = canvas.getBoundingClientRect();
+        let offsetX = 0;
+        let offsetY = 0;
 
-//     // Only update if necessary to avoid infinite resize loops
-//     if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-//         canvas.width = rect.width * dpr;
-//         canvas.height = rect.height * dpr;
-//         ctx.scale(dpr, dpr);
-//     }
+        header.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
 
-//     return ctx;
-// }
+            const rect = modal.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            header.setPointerCapture(e.pointerId);
+        });
 
+        header.addEventListener("pointermove", (e) => {        
+            if (!header.hasPointerCapture(e.pointerId)) return;
 
-// window.addEventListener("resize", resizeCanvas);
+            modal.style.left = `${e.clientX - offsetX}px`;
+            modal.style.top = `${e.clientY - offsetY}px`;
+        });
 
-// function drawInitialGameArea() {
-//     const canvas = document.getElementById("gameCanvas");
-//     const ctx = setupHiDPICanvas(canvas);
+        header.addEventListener("pointerup", (e) => {
+            header.releasePointerCapture(e.pointerId);
+        });
+    });
+}
 
-//     const rect = canvas.getBoundingClientRect();
-//     const centerX = rect.width / 2;
-//     const centerY = rect.height / 2;
-//     const radius = 40;
+function openModal(modal) {
+  modal.classList.remove("hidden");
 
-//     ctx.clearRect(0, 0, rect.width, rect.height); // Clear before redraw
-//     ctx.beginPath();
-//     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-//     ctx.stroke();
-// }
+  requestAnimationFrame(() => {
+    modal.classList.add("open");
+  });  
+}
+
+function closeModal(modal) {
+  modal.classList.remove("open");
+
+  // wait for animation to finish
+  setTimeout(() => {
+    modal.classList.add("hidden");
+
+    // reset drag position
+    modal.style.left = "";
+    modal.style.top = "";
+  }, 250); // match CSS duration
+
+  const buttonId = modal.id.replace("Modal", "btn");
+  const button = document.getElementById(buttonId);
+
+  if (button) {
+    button.classList.remove("active");
+  }
+}
+
+function modalIsOpen() {
+  return [...document.querySelectorAll(".gamemenuitem")]
+    .some(button => button.classList.contains("active"));
+}
+
+function toggleModal(id, triggeringElement) {
+  const modal = document.getElementById(id);
+
+  if (modal.classList.contains("hidden")) {
+    if (modalIsOpen()) return;
+    openModal(modal);
+    triggeringElement.classList.add("active");
+  } else {
+    closeModal(modal);
+    triggeringElement.classList.remove("active");    
+  } 
+}
