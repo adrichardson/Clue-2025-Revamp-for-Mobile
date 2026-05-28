@@ -1,11 +1,16 @@
-window.addEventListener("load", () => {
+import * as colyseushelper from "./colyseus.js";
+import { colyseus } from "./colyseus.js";
+import { getUser, setupUserBanner } from "./utils/user.js";
+import { initMainLobbyHandlers } from "./handlers/mainLobbyHandlers.js";
+
+export function init() {
   addEventListeners();
-  setProfilePicId();
-  setUsername();
-  joinMainLobby();
-  getAvailableGames();
+  setupUserBanner();
+  initMainLobbyHandlers();
+  colyseushelper.joinMainLobby();
+  colyseushelper.getAvailableGames();
   updateSliderFill();
-});
+}
 
 function addEventListeners() {
     document.querySelectorAll(".interactable-button").forEach(button => {
@@ -18,7 +23,7 @@ function addEventListeners() {
                     gamelobby_id = selectedgame.id;
                 });
                 var user = await getUser();
-                colyseus.joingamelobby(user, gamelobby_id);
+                colyseus.joinlobby(user, gamelobby_id);
             } else if (button.textContent === "Match History") {
                 window.location.href = "/history";
             }
@@ -64,7 +69,7 @@ function addEventListeners() {
         let password = document.getElementById("gamepassword").value;    
         let gamelobby = {owner, type, mode, password, maxplayers };
 
-        colyseus.creategamelobby(gamelobby);
+        colyseus.createlobby(gamelobby);
     });    
 
     const slider = document.getElementById("playerslider");
@@ -102,8 +107,7 @@ function updateSliderFill() {
     )`;
 }
 
-
-async function listGames(gameslist){
+export async function listGames(gameslist){
     const searchbox = document.getElementById("searchbox");
     const searchicon = document.getElementById("searchicon");
     const filtercontrols = document.getElementById("filtercontrols");
@@ -122,6 +126,7 @@ async function listGames(gameslist){
         nogames.classList.remove("hidden");
         return;
     }
+
     searchbox.classList.remove("hide");
     searchicon.classList.remove("hide");        
     filtercontrols.classList.remove("hide");
@@ -130,6 +135,7 @@ async function listGames(gameslist){
       
     gameslist.forEach(game => {
         const { owner, type, mode, maxplayers, gamelobby_id } = game.metadata;
+        const currplayers = game.clients == 0 ?  1 : game.clients;
         if (owner == user.username ) return;
         const matchdiv = document.getElementById("matcheswrapper");
 
@@ -159,17 +165,11 @@ async function listGames(gameslist){
 
         const matchcount = document.createElement("div");        
         matchcount.classList.add("match-count");
-        matchcount.textContent = `1/${maxplayers}`;
+        matchcount.textContent = `${currplayers}/${maxplayers}`;
 
         listing.appendChild(matchusername);
         listing.appendChild(matchtype);        
         listing.appendChild(matchcount);        
         matchdiv.appendChild(listing);
     });
-}
-
-async function getAvailableGames() { 
-    if(!colyseus) return;
-
-    colyseus.send("listgames");
 }

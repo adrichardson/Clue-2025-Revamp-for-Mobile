@@ -1,7 +1,6 @@
 export const BOARD_ORIGIN_PX = { x: 73, y: 50};
 export const TILE_SIZE = { w: 42, h: 42 };
 
-
 export const BOARD_ROWS = 25;
 export const ROW_OFFSETS = [
   0, 42, 84, 126, 168, 
@@ -26,9 +25,8 @@ export const EXCLUDE_TILES = new Set([
   "15,24", "16,24", "17,24", "18,24", "19,24", "20,24", "21,24", "22,24", "23,24",
   "23,18", "23,16", "23,8", "23,6",
   "17,0", "15,0", "8,0",
-   "6,23", "17,23"
+  "6,23", "17,23"
 ]);
-
 
 export const ROOM_DEFS = [
   {
@@ -36,6 +34,7 @@ export const ROOM_DEFS = [
     name: "Study",
     rect: { x: 0, y: 0, w: 7, h: 4 },
     doors: ["6,4"],
+    passage: "kitchen",
     excludes: []
   },
   {
@@ -50,6 +49,7 @@ export const ROOM_DEFS = [
     name: "Lounge",
     rect: { x: 17, y: 0, w: 7, h: 6 },
     doors: ["17,6"],
+    passage: "conservatory",    
     excludes: ["17,0"]
   },
   {
@@ -60,14 +60,14 @@ export const ROOM_DEFS = [
     excludes: ["6,6", "6,10", "0,6", "0,10"]
   },
   {
-    id: "billiard",
+    id: "billiardroom",
     name: "Billiard Room",
     rect: { x: 0, y: 12, w: 6, h: 5 },
     doors: ["1,11", "6,15"],
     excludes: []
   },
   {
-    id: "dining",
+    id: "diningroom",
     name: "Dining Room",
     rect: { x: 16, y: 9, w: 8, h: 7 },
     doors: ["17,8", "15,12"],
@@ -78,6 +78,7 @@ export const ROOM_DEFS = [
     name: "Conservatory",
     rect: { x: 0, y: 19, w: 6, h: 5 },
     doors: ["5,19"],
+    passage: "lounge",
     excludes: ["5,19", "0,19"]
   },
   {
@@ -92,6 +93,7 @@ export const ROOM_DEFS = [
     name: "Kitchen",
     rect: { x: 18, y: 18, w: 6, h: 6 },
     doors: ["19,17"],
+    passage: "study",    
     excludes: ["23,18"]
   },
   {

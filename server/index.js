@@ -71,6 +71,7 @@ app.use("/admin", adminRoutes);             // /admin
 app.use("/register", registraionRoutes);    // /register
 app.use("/api/game", gameRoutes);           // /api/game
 app.use("/api/gamelobby", gameLobbyRoutes); // /api/gamelobby
+app.use("/shared", express.static("shared")); //shared data folder
 
 // Colyseus game server
 const gameServer = new Server({

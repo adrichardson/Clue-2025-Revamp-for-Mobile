@@ -1,5 +1,5 @@
 // board/boardUtils.js
-import { ROOMS, TILE_SIZE, BOARD_COLS, BOARD_ROWS, BOARD_ORIGIN_PX } from "./boardData-old.js";
+import { ROOMS, TILE_SIZE, BOARD_COLS, BOARD_ROWS, BOARD_ORIGIN_PX } from "../../../shared/data/index.js";
 import { showToast } from "../utils/utils.js";
 
 export function worldToGrid(worldX, worldY) {
@@ -51,19 +51,6 @@ export function getRoomAt(col, row) {
 
     // Check exclusions (doors, paths, gaps)
     if (room.exclude?.has(`${col},${row}`)) return null;
-
-    // ctx.fillStyle = "rgba(255,0,0,0.4)";
-    // for (const room of ROOMS) {
-    // if (!room.exclude) continue;
-    // for (const ex of room.exclude) {
-    //     ctx.fillRect(
-    //     BOARD_ORIGIN_PX.x + ex.col * TILE_PX.w,
-    //     BOARD_ORIGIN_PX.y + ex.row * TILE_PX.h,
-    //     TILE_PX.w,
-    //     TILE_PX.h
-    //     );
-    // }
-    // }    
 
     return room;
   }

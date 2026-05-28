@@ -26,11 +26,22 @@ function draw(ctx, w, h) {
   }
 
   if (state.debug.hoveredTile) {
-    state.debug.hoveredTile.drawHighlight(
-      ctx,
-      state.board.origin,
-      performance.now() / 1000
-    );
+    state.debug.hoveredTile.drawHighlight(ctx, state.board.origin, performance.now() / 1000);
+  }
+
+  if( state.currentTurn?.validMoves && !state.currentTurn?.hasMoved && state.currentTurn.currentPlayerId == state.user.user_id) {
+    for (const tileId of state.currentTurn.validMoves.tiles) {
+      const tile = state.board.tiles.get(tileId);
+      if (tile) {
+        tile.drawHighlight(ctx, state.board.origin, performance.now() / 1000);
+      }
+    }
+    for (const roomId of state.currentTurn?.validMoves.rooms) {
+      const room = state.board.rooms.get(roomId); 
+      if (room) {
+        room.drawOutline(ctx, state.board.origin);
+      }
+    }
   }
 
   for (const piece of state.pieces.values()) {

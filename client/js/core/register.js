@@ -1,7 +1,10 @@
-window.addEventListener("load", () => {
+import { showError, setErrorPosition} from "./utils/uierror.js";
+import {updateSelectedImageColor, updateSelectedImageTag, getCharacterHexColorById} from "./utils/imagehelper.js";
+
+export function init(){
   setupStepForms();
   addEventListeners();
-});
+}
 
 function addEventListeners() {
 
@@ -44,7 +47,8 @@ function addEventListeners() {
 }
 
 function getProfilePicId() {
-  const selectedImg = document.querySelector(".profile-pic-image.selected");
+  const selectedImg = document.querySelector(".character-pic-option img.selected");
+  
   if (!selectedImg) return null;
   switch (selectedImg.alt) {
     case "Miss Scarlet": return 0;

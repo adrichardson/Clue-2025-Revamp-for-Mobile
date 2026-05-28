@@ -1,7 +1,7 @@
 export class Piece {
-  constructor({ tile, owner, id, radius = 20, color }) {
+  constructor({ tile, room, owner, id, radius = 20, color }) {
     this.tile = tile;          // Tile instance (current)
-    this.room = null;         // Room instance (current)
+    this.room = room;         // Room instance (current)
     this.owner = owner;        // string | player id | enum
     this.id = id;    
     this.radius = radius;
@@ -39,7 +39,7 @@ export class Piece {
     this.tile = null;
 
     const center = room.getCenterWorld(boardOrigin);
-    const others = room.getPiecesInRoom();
+    const others = room.getPiecesInRoom().filter(p => p !== this);
 
     // Try center first
     let candidate = {
@@ -57,6 +57,7 @@ export class Piece {
     if (!blocked) {
       this.x = candidate.x;
       this.y = candidate.y;
+      room.addPiece(this);
       return;
     }
 
@@ -79,6 +80,7 @@ export class Piece {
         if (!blocked) {
           this.x = candidate.x;
           this.y = candidate.y;
+          room.addPiece(this);          
           return;
         }
       }

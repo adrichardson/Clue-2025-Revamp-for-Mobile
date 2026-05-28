@@ -15,41 +15,33 @@
         <div class="gamemenuitemlabel">Sheet</div>
     </div>
     <div class="gamemenuitem" id="gamemessagebtn">
+        <div class="chat-notification hidden" id="chatnotification">New</div>        
         <img src="../../assets/icons/chaticon.png" class="gamemenuitemicon">
         <div class="gamemenuitemlabel">Messages</div>
     </div>
 </div>
 <div id="ui-layer">
-  <%- include("./draggableModal", {
-    id: "gameactionModal",
-    title: "Action",
-    content: `
-      <div>Action content here</div>
-    `
-  }) %>
+    <%- include("modals/draggableModal", {
+        id: "gameactionModal",
+        title: "Action",
+        content: include("modals/gameactionContent")
+    }) %>
 
-  <%- include("./draggableModal", {
-    id: "gamehandModal",
-    title: "Your Hand",
-    content: `
-      <div class="card">Card 1</div>
-      <div class="card">Card 2</div>
-    `
-  }) %>
-
-  <%- include("./draggableModal", {
-    id: "gamesheetModal",
-    title: "Clue Sheet",
-    content: `
-      <div>Sheet content here</div>
-    `
-  }) %>
-  
-  <%- include("./draggableModal", {
-    id: "gamemessageModal",
-    title: "Messages",
-    content: `
-      <div>Message content here</div>
-    `
-  }) %>  
+    <%- include("modals/draggableModal", {
+        id: "gamehandModal",
+        title: "Your Hand",
+        content: include("modals/gamehandContent")
+    }) %> 
+    
+    <%- include("modals/draggableModal", {
+        id: "gamesheetModal",
+        title: "Detective Sheet",
+        content: include("modals/gamesheetContent", {users : ["CAPSUSERXX", "SONICSAW", "Monet", "richbcla", "queeb"]})
+    }) %>   
+    
+    <%- include("modals/draggableModal", {
+        id: "gamemessageModal",
+        title: "Messages",
+        content: include("modals/gamemessageContent")
+    }) %>
 </div>

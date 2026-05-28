@@ -3,13 +3,14 @@ import { Room } from "colyseus";
 import { LobbyState } from "../schemas/LobbyState.js";
 import { User } from "../schemas/User.js";
 import { LobbyRoomHandlers } from "../handlers/LobbyRoomHandler.js";
+import { EVENTS }  from "../../../shared/data/index.js";
 
 export class LobbyRoom extends Room {
   onCreate(options) {
     this.autoDispose = false; // keep lobby alive
     this.state = new LobbyState();
 
-    global.lobbyRoom = this; 
+    global.lobbyRoom = this;
 
     for (const [msg, handler] of Object.entries(LobbyRoomHandlers)) {
       this.onMessage(msg, (client, message) => {
@@ -23,26 +24,15 @@ export class LobbyRoom extends Room {
   onJoin(client, options) {
     const username = options.username;
     const user_id = options.user_id;
-
-    let existingUser = this.state.getUser(user_id);
-
-    if (existingUser) {
-      client.user = existingUser;
-      console.log(existingUser.username, "rejoined the lobby!");
-      // notify others
-      this.broadcast("userJoined", { username }, { except: client });
-      client.send("welcome", { message: `Welcome ${username}!` });      
-      return;
-    }
-    
+   
     let user = new User(username, user_id);
     this.state.addUser(user);
     client.user = user;
 
-    console.log(user.username, "joined the lobby!");
+    console.log(user.username, "joined the main lobby!");
     // notify others
-    this.broadcast("userJoined", { username }, { except: client });
-    client.send("welcome", { message: `Welcome ${username}!` });    
+    this.broadcast(EVENTS.MAINLOBBY.PLAYER_JOINED, { username }, { except: client });
+    client.send(EVENTS.MAINLOBBY.WELCOME_MESSAGE, { message: `Welcome ${username}!` });    
   }
 
   onLeave(client) {
@@ -53,7 +43,7 @@ export class LobbyRoom extends Room {
     if (user) {
       console.log(username, "has left the main lobby");
       this.state.removeUser(user_id);
-      this.broadcast("userLeft", { username }, { except: client });
+      this.broadcast(EVENTS.MAINLOBBY.PLAYER_LEFT, { username }, { except: client });
     }
   }
 }

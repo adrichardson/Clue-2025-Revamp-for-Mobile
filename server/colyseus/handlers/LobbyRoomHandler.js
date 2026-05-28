@@ -1,14 +1,15 @@
 import { matchMaker } from "colyseus";
+import { EVENTS } from "../../../shared/data/index.js";
 
 export const LobbyRoomHandlers = {
-    gamelobbycreated: async (room, client, message) => {
+    [EVENTS.MAINLOBBY.GAMELOBBY_CREATED]: async (room, client, message) => {
         const lobbies = await matchMaker.query({ name: "gamelobby" });
-        room.broadcast("gamelobbycreated", lobbies, { except: client });
+        room.broadcast(EVENTS.MAINLOBBY.GAMELOBBY_CREATED, lobbies, { except: client });
     },
-    listgames: async (room, client) => {
+    [EVENTS.MAINLOBBY.LIST_GAMES]: async (room, client) => {
         try {
             const lobbies = await matchMaker.query({ name: "gamelobby" });
-            client.send("listgames", lobbies);
+            client.send(EVENTS.MAINLOBBY.LIST_GAMES, lobbies);
         } catch (err) {
             console.error("Failed to fetch game list:", err);
         }

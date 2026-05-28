@@ -8,10 +8,10 @@
   <div class="wrapper">
     <%- include("partials/logo") %>   
     <div class="button-wrapper">
-        <button onclick="redirectWithTransition('/login')" class="interactable-button">Login</button>
-        <button onclick="redirectWithTransition('/register')" class="interactable-button">Register</button>
+        <button class="interactable-button" id="loginbtn">Login</button>
+        <button class="interactable-button" id="registerbtn">Register</button>
     </div>
   </div>
-  <script src="/js/index.js?v=<%= version %>"></script>
+      <%- include("partials/footer", { pagename: "index" }) %>
 </body>
 </html>

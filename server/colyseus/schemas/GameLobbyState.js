@@ -5,6 +5,7 @@ export class GameLobbyState extends Schema {
   constructor() {
     super();
     this.players = new MapSchema();
+    this.playersReady = false;
   }
 
   addPlayer(id, player) {
@@ -26,4 +27,5 @@ export class GameLobbyState extends Schema {
 
 defineTypes(GameLobbyState, {
   players: { map: Player },
+  playersReady: "boolean",
 });

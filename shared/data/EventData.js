@@ -1,0 +1,45 @@
+export const EVENTS = {
+  CLIENT: {
+    CHAT_MESSAGE: "client:chatMessage",
+    ROLLED: "client:rolled",
+    MOVED: "client:moved",
+    OBJECTED: "client:objected",
+    SUGGESTED: "client:suggested",
+    NEW_TURN: "client:newTurn"
+  },
+
+  SERVER: {
+    STATE_READY: "server:stateReady",
+    PHASE_CHANGED: "server:phaseChanged",
+    TURN_CHANGED: "server:turnChanged",
+    CHAT_MESSAGE: "server:chatMessage",
+    ROLL_RESULT: "server:rollResult",
+    OBJECTION_FOUND: "server:objectionFound",
+    FINAL_POSSIBLE: "server:finalpossible",
+    PLAYER_ADDED: "server:playerAdded",
+    PLAYER_REMOVED: "server:playerRemoved",
+    PLAYER_INVALID_MOVE: "server:invalidMove",
+    PLAYER_VALID_MOVE: "server:validMove"  
+  },
+
+  MAINLOBBY: {
+    PLAYER_JOINED: "lobby:playerJoined",
+    PLAYER_LEFT: "lobby:playerLeft",
+    WELCOME_MESSAGE: "lobby:welcomeMessage",
+    GAMELOBBY_CREATED: "lobby:gamelobbyCreated",    
+    LIST_GAMES: "lobby:listgames",    
+    REFRESH_GAMES: "lobby:refreshgames", 
+    LOGOUT: "lobby:logout"  
+  },
+
+  GAME_LOBBY: {
+    METADATA_CHANGE: "gamelobby:metadatachanged",
+    DISCONNECT: "gamelobby:disconnected",
+    GAME_STARTED: "gamelobby:gamestarted",
+    OWNER_CHANGE: "gamelobby:ownerchange",    
+    PLAYER_JOINED: "gamelobby:playerJoined",
+    PLAYER_LEFT: "gamelobby:playerLeft",
+    READYSTATE_CHANGE: "gamelobby:readystateChange",    
+    CHARACTER_CHANGE: "gamelobby:characterChange"
+  }  
+};

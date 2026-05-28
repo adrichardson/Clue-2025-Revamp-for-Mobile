@@ -11,7 +11,7 @@ import {
   BOARD_ORIGIN_PX,
   COL_OFFSETS,
   ROW_OFFSETS 
-} from "./boardData.js";
+} from "../../../../shared/data/index.js";
 
 export class Board {
   constructor() {
@@ -72,8 +72,8 @@ export class Board {
           tiles.push(tile);
         }
       }
-
-      const room = new Room(def.id, def.name, tiles, def.canEnter == undefined ? true : def.canEnter);
+      
+      const room = new Room(def.id, def.name, tiles, def.canEnter == undefined ? true : def.canEnter, def.passage);
       this.rooms.set(def.id, room);
     }
   }

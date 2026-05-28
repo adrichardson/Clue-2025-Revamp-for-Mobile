@@ -1,11 +1,12 @@
 export class Room {
-  constructor(id, name, tiles = [], canEnter) {
+  constructor(id, name, tiles = [], canEnter, passage) {
     this.id = id;
     this.name = name;
     this.tiles = tiles;
     this.pieces = new Set();
     this._outlineEdges = null;
     this.canEnter = canEnter;
+    this.passage = passage;
     this.validMove = false; //init valid move
     // animation state
     this.pulseTime = 0;
@@ -38,6 +39,12 @@ export class Room {
     }
     return result;
   }
+
+  clearRoom() {
+    for (const piece of [...this.pieces]) {
+      this.removePiece(piece);
+    }
+  }  
 
   /* =========================
      OUTLINE COMPUTATION
@@ -136,7 +143,7 @@ export class Room {
     ctx.save();
     ctx.translate(boardOrigin.x, boardOrigin.y);
 
-    ctx.strokeStyle = `rgba(0,255,255,${alpha})`;
+    ctx.strokeStyle = `rgba(0,255,120,${alpha})`;
     ctx.lineWidth = 4;
     ctx.shadowColor = "cyan";
     ctx.shadowBlur = 12;

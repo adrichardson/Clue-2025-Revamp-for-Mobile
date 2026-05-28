@@ -1,0 +1,70 @@
+<%
+  const categories = ["suspects", "weapons", "rooms"];
+  const suspects = ["Mrs. Peacock", "Prof. Plum", "Col. Mustard", "Mr. Green", "Mrs. White", "Miss Scarlet"];
+  const weapons = ["Candlestick", "Dagger", "Lead Pipe", "Revolver", "Rope", "Wrench"];
+  const rooms = ["Kitchen", "Ballroom", "Conservatory", "Dining Room", "Billiard Room", "Library", "Lounge", "Hall", "Study"];
+%>
+
+<div class="sheetContainer">
+    <div class="sheetWrapper">
+    <% categories.forEach(category => { %>
+        <div class="sheetSection">
+        <div class="sheetGrid">
+            <div class="headerRow">
+                <div class="sheetSectionHeader">
+                <%= category.charAt(0).toUpperCase() + category.slice(1) %>
+                </div>
+
+                <% for (let i = 0; i < 5; i++) { %>
+                <div class="sheetColumnHeader"><span title="<%= users[i] %>"><%= users[i] %></span></div>
+                <% } %>
+            </div>
+            <% 
+            let items = [];
+            if (category === "suspects") items = suspects;
+            else if (category === "weapons") items = weapons;
+            else if (category === "rooms") items = rooms;
+            %>
+            
+            <% items.forEach(item => { %>
+            <div class="sheetRow">
+                <div class="sheetItemLabel"><%= item %></div>
+
+                <% for (let i = 0; i < 5; i++) { %>
+                <div class="sheetBox"></div>
+                <% } %>
+            </div>
+            <% }) %>
+
+        </div>
+        </div>
+    <% }) %>
+    </div>
+    <div class="inputWrapper">
+        <div class="optionsMarkerWrapper">
+            <div class="optionsTitle">Options</div>
+            <div class="optionlistWrapper">
+                <div class="markerOption selected" id="sheetCheck">✔</div>
+                <div class="markerOption" id="sheetX">✖</div>
+                <div class="markerOption " id="sheetQuestion">?</div>           
+                <div class="markerOption" id="sheetDash">ー</div>                
+                <div class="markerOption" id="sheetHalf">½</div>
+                <div class="markerOption" id="sheetThird">⅓</div>
+            </div>
+        </div>
+        <div class="optionsColorWrapper">
+            <div class="optionsTitle">Color</div>
+            <div class="optionlistWrapper">
+                <div class="colorOption selected" id="sheetBlack"></div>
+                <div class="colorOption" id="sheetBlue"></div>
+                <div class="colorOption" id="sheetYellow"></div>
+                <div class="colorOption" id="sheetRed"></div>
+                <div class="colorOption" id="sheetGreen"></div>         
+                <div class="colorOption" id="sheetPurple"></div>                   
+            </div>
+        </div>     
+    </div>
+    <div class="clearoptionwrapper">
+        <div class="clearbtn" id="clearbtn">Clear Grid</div>
+    </div>       
+</div>

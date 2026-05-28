@@ -31,3 +31,45 @@
       toast.style.opacity = 0;
     }, 1200);
 }
+
+export function fitText(el, max = 1.5, min = 0.7) {
+
+  const original = el.textContent;
+  const canWrap = original.includes(" ");
+  let bestSize = min;
+
+  function fits(size, nowrap) {
+    el.style.fontSize = `${size}rem`;
+    el.style.whiteSpace = nowrap ? "nowrap" : "normal";
+
+    return (
+      el.scrollWidth <= el.clientWidth &&
+      el.scrollHeight <= el.clientHeight
+    );
+  }
+
+  if (!canWrap) {
+    let size = max;
+
+    while (size >= min) {
+      if (fits(size, true)) {
+        bestSize = size;
+        break;
+      }
+      size -= 0.05;
+    }
+  } else {
+    let size = max;
+    
+    while (size >= min) {
+      if (fits(size, false)) {
+        bestSize = size;
+        break;
+      }
+      size -= 0.05;
+    }
+  }
+
+  el.style.fontSize = `${bestSize}rem`;
+  el.style.whiteSpace = canWrap ? "normal" : "nowrap";
+}

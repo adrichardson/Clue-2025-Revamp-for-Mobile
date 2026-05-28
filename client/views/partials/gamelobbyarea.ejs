@@ -1,11 +1,16 @@
 <div class="screen-text lobbytitle" id="lobbytitle"></div>
-<div class="chatbox" id="chatbox">Chat
+<div class="chatbox" id="gamemessagebtn">Chat
   <div class="chat-notification hidden" id="chatnotification">New</div>    
 </div>
 <div class="gamelobby" id="gamelobby">
     <%- include("partials/character-pic-option") %> 
 </div>
-    <%- include("partials/chat-modal") %>
+    <!-- <%- include("partials/chat-modal") %> -->
+    <%- include("./partials/modals/draggableModal", {
+        id: "gamemessageModal",
+        title: "Messages",
+        content: include("./partials/modals/gamemessageContent")
+    }) %>     
 <div class="characterinfo-wrapper" id="characterinfowrapper">
     <div class="characterinfo" id="characterinfo"> Miss Scarlet </div>
 </div>
@@ -13,4 +18,5 @@
     <button class="interactable-button" id="readybtn">Ready</button>
     <button class="interactable-button brown hidden" id="cancelbtn">Cancel</button>    
     <button class="interactable-button brown" id="leavebtn">Leave</button>
+    <button class="interactable-button hidden" id="startgamebtn">Start Game</button>    
 </div>

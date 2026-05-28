@@ -1,4 +1,4 @@
-import { COL_OFFSETS, ROW_OFFSETS } from "./boardData.js";
+import { COL_OFFSETS, ROW_OFFSETS } from "../../../../shared/data/index.js";
 
 export class Tile {
   constructor(col, row, tileW, tileH) {
@@ -6,6 +6,7 @@ export class Tile {
     this.row = row;
     this.w = tileW;
     this.h = tileH;
+    this.id = `${this.col},${this.row}`;
   }
 
   /* =========================

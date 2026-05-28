@@ -1,5 +1,7 @@
 import { showToast } from "./utils.js";
 import { redraw } from "./renderer.js";
+import { colyseus } from "../colyseus.js";
+import { EVENTS, PHASES } from "../../../../shared/data/index.js";
 
 export function setupInput(canvas, state, onPointerDown) {
   const pointers = new Map();
@@ -9,6 +11,8 @@ export function setupInput(canvas, state, onPointerDown) {
 
   let isPCPanning = false;
   let lastPanPos = null;
+
+  let isDragging = false;
 
   /* =========================
      COORD CONVERSIONS
@@ -39,20 +43,8 @@ export function setupInput(canvas, state, onPointerDown) {
 
   canvas.addEventListener("pointerdown", e => {
 
-    if (onPointerDown) {
-      const canvasPos = getCanvasCoords(e);
-      const { worldX, worldY } = getWorldCoords(e);
+    isDragging = false;    
 
-      const consumed = onPointerDown({
-        canvasX: canvasPos.x,
-        canvasY: canvasPos.y,
-        worldX,
-        worldY,
-        event: e
-      });
-      if (consumed) return;
-    }    
-  
     // ---- ALT / PC PAN START ----
     if (e.altKey && pointers.size === 0) {
       isPCPanning = true;
@@ -72,10 +64,20 @@ export function setupInput(canvas, state, onPointerDown) {
 
     const { worldX, worldY } = getWorldCoords(e);
 
+    //piece clicked
+    console.log(state);
     for (const piece of state.pieces.values()) {
       if (piece.containsWorld(worldX, worldY)) {
-        piece.beginDrag(e.pointerId);
-        break;
+        console.log(piece, state.playerPiece, piece.owner == state.playerPiece.owner, state.ui.canMove)
+         console.log("state snapshot", {myturn : state.ui.isMyTurn, hasmoved : state.currentTurn.hasMoved, canmove : (state.ui.isMyTurn && !state.currentTurn.hasMoved), canMvalue : state.ui.canMove});
+        if(piece.owner == state.playerPiece.owner && state.ui.canMove) {
+          piece.beginDrag(e.pointerId);
+          break;
+        } else if (piece.owner != state.playerPiece?.owner) {
+          showToast(`You cannot move ${piece.owner}'s piece`);
+        } else if (piece == state.playerPiece && !state.ui.canMove) {
+          showToast("You must roll the dice or take a passage before moving!");
+        }
       }
     }
   });
@@ -118,6 +120,7 @@ export function setupInput(canvas, state, onPointerDown) {
         piece.dragging &&
         piece.dragPointerId === e.pointerId
       ) {
+          isDragging = true; // prevent click-through when pinch-dragging        
           const board = state.board;
           const { worldX, worldY } = getWorldCoords(e);
 
@@ -151,6 +154,7 @@ export function setupInput(canvas, state, onPointerDown) {
     ========================= */
 
     if (isPCPanning && pointers.size === 1) {
+      isDragging = true; // prevent click-through when pinch-dragging      
       const pos = getCanvasCoords(e);
 
       const dx = pos.x - lastPanPos.x;
@@ -171,6 +175,7 @@ export function setupInput(canvas, state, onPointerDown) {
     ========================= */
 
     if (pointers.size === 2) {
+      isDragging = true; // prevent click-through when pinch-dragging
       const pts = [...pointers.values()];
       const p0 = getCanvasCoords(pts[0]);
       const p1 = getCanvasCoords(pts[1]);
@@ -207,6 +212,7 @@ export function setupInput(canvas, state, onPointerDown) {
   canvas.addEventListener("pointercancel", endGesture);
 
   function endGesture(e) {
+
     pointers.delete(e.pointerId);
 
     // ---- STOP PC PAN ----
@@ -215,47 +221,82 @@ export function setupInput(canvas, state, onPointerDown) {
       lastPanPos = null;
     }
 
-    // ---- CLEAR PINCH STATE WHEN < 2 POINTERS ----
+    // ---- CLEAR PINCH STATE ----
     if (pointers.size < 2) {
       lastPinchDistance = null;
       lastPinchMidpoint = null;
     }
 
     /* =========================
-       SNAP PIECES
+      BOARD CLICK MOVE
     ========================= */
 
-    if( state.pieces) {
+    if (!isDragging) {
+      const { worldX, worldY } = getWorldCoords(e);
+      const { tile, room } = getBoardTarget(worldX, worldY);
+      trySubmitMove(tile, room);
+    }
+
+    /* =========================
+      SNAP PIECES
+    ========================= */
+
+    if (state.pieces) {
       for (const piece of state.pieces.values()) {
-        if (piece.dragPointerId === e.pointerId) {
-          piece.endDrag();
+        if (piece.dragPointerId !== e.pointerId) {
+          continue;
+        }
 
-          const cx = piece.x;
-          const cy = piece.y;
+        piece.endDrag();
 
-          const tile = state.board.getTileAtWorld(cx, cy);
-          const room = state.board.getRoomAtWorld(cx, cy);
+        const { tile, room } = getBoardTarget(piece.x, piece.y);
 
-          if (tile && !room) {
-            piece.tile = tile;
-            piece.snapToTile(state.board.origin); //contains room removal
-            state.debug.hoveredTile = null;
-     
-          } else if (room && room.canEnter) {
-            room.addPiece(piece);
-            piece.room = room;
-            piece.snapToRoom(room, state.board.origin); //contains tile removal
-            state.debug.hoveredRoom = null;
+        if (!trySubmitMove(tile, room)) {
+          if (piece.tile !== null) {
+            piece.snapToTile(state.board.origin);          
           } else {
-            piece.tile !== null ? piece.snapToTile(state.board.origin) : piece.snapToRoom(piece.room, state.board.origin);
-            state.debug.hoveredTile = null;
-            state.debug.hoveredRoom = null;
+            piece.snapToRoom(piece.room, state.board.origin);
           }
         }
+
+        state.debug.hoveredTile = null;
+        state.debug.hoveredRoom = null;
       }
     }
 
     state.camera.clampToImage(canvas, state.boardImage);
     redraw();
   }
+
+  function getBoardTarget(worldX, worldY) {
+    const board = state.board;
+
+    return {
+      tile: board.getTileAtWorld(worldX, worldY),
+      room: board.getRoomAtWorld(worldX, worldY)
+    };
+  }  
+
+  function submitMove(tileId = null, roomId = null) {
+    colyseus.send(EVENTS.CLIENT.MOVED, { tileId, roomId, stay: false, pass: false, passage: false });
+  }
+
+  function trySubmitMove(tile, room) {
+
+    if (state.phase !== PHASES.MOVE) {
+      return false;
+    }
+
+    if ( tile && state.currentTurn.validMoves.tiles.includes(tile.id)) {
+      submitMove(tile.id, null);
+      return true;
+    }
+
+    if (room && room.canEnter && state.currentTurn.validMoves.rooms.includes(room.id)) {
+      submitMove(null, room.id);
+      return true;
+    }
+
+    return false;
+  }  
 }
