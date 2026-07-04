@@ -63,7 +63,7 @@ export const GameRoomHandlers = {
         console.log("Received suggestion from", client.player.username, ":", fullguess.suspect, fullguess.weapon, fullguess.room);     
         if(moveCharacter){
             let isInRoom = message.roomId == moveCharacter.currentRoomId;
-            console.log("isinroom? ", isInRoom);
+
             moveCharacter.currentRoomId = isInRoom? moveCharacter.currentRoomId : message.roomId;            
             if (movePlayer) {
                 movePlayer.calledIn = !isInRoom;
@@ -80,7 +80,7 @@ export const GameRoomHandlers = {
             state.phase = PHASES.OBJECTION;                  
         } else {
             console.log("Nobody could object.");
-            state.phase = PHASES.FINAL_SUGGESTION;        
+            state.phase = PHASES.FINAL_POSSIBLE;        
         }
     },    
     [EVENTS.CLIENT.MOVED]: (room, client, data) => {    
@@ -236,6 +236,35 @@ export const GameRoomHandlers = {
         console.log("showing", card.name, " to player ", currentPlayer.username);
         room.sendToPlayer(currentPlayer, EVENTS.SERVER.OBJECTION_FOUND, { player: client.player, card });
     }, 
+    [EVENTS.CLIENT.CHOOSE_FINAL]: async (room, client, message) => {
+        const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
+        console.log(currentPlayer.username, " is making a final");
+        room.state.phase = PHASES.FINAL_SUGGESTION;
+    },
+    [EVENTS.CLIENT.SUBMIT_FINAL]: async (room, client, message) => {
+        const { suspectId, weaponId, roomId } = message;
+        const solution = room.solution;
+        console.log("checking final guess against solution", solution.person.name, solution.weapon.name, solution.room.imagetag);
+        const isCorrect =
+            solution.person.id === Number(suspectId) &&
+            solution.weapon.id === Number(weaponId) &&
+            solution.room.imagetag === roomId;         
+        const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
+        if (isCorrect) {
+            const personguess = SUSPECTS.find(card => card.id === Number(message.suspectId));
+            const weaponguess = WEAPONS.find(card => card.id === Number(message.weaponId));        
+            const roomguess = ROOMS.find(card => card.imagetag === message.roomId);            
+            const fullsolution = new Suggestion(personguess.name, weaponguess.name, roomguess.name);
+            fullsolution.cards.push(room.toCardSchema(personguess), room.toCardSchema(weaponguess), room.toCardSchema(roomguess));
+            console.log(`${currentPlayer.username} solved the mystery!`);
+            room.state.currentTurn.suggestion = fullsolution;
+            room.state.phase = PHASES.GAME_OVER;
+        } else {
+            console.log(`${currentPlayer.username} made an incorrect accusation.`);
+            currentPlayer.eliminated = true;
+            room.nextTurn();
+        }
+    },    
     [EVENTS.GAME_LOBBY.METADATA_CHANGE]: async (room, client, message) => {
         const value = message.newKey;
 

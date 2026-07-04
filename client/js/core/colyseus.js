@@ -61,6 +61,10 @@ async function setupMainLobbyHandlers() {
         emit(EVENTS.MAINLOBBY.WELCOME_MESSAGE, message);
       });
 
+      lobby.onMessage(EVENTS.SERVER.CHAT_MESSAGE, (data) => {
+        emit(EVENTS.SERVER.CHAT_MESSAGE, data);
+      });      
+
       lobby.onMessage(EVENTS.MAINLOBBY.GAMELOBBY_CREATED, (message) => {
         emit(EVENTS.MAINLOBBY.GAMELOBBY_CREATED, message);
       });      
@@ -129,6 +133,14 @@ async function setupGameLobbyHandlers() {
 
       gamelobby.onMessage(EVENTS.SERVER.CHAT_MESSAGE, (data) => {
         emit(EVENTS.SERVER.CHAT_MESSAGE, data);
+      });
+
+      gamelobby.onMessage(EVENTS.GAME_LOBBY.GAME_STARTING, (data) => {
+        emit(EVENTS.GAME_LOBBY.GAME_STARTING, data);
+      });
+
+      gamelobby.onMessage(EVENTS.GAME_LOBBY.GAME_START_CANCELLED, () => {
+        emit(EVENTS.GAME_LOBBY.GAME_START_CANCELLED);
       });
 
       gamelobby.onMessage(EVENTS.GAME_LOBBY.GAME_STARTED, ({ game_id }) => {
@@ -242,6 +254,14 @@ async function setupGameHandlers() {
       game.onMessage(EVENTS.SERVER.OBJECTION_FOUND , (data) => {
         emit(EVENTS.SERVER.OBJECTION_FOUND, data);
       });
+
+      game.onMessage(EVENTS.SERVER.FINAL_POSSIBLE , (data) => {
+        emit(EVENTS.SERVER.FINAL_POSSIBLE, data);
+      });
+
+      game.onMessage(EVENTS.SERVER.GAME_PLAYER_LIST, (data) => {
+        emit(EVENTS.SERVER.GAME_PLAYER_LIST, data);
+      });      
     }
 }
 

@@ -1,7 +1,8 @@
 import { colyseus } from "../colyseus.js";
 import { fitText } from "../utils/utils.js";
 import { closeModal } from "../utils/modalutils.js";
-import { EVENTS, SUSPECTS, WEAPONS, ROOMS } from "../../../../shared/data/index.js";
+import { showToast } from "../utils/utils.js";
+import { EVENTS, SUSPECTS, WEAPONS, ROOMS, TOASTS, TOAST_DURATIONS } from "../../../../shared/data/index.js";
 
 let suspectId = null;
 let weaponId = null;
@@ -48,7 +49,7 @@ export function renderSuggestionScreen(container, data) {
     btn.textContent = suspect.name;
     document.querySelector("#suggestSuspect").appendChild(btn);
     requestAnimationFrame(() => {
-    fitText(btn);
+        fitText(btn);
     });
    });
 
@@ -59,7 +60,7 @@ export function renderSuggestionScreen(container, data) {
     btn.textContent = weapon.name;
     document.querySelector("#suggestWeapon").appendChild(btn);
     requestAnimationFrame(() => {
-    fitText(btn);
+        fitText(btn);
     });
    });
 
@@ -70,39 +71,36 @@ export function renderSuggestionScreen(container, data) {
     btn.textContent = room.name;
     document.querySelector("#suggestRoom").appendChild(btn);
     requestAnimationFrame(() => {
-    fitText(btn);
+        fitText(btn);
     });   
    });
 
    document.querySelectorAll(".suggestionOption").forEach(btn => {
         const [type, id] = btn.id.split("-");
-        if (type == "suggestSuspect" || type == "suggestWeapon") {
-            btn.addEventListener("click", () => {
-                const [type, id] = btn.id.split("-");
-                const selection = { type, id };
+        btn.addEventListener("click", () => {
+            if(type == "suggestSuspect" || type == "suggestWeapon" || (type == "suggestRoom" && data.isFinal) ) {
                 const oldSelection = btn.parentElement.querySelectorAll(".selected")[0];
                 if (oldSelection != btn) {
                     oldSelection?.classList.toggle("selected");
                 }
                 btn.classList.toggle("selected");
-                
-                const selectedSuspect = document.querySelector(".suggestionOption.selected[id^='suggestSuspect']");
-                const selectedWeapon = document.querySelector(".suggestionOption.selected[id^='suggestWeapon']");
-                const selectedRoom = document.querySelector(".suggestionOption.selected[id^='suggestRoom']");
-                if (selectedSuspect && selectedWeapon && selectedRoom) {
-                    suspectId = selectedSuspect.id.split("-")[1];
-                    weaponId = selectedWeapon.id.split("-")[1];
-                    roomId =selectedRoom.id.split("-")[1];
-                    document.querySelector("#submitbtn").classList.remove("disabled");
-                } else {
-                    document.querySelector("#submitbtn").classList.add("disabled");
-                }
-            });
-        }
+            }
+            
+            const selectedSuspect = document.querySelector(".suggestionOption.selected[id^='suggestSuspect']");
+            const selectedWeapon = document.querySelector(".suggestionOption.selected[id^='suggestWeapon']");
+            const selectedRoom = document.querySelector(".suggestionOption.selected[id^='suggestRoom']");
+            if (selectedSuspect && selectedWeapon && selectedRoom) {
+                suspectId = selectedSuspect.id.split("-")[1];
+                weaponId = selectedWeapon.id.split("-")[1];
+                roomId =selectedRoom.id.split("-")[1];
+                document.querySelector("#submitbtn").classList.remove("disabled");
+            } else {
+                document.querySelector("#submitbtn").classList.add("disabled");
+            }
+        });
     });
 
-    console.log("suggestion found with data", data, data.room.id);
-    roomId = data.room.id;
+    roomId = data.room?.id;
     const roomBtn = document.querySelector(`#suggestRoom-${roomId}`);    
     if (roomId && roomBtn) {
         roomBtn.classList.add("selected");
@@ -110,17 +108,19 @@ export function renderSuggestionScreen(container, data) {
 
     container.querySelector("#submitbtn").addEventListener("click", () => {
         if (document.querySelector("#submitbtn").classList.contains("disabled")) {
-            console.warn("Cannot submit incomplete suggestion");
+            showToast("Please make a full accusation.", TOASTS.WARNING, TOAST_DURATIONS.ALERT);
             return;
         }
-
-        console.log("suggestion submitted");
-        const suggestion = {
-            suspectId: suspectId,
-            weaponId: weaponId,
-            roomId: roomId
-        };
-        colyseus.send(EVENTS.CLIENT.SUGGESTED, suggestion);
+        const suggestion = { suspectId,  weaponId,  roomId };
+        console.log(suggestion);
+        console.log(data);
+        if(data.isFinal) {
+            console.log("making final");
+            colyseus.send(EVENTS.CLIENT.SUBMIT_FINAL, suggestion);
+        } else {
+            colyseus.send(EVENTS.CLIENT.SUGGESTED, suggestion);
+        }
+        
     }); 
   }
     container.querySelector("#okbtn")?.addEventListener("click", () => {

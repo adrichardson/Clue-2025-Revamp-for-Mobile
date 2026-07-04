@@ -10,6 +10,10 @@ export class Player extends Schema {
     this.readystate = readystate;
     this.calledIn = false;
     this.hand = new ArraySchema();
+    this.eliminated = false;
+    this.connected = true;
+    this.hasJoined = false;
+    this.isSpectator = false;
   }
 }
 
@@ -20,4 +24,8 @@ defineTypes(Player, {
   readystate: "boolean",
   calledIn: "boolean",
   hand: [Card],
+  eliminated: "boolean",  
+  connected: "boolean",    
+  hasJoined: "boolean",
+  isSpectator: "boolean"    
 });

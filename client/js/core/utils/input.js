@@ -1,7 +1,7 @@
-import { showToast } from "./utils.js";
+import { showToast, hideToast } from "./utils.js";
 import { redraw } from "./renderer.js";
 import { colyseus } from "../colyseus.js";
-import { EVENTS, PHASES } from "../../../../shared/data/index.js";
+import { EVENTS, PHASES, TOASTS, TOAST_DURATIONS } from "../../../../shared/data/index.js";
 
 export function setupInput(canvas, state, onPointerDown) {
   const pointers = new Map();
@@ -65,18 +65,15 @@ export function setupInput(canvas, state, onPointerDown) {
     const { worldX, worldY } = getWorldCoords(e);
 
     //piece clicked
-    console.log(state);
     for (const piece of state.pieces.values()) {
       if (piece.containsWorld(worldX, worldY)) {
-        console.log(piece, state.playerPiece, piece.owner == state.playerPiece.owner, state.ui.canMove)
-         console.log("state snapshot", {myturn : state.ui.isMyTurn, hasmoved : state.currentTurn.hasMoved, canmove : (state.ui.isMyTurn && !state.currentTurn.hasMoved), canMvalue : state.ui.canMove});
         if(piece.owner == state.playerPiece.owner && state.ui.canMove) {
           piece.beginDrag(e.pointerId);
           break;
         } else if (piece.owner != state.playerPiece?.owner) {
-          showToast(`You cannot move ${piece.owner}'s piece`);
+          showToast(`You cannot move ${piece.owner}'s piece`, TOASTS.ERROR, TOAST_DURATIONS.ALERT);
         } else if (piece == state.playerPiece && !state.ui.canMove) {
-          showToast("You must roll the dice or take a passage before moving!");
+          showToast("You must roll the dice or take a passage before moving!", TOASTS.WARNING, TOAST_DURATIONS.ALERT);
         }
       }
     }
@@ -86,9 +83,7 @@ export function setupInput(canvas, state, onPointerDown) {
      MOUSE WHEEL ZOOM
   ========================= */
 
-  canvas.addEventListener(
-    "wheel",
-    event => {
+  canvas.addEventListener("wheel", event => {
       event.preventDefault();
 
       const { x, y } = getCanvasCoords(event);
@@ -129,16 +124,10 @@ export function setupInput(canvas, state, onPointerDown) {
 
           if (room) {
             state.debug.hoveredRoom = room;
-            showToast(room.name);
+            showToast(room.name, TOASTS.INFO, TOAST_DURATIONS.HOVER);
           } else {
             state.debug.hoveredRoom = null;
-          }
-
-          if (tile && !board.isRoom(tile.col, tile.row)) {
-            state.debug.hoveredTile = tile;
-            showToast(`Hallway ${tile.col},${tile.row}`);
-          } else {
-            state.debug.hoveredTile = null;
+            hideToast();
           }
 
           piece.x = worldX;
@@ -261,6 +250,7 @@ export function setupInput(canvas, state, onPointerDown) {
 
         state.debug.hoveredTile = null;
         state.debug.hoveredRoom = null;
+        hideToast();
       }
     }
 

@@ -18,7 +18,7 @@ router.get("/home", auth.requireLogin, (req, res) => {
 
 router.get("/game", auth.requireLogin, (req, res) => {
   const game_id = req.query.id;  
-  res.render("game", { game_id });
+  res.render("game", { game_id, users: [] });
 });
 
 router.get("/gamelobby", auth.requireLogin, (req, res) => {

@@ -7,6 +7,9 @@ import { setupModal, toggleModal } from "./utils/modalutils.js";
 import { EVENTS } from "../../../shared/data/index.js";
 import { initGameLobbyHandlers } from "./handlers/gameLobbyHandlers.js";
 
+let gamestarting = false;
+let startGameInterval = null;
+
 export function init() {
     addEventListeners();    
     setupUserBanner();
@@ -35,8 +38,8 @@ function addEventListeners() {
                 button.classList.add("hidden");
                 document.getElementById("readybtn").classList.remove("hidden");            
             } else if(button.textContent === "Start Game"){
-                var user = await getUser();                 
-                colyseus.send("startgame", { user } );
+                if (gamestarting || startGameInterval) return;
+                startGame();
             }
         });
     });
@@ -58,48 +61,103 @@ function addEventListeners() {
         });
     });
 
-    let chatbox = document.getElementById("gamemessagebtn");
+    const chatbox = document.getElementById("gamemessagebtn");
+    const chatsendbox = document.getElementById("chatsendbox");
+    const sendbtn = document.getElementById("sendbutton");
+    const lobbychatbtn = document.getElementById("lobbychatbtn");
+    const gamelogbtn = document.getElementById("gamelogbtn");
+
     chatbox.addEventListener("click", async function(e) {
         chatbox.classList.add("hidden");
         toggleModal("gamemessageModal", this);
-        const chatsendbox = document.getElementById("chatsendbox");        
-        chatsendbox.focus();
-        chatsendbox.select();        
     });
 
-    document.getElementById("chatsendbox").addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
+   chatsendbox.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && chatsendbox.value!== "") {
             chatmodule.sendMessage();
         }
     });
 
-    document.getElementById("sendbutton").addEventListener("click", async function(e) {
-        chatmodule.sendMessage();
+    sendbtn.addEventListener("click", async function(e) {
+        if (chatsendbox.value!== "") {
+            chatmodule.sendMessage();
+        }
     });
 
-    document.getElementById("lobbychatbtn").addEventListener("click", async function(e) {
+    lobbychatbtn.addEventListener("click", async function(e) {
         chatmodule.toggleMessageFeed("lobby");
     });
 
-    document.getElementById("gamelogbtn").addEventListener("click", async function(e) {
+    gamelogbtn.addEventListener("click", async function(e) {
         chatmodule.toggleMessageFeed("game");
     });    
+}
+
+async function startGame() {
+    const user = await getUser();
+    colyseus.send(EVENTS.GAME_LOBBY.START_GAME_REQUEST, { user });
+}
+
+
+function clearLobbyCountdown() {
+    if (startGameInterval) {
+        clearInterval(startGameInterval);
+        startGameInterval = null;
+    }
+    gamestarting = false;
+}
+
+export function startLobbyCountdown(seconds = 5) {
+    const countdownEl = document.getElementById("lobby-status");
+    const startgamebtn = document.getElementById("startgamebtn");
+
+    if (!countdownEl || gamestarting) return;
+
+    clearLobbyCountdown();
+    gamestarting = true;
+
+    startgamebtn?.classList.add("hide");
+    countdownEl.textContent = `Game starting in ... ${seconds}`;
+
+    startGameInterval = setInterval(() => {
+        seconds -= 1;
+
+        if (seconds < 0) {
+            clearLobbyCountdown();
+            return;
+        }
+
+        countdownEl.textContent = `Game starting in ... ${seconds}`;
+    }, 1000);
+}
+
+export function cancelLobbyCountdown() {
+    clearLobbyCountdown();
+    const countdownEl = document.getElementById("lobby-status");
+    if (countdownEl) {
+        countdownEl.textContent = "Waiting for Players...";
+    }
 }
 
 export async function checkGameStartConditions(readyvalue) {
     let user = await getUser();
 
-    if (!user || colyseus.gamelobby.metadata.owner != user.username) return;
+    if (!user || colyseus.gamelobby.metadata.owner !== user.username) return;   
 
     let startgamebtn = document.getElementById("startgamebtn");
     let leavegamebtn = document.getElementById("leavebtn");
+    let countdownEl = document.getElementById("lobby-status");
 
     if (readyvalue){
-        leavegamebtn.classList.add("hidden");        
-        startgamebtn.classList.remove("hidden");
+        leavegamebtn?.classList.add("hidden");        
+        startgamebtn?.classList.remove("hidden");
+        startgamebtn?.classList.remove("hide");
     } else {
-        startgamebtn.classList.add("hidden");
-        leavegamebtn.classList.remove("hidden");               
+        startgamebtn?.classList.add("hidden");
+        leavegamebtn?.classList.remove("hidden");         
+        if (gamestarting) {
+            cancelLobbyCountdown();
+        }           
     }
 }
 

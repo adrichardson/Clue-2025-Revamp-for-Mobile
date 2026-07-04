@@ -131,20 +131,29 @@ export function updateActionUI() {
       break;      
     case PHASES.SUGGESTION:
       message = isMyTurn ? "Make an accusation." : `${player.username} is making an accusation from the ${piece?.room.name}!`;
-      showAction(ACTION_TYPES.SUGGESTION, { message, room: piece?.room, isMyTurn });
+      showAction(ACTION_TYPES.SUGGESTION, { message, room: piece?.room, isMyTurn, isFinal: false });
       break;
     case PHASES.OBJECTION:
       const objectingplayer = state.players.get(state.currentTurn.objectingPlayerId);
       const suggestion = state.currentTurn.suggestion;
       const objector = (String(state.currentTurn.objectingPlayerId) == String(state.ui.myPlayerId));   
-      message = `${ objector ? `Select a card to show ${player.username}` : `${objectingplayer?.username} is objecting` }`;
+      message = `${ objector ? `Select a card to show ${player.username}` : `${objectingplayer?.username} is objecting to
+                  <br> ${suggestion.suspect}<br>${suggestion.weapon}<br>${suggestion.room}` }`;
       objector ? showAction(ACTION_TYPES.OBJECTION, {message, suggestion, objector}) : showAction(ACTION_TYPES.OBJECTION, {message, objector});     
       break;           
-    case PHASES.FINAL_SUGGESTION:
-      showAction(ACTION_TYPES.CHOOSE_FINAL, { player, user: state.user, isMyTurn });
+    case PHASES.FINAL_POSSIBLE:
+      message = isMyTurn ? `Everyone has passed. <br> Make a final accusation?` : `Everyone has passed. <br> ${player.username} is deciding if they will make a final accusation.`;
+      showAction(ACTION_TYPES.CHOOSE_FINAL, { player, user: state.user, isMyTurn, message });
       break;
- 
-
+    case PHASES.FINAL_SUGGESTION:
+      message = isMyTurn ? `Make a final accusation!` : `${player.username} is making a final accusation!`;      
+      showAction(ACTION_TYPES.MAKE_FINAL, { player, user: state.user, isMyTurn, message, isFinal: true });
+      break;
+    case PHASES.GAME_OVER:
+      message = `${ isMyTurn ? "You" : player?.username} solved the murder!`;
+      const solution = state.currentTurn.suggestion;      
+      showAction(ACTION_TYPES.GAME_OVER, { player, user: state.user, message, solution });
+      break;
   }
 }
 
@@ -154,7 +163,7 @@ function syncPiecesFromGameState(players, characters) {
     for(const room of state.board.rooms) {
       room[1].clearRoom();
     }
-    console.log("syncing pieces");
+    
     const playerByCharacterId = new Map();
 
     for (const player of players.values()) {

@@ -1,6 +1,14 @@
 import { createGame } from "../../services/gameService.js";
 import { EVENTS } from "../../../shared/data/index.js";
 
+const cancelPendingGameStart = (room) => {
+    if (room.gameStartTimer) {
+        clearTimeout(room.gameStartTimer);
+        room.gameStartTimer = null;
+        room.broadcast(EVENTS.GAME_LOBBY.GAME_START_CANCELLED);
+    }
+};
+
 export const GameLobbyRoomHandlers = {
     [EVENTS.GAME_LOBBY.READYSTATE_CHANGE]: (room, client, message) => {
         let user = message.user;
@@ -9,7 +17,11 @@ export const GameLobbyRoomHandlers = {
             player.readystate = !player.readystate;        
         }
 
-        room.updatePlayersReady();            
+        room.updatePlayersReady();
+
+        if (room.gameStartTimer && !room.state.playersReady) {
+            cancelPendingGameStart(room);
+        }
         //notifcations handled in client state change listener  
     },
     [EVENTS.GAME_LOBBY.CHARACTER_CHANGE]: (room, client, message) => {
@@ -27,18 +39,23 @@ export const GameLobbyRoomHandlers = {
         const player = room.state.getPlayer(user.user_id);        
         room.broadcast(EVENTS.SERVER.CHAT_MESSAGE, { message: chatmessage, player : player });
     },
-    startgame: async (room, client, message) => {
-        let user = message.user; 
+    [EVENTS.GAME_LOBBY.START_GAME_REQUEST]: async (room, client, message) => {
+        const user = message.user;
 
-        if (!user.username == room.metadata.owner) return;
-
+        if (!user || user.username !== room.metadata.owner) return;
         if (!room.state.playersReady) return;
+        if (room.gameStartTimer) return;
 
-        const players = [...room.state.players.values()];
-        const game_id = await createGame(players);
+        room.broadcast(EVENTS.GAME_LOBBY.GAME_STARTING, { seconds: 5 });
 
-        room.lock();
-        room.broadcast(EVENTS.GAME_LOBBY.GAME_STARTED, { game_id });
+        room.gameStartTimer = setTimeout(async () => {
+            room.gameStartTimer = null;
+            const players = [...room.state.players.values()];
+            const game_id = await createGame(players);
+
+            room.lock();
+            room.broadcast(EVENTS.GAME_LOBBY.GAME_STARTED, { game_id });
+        }, 5000);
     },
     [EVENTS.GAME_LOBBY.METADATA_CHANGE]: async (room, client, message) => {
         const value = message.newKey;

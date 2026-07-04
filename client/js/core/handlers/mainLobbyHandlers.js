@@ -9,8 +9,14 @@ export function initMainLobbyHandlers() {
   on(EVENTS.MAINLOBBY.PLAYER_JOINED, handlePlayerJoined);
   on(EVENTS.MAINLOBBY.PLAYER_LEFT, handlePlayerLeft);  
   on(EVENTS.MAINLOBBY.WELCOME_MESSAGE, handleWelcomeMessage);
+  on(EVENTS.SERVER.CHAT_MESSAGE, handleChatMessage);
   on(EVENTS.MAINLOBBY.REFRESH_GAMES, handleRefreshGames);
   on(EVENTS.MAINLOBBY.LOGOUT, handleLogout);  
+}
+
+async function handleChatMessage(chatmessage) {
+    var { message, username } = chatmessage;
+    newchatmessage(message, username);
 }
 
 async function handleGameLobbyCreated(message) {

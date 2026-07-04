@@ -1,6 +1,6 @@
 import { on } from "../handlers/colyseusCallbacks.js";
 import { newchatmessage, newservermessage } from "../utils/chat.js";
-import { setLobbyTitle, updateLobbyCharacters, clearUserCharacter, checkGameStartConditions } from "../gameLobby.js";
+import { setLobbyTitle, updateLobbyCharacters, clearUserCharacter, checkGameStartConditions, startLobbyCountdown, cancelLobbyCountdown } from "../gameLobby.js";
 import { EVENTS, SCHEMA_FIELDS } from "../../../../shared/data/index.js";
 
 export function initGameLobbyHandlers() {
@@ -9,11 +9,21 @@ export function initGameLobbyHandlers() {
   on(EVENTS.GAME_LOBBY.METADATA_CHANGE, handleMetaDataChange);
   on(EVENTS.GAME_LOBBY.DISCONNECT, handleDisconnect);
   on(EVENTS.GAME_LOBBY.GAME_STARTED, handleGameStarted);
+  on(EVENTS.GAME_LOBBY.GAME_STARTING, handleGameStarting);
+  on(EVENTS.GAME_LOBBY.GAME_START_CANCELLED, handleGameStartCancelled);
   on(EVENTS.GAME_LOBBY.PLAYER_JOINED, handlePlayerJoined);
   on(EVENTS.GAME_LOBBY.PLAYER_LEFT, handlePlayerLeft);
   on(EVENTS.GAME_LOBBY.OWNER_CHANGE, handleOwnerChange);
   on(EVENTS.GAME_LOBBY.READYSTATE_CHANGE, handlePlayerReadyChange);
   on(EVENTS.GAME_LOBBY.CHARACTER_CHANGE, handlePlayerCharacterChange);
+}
+
+async function handleGameStarting(data) {
+    startLobbyCountdown(data?.seconds ?? 5);
+}
+
+async function handleGameStartCancelled() {
+    cancelLobbyCountdown();
 }
 
 async function handleOwnerChange(data, gamelobby) {

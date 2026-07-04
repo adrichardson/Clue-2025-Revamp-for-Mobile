@@ -26,7 +26,9 @@ export function renderObjectionScreen(container, data) {
             <div class="interactable-button actionbtn" id="okbtn">OK</div>
         </div`;
     container.innerHTML = `
-        <div class="actionmessage"> ${data.message} </div>  
+        <div class="actionmessage"> 
+            ${data.message} 
+        </div>  
         <div class="actionarea">
             ${objectionHTML}
         </div>`

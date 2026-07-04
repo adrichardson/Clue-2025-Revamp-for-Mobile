@@ -1,5 +1,13 @@
+<div class="chatbox" id="homemessagebtn">Chat
+<div class="chat-notification hidden" id="chatnotification">New</div>    
+</div>    
+    <%- include("./partials/modals/draggableModal", {
+        id: "homemessageModal",
+        title: "Messages",
+        content: include("./partials/modals/homemessageContent")
+    }) %>      
 <div class="matchlisthome" id="matchlisthome">
-    <div class="screen-text">Available Games</div>
+    <div class="screen-text">Available Games</div>  
     <div class="gamesarea-wrapper" id="gamesareawrapper">
         <div class="search-wrapper">
             <input type="search" class="searchbox hide" id="searchbox" maxlength="15"></input>
@@ -13,11 +21,11 @@
         </div>
         <div class="nogames hidden" id="nogames">There are no available games.Try making one by pressing the (+) button above.</div>    
         <div class="matcheswrapper" id="matcheswrapper"></div>     
-        <div class="match-subtext hide" id="matchsubtext">*Standard(S)/Custom(C)</div>   
+        <div class="match-subtext hide" id="matchsubtext">*Standard(S)/Custom(C)</div>          
     </div>
 
     <div class="button-wrapper">
         <button class="interactable-button disabled" id="joinbtn">Join</button>
         <button class="interactable-button disabled" id="matchhistbtn">Match History</button>
-    </div>
+    </div> 
 </div>

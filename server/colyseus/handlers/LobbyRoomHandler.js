@@ -13,5 +13,10 @@ export const LobbyRoomHandlers = {
         } catch (err) {
             console.error("Failed to fetch game list:", err);
         }
-    }
+    },
+    [EVENTS.CLIENT.CHAT_MESSAGE]: (room, client, message) => {
+        let username = message.user.username;
+        let chatmessage = message.message;
+        room.broadcast(EVENTS.SERVER.CHAT_MESSAGE, { message: chatmessage, username: username });
+    },       
 };

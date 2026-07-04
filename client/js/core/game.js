@@ -1,9 +1,10 @@
-import { setupUserBanner } from "./utils/user.js";
+import { setupUserBanner, getUser } from "./utils/user.js";
 import * as game from "./gameBoard.js";
 import * as chatmodule from "./utils/chat.js";
 import * as colyseushelper from "./colyseus.js";
 import { colyseus } from "./colyseus.js";
 import { setupModal, toggleModal, openModal, closeModal } from "./utils/modalutils.js";
+import { on } from "./handlers/colyseusCallbacks.js";
 import { EVENTS } from "../../../shared/data/index.js";
 
 export function init() {
@@ -14,7 +15,6 @@ export function init() {
     const game_id = params.get("id");
     colyseushelper.joinGame(game_id);
 }
-
 
 function addEventListeners() {
     document.querySelectorAll(".gamemenuitem").forEach(button => {

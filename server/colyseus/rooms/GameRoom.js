@@ -6,6 +6,7 @@ import { CharacterState } from "../schemas/CharacterState.js";
 import { buildDeck } from "../utils/deckBuilder.js";
 import { extractSolution, dealCards } from "../utils/gameSetup.js";
 import { PHASES, EVENTS, CHARACTERS } from "../../../shared/data/index.js";
+import { Card } from "../schemas/Card.js";
 
 export class GameRoom extends Room {
   onCreate(gamedata) {
@@ -36,7 +37,7 @@ export class GameRoom extends Room {
 
     // GAME SETUP
     const deck = buildDeck();
-
+    deck.shuffle();
     this.solution = extractSolution(deck);
     deck.shuffle();
 
@@ -55,11 +56,23 @@ export class GameRoom extends Room {
       const user = options.user;
       const player = this.state.players.get(user.user_id);
 
-      if (player) {
-        client.player = player;
-        console.log("player " + player.username + " joined game room: " + this.roomId);        
+      if (!player) {
+        console.warn("Player not found:", user.user_id);
+        return;
+      }      
+
+      const isReconnect = player.hasJoined;
+
+      player.connected = true;
+      player.hasJoined = true;
+      client.player = player;      
+
+
+      if (isReconnect) {
+        console.log(player.username + " reconnected to the game room: ", this.roomId);
+        this.broadcastPlayerList();
       } else {
-        console.warn("Player not found in game state:", user.user_id);
+        console.log(player.username + " joined the game room: ", this.roomId);
       }
 
       if (this.clients.length === this.state.players.size) {
@@ -69,7 +82,10 @@ export class GameRoom extends Room {
 
   async onLeave(client) {
     let player = this.state.getPlayer(client.player.user_id);
-    console.log(player.username + " disconnected from game room: " + this.roomId);
+    if (player) {
+      player.connected = false;
+      console.log(player.username + " disconnected from game room: " + this.roomId);      
+    }
     //this.state.removePlayer(client.player.user_id);  //TODO HANDLE DISCONNECTS WITH REJOINS
     client.send(EVENTS.GAME_LOBBY.DISCONNECT);
   }
@@ -118,6 +134,15 @@ export class GameRoom extends Room {
       card.type === cardType
     );
   }
+
+  toCardSchema(cardData) {
+    return new Card(
+      cardData.name,
+      cardData.type,
+      cardData.imagetag,
+      cardData.id
+    );
+  }  
 
   findObjection(suggestingPlayer, suggestion) {
     const order = this.playerOrder;
@@ -192,22 +217,49 @@ export class GameRoom extends Room {
 
     this.resetTurn();
 
+    this.broadcastPlayerList();
+
     console.log("Game started. First player:", this.state.getPlayer(this.state.currentTurn.currentPlayerId).username);
+  }
+
+  broadcastPlayerList() {
+    const users = this.playerOrder
+      .map(playerId => this.state.players.get(playerId))
+      .filter(Boolean)
+      .map(player => player.username);
+
+    this.broadcast(EVENTS.SERVER.GAME_PLAYER_LIST, { users });    
   }
 
   nextTurn() {
     const state = this.state;
     const ids = this.playerOrder;
 
-    const currentIndex = ids.indexOf(state.currentTurn.currentPlayerId);
-    const nextIndex = (currentIndex + 1) % ids.length;
+    let currentIndex = ids.indexOf(state.currentTurn.currentPlayerId);
+    let nextPlayerId = null;
 
-    state.currentTurn.currentPlayerId = ids[nextIndex];
+    for (let i = 1; i <= ids.length; i++) {
+      const candidateIndex = (currentIndex + i) % ids.length;
+      const candidateId = ids[candidateIndex];
+      const player = state.getPlayer(candidateId);
+
+      if (!player?.eliminated) {
+        nextPlayerId = candidateId;
+        break;
+      }
+    }
+
+    // everyone eliminated somehow
+    if (!nextPlayerId) {
+      console.warn("No eligible players remain.");
+      return;
+    }
+
+    state.currentTurn.currentPlayerId = nextPlayerId;
     state.turn++;
-
     this.resetTurn();
     state.phase = PHASES.TURN_START;
-    console.log("Next player:", this.state.getPlayer(this.state.currentTurn.currentPlayerId).username);
+    console.log("Next player:", state.getPlayer(nextPlayerId).username);
   }  
 
   resetTurn() {

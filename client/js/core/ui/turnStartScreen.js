@@ -4,9 +4,6 @@ import { EVENTS } from "../../../../shared/data/index.js";
 
 
 export function renderTurnStartScreen(container, data) {
-
-  console.log(data);
-
   const btnHTML = data.isMyTurn ? `
         <div class="interactable-button actionbtn ${(data.pass.mustPass || (data.pass.cantleaveroom && (data.passage.canPassage || data.canStay)))? "disabled" : ""}" id="rollbtn">ROLL</div>
         <div class="interactable-button actionbtn ${data.canStay ? "" : "disabled"}" id="staybtn">STAY</div>

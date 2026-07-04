@@ -4,6 +4,8 @@ export const ACTION_TYPES = {
   CALLED_IN: "called_in",  
   SUGGESTION: "suggestion",
   OBJECTION: "objection",
-  OBJECTION_FOUND: "objectionfound",  
-  CHOOSE_FINAL: "finalguess"
+  OBJECTION_FOUND: "objectionfound",
+  CHOOSE_FINAL: "choosefinal",
+  MAKE_FINAL: "makefinal",
+  GAME_OVER: "gameover"
 };

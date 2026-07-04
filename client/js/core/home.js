@@ -2,11 +2,14 @@ import * as colyseushelper from "./colyseus.js";
 import { colyseus } from "./colyseus.js";
 import { getUser, setupUserBanner } from "./utils/user.js";
 import { initMainLobbyHandlers } from "./handlers/mainLobbyHandlers.js";
+import { setupModal, toggleModal } from "./utils/modalutils.js";
+import * as chatmodule from "./utils/chat.js";
 
 export function init() {
   addEventListeners();
   setupUserBanner();
   initMainLobbyHandlers();
+  setupModal();
   colyseushelper.joinMainLobby();
   colyseushelper.getAvailableGames();
   updateSliderFill();
@@ -22,7 +25,7 @@ function addEventListeners() {
                 document.querySelectorAll(".selected-game").forEach(selectedgame => {
                     gamelobby_id = selectedgame.id;
                 });
-                var user = await getUser();
+                const user = await getUser();
                 colyseus.joinlobby(user, gamelobby_id);
             } else if (button.textContent === "Match History") {
                 window.location.href = "/history";
@@ -31,49 +34,66 @@ function addEventListeners() {
     });
 
     const searchbox = document.getElementById("searchbox");
-    searchbox.addEventListener("input", (e) => {
-        const value = e.target.value.trim();
-        if (value !="")
-        {
-            document.getElementById("searchicon").classList.add("hidden");
-        } else {
-            document.getElementById("searchicon").classList.remove("hidden");
-        }
-    });
+    const searchicon = document.getElementById("searchicon");
+    if (searchbox) {
+        searchbox.addEventListener("input", (e) => {
+            const value = e.target.value.trim();
+            if (value !== "") {
+                if (searchicon) searchicon.classList.add("hidden");
+            } else if (searchicon) {
+                searchicon.classList.remove("hidden");
+            }
+        });
+    }
 
     const newgamebtn = document.getElementById("newgamebtn");
-    newgamebtn.addEventListener("click", async function(e){
-        e.preventDefault();
-        document.getElementById("matchlisthome").classList.add("hidden");        
-        document.getElementById("newgamehome").classList.remove("hidden");
-
-    });
+    if (newgamebtn) {
+        newgamebtn.addEventListener("click", async function(e){
+            e.preventDefault();
+            const matchlistHome = document.getElementById("matchlisthome");
+            const newgameHome = document.getElementById("newgamehome");
+            if (matchlistHome) matchlistHome.classList.add("hidden");
+            if (newgameHome) newgameHome.classList.remove("hidden");
+        });
+    }
 
     const cancelcreategamebtn = document.getElementById("cancelcreategamebtn");
-    cancelcreategamebtn.addEventListener("click", async function(e){
-        e.preventDefault();
-        document.getElementById("matchlisthome").classList.remove("hidden");        
-        document.getElementById("newgamehome").classList.add("hidden");
-
-    });    
+    if (cancelcreategamebtn) {
+        cancelcreategamebtn.addEventListener("click", async function(e){
+            e.preventDefault();
+            const matchlistHome = document.getElementById("matchlisthome");
+            const newgameHome = document.getElementById("newgamehome");
+            if (matchlistHome) matchlistHome.classList.remove("hidden");
+            if (newgameHome) newgameHome.classList.add("hidden");
+        });
+    }
 
     const creategamebtn = document.getElementById("creategamebtn");
-    creategamebtn.addEventListener("click", async function(e){
-        e.preventDefault();
-        if (!colyseus) return;        
-        var user = await getUser();
-        let owner = user.username;
-        let type = document.getElementsByClassName("type selected")[0].innerText;
-        let mode = document.getElementsByClassName("mode selected")[0].innerText;        
-        let maxplayers = document.getElementById("playerslider").value;        
-        let password = document.getElementById("gamepassword").value;    
-        let gamelobby = {owner, type, mode, password, maxplayers };
+    if (creategamebtn) {
+        creategamebtn.addEventListener("click", async function(e){
+            e.preventDefault();
+            if (!colyseus) return;
+            const user = await getUser();
+            const selectedTypeButton = document.querySelector(".type.selected");
+            const selectedModeButton = document.querySelector(".mode.selected");
+            const playerslider = document.getElementById("playerslider");
+            const gamepassword = document.getElementById("gamepassword");
 
-        colyseus.createlobby(gamelobby);
-    });    
+            if (!selectedTypeButton || !selectedModeButton || !playerslider || !gamepassword) return;
+
+            const owner = user.username;
+            const type = selectedTypeButton.innerText;
+            const mode = selectedModeButton.innerText;
+            const maxplayers = playerslider.value;
+            const password = gamepassword.value;
+            const gamelobby = { owner, type, mode, password, maxplayers };
+
+            colyseus.createlobby(gamelobby);
+        });
+    }
 
     const slider = document.getElementById("playerslider");
-    slider.addEventListener("input", updateSliderFill);
+    if (slider) slider.addEventListener("input", updateSliderFill);
 
     const groups = ["type", "mode"];
     const passwordWrapper = document.getElementById("passwordwrapper");
@@ -81,20 +101,50 @@ function addEventListeners() {
         const buttons = document.querySelectorAll(`.${group}`);
 
         buttons.forEach(button => {
-        button.addEventListener("click", () => {
-            buttons.forEach(btn => btn.classList.remove("selected"));
-            button.classList.add("selected");
-            // Special logic for type buttons (private/public)
-            if (group === "type") {
-            if (button.id === "setupprivatebtn") {
-                passwordWrapper.classList.remove("hide");
-            } else if (button.id === "setuppublicbtn") {
-                passwordWrapper.classList.add("hide");
-            }
-            }            
+            button.addEventListener("click", () => {
+                buttons.forEach(btn => btn.classList.remove("selected"));
+                button.classList.add("selected");
+                if (group === "type") {
+                    if (button.id === "setupprivatebtn") {
+                        passwordWrapper?.classList.remove("hide");
+                    } else if (button.id === "setuppublicbtn") {
+                        passwordWrapper?.classList.add("hide");
+                    }
+                }
+            });
         });
-        });
-    });    
+    });
+
+    const chatbox = document.getElementById("homemessagebtn");
+    const chatsendbox = document.getElementById("chatsendbox");
+    const sendbtn = document.getElementById("sendbutton");
+    const lobbychatbtn = document.getElementById("lobbychatbtn");
+    const onlineusersbtn = document.getElementById("onlineusersbtn");
+
+    chatbox.addEventListener("click", async function(e) {
+        chatbox.classList.add("hidden");
+        toggleModal("homemessageModal", this);
+    });
+
+   chatsendbox.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && chatsendbox.value!== "") {
+            chatmodule.sendMessage();
+        }
+    });
+
+    sendbtn.addEventListener("click", async function(e) {
+        if (chatsendbox.value!== "") {
+            chatmodule.sendMessage();
+        }
+    });
+
+    lobbychatbtn.addEventListener("click", async function(e) {
+        chatmodule.toggleMessageFeed("lobby");
+    });
+
+    onlineusersbtn.addEventListener("click", async function(e) {
+        chatmodule.toggleMessageFeed("online");
+    });
 }
 
 function updateSliderFill() {

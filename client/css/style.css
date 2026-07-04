@@ -151,6 +151,54 @@ html, body {
   margin-bottom: 10%;
 }
 
+/* Toast styling */
+.toast {
+  font-family: "Futura-Book", sans-serif;  
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* visible state */
+.toast.visible {
+  opacity: 1;
+  pointer-events: auto;  
+}
+
+/* variants */
+.toast-info {
+  background: rgba(45, 45, 52, 0.92);
+  color: white;
+}
+
+.toast-error {
+  background: rgba(180, 50, 50, 0.92);
+  color: white;
+}
+
+.toast-success {
+  background: rgba(60, 140, 90, 0.92);
+  color: white;
+}
+
+.toast-warning {
+  background: rgba(186, 140, 40, 0.92);
+  color: white;
+}
+
 /* Logo styling */
 .logo-image {
     width: 80%;
@@ -200,7 +248,6 @@ html, body {
     letter-spacing: 0.2rem;
     padding: 5px;
 }
-
 
 .brown {
   background-color: var(--clue-brown);
@@ -378,7 +425,7 @@ html, body {
   z-index: 500;
 }
 
-.screen-text {
+.screen-text, .lobby-status {
   font-family: "Futura-Demi", sans-serif;
   font-size: 1.5rem;
   color: var(--white);
@@ -386,6 +433,12 @@ html, body {
   margin-bottom: auto;
   margin-top: 16px;
 }
+
+.lobby-status {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .screen-text.small{
   font-size: 1rem;
   margin-bottom: 5px;
@@ -395,6 +448,11 @@ html, body {
 .screen-text.lobbytitle {
   letter-spacing: 0.05rem;
   text-align: center;
+}
+
+.lobby-status {
+  letter-spacing: 0.05rem;
+  text-align: center;  
 }
 
 .gamesarea-wrapper {
@@ -795,6 +853,7 @@ html, body {
 }
 
 .chatbox {
+  z-index: 1000;
   position: absolute;
   top: 11%;
   right: 0;
@@ -1107,7 +1166,6 @@ html, body {
   height: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
 }
 
 .objectionCardHolder {
@@ -1419,6 +1477,7 @@ html, body {
   background-color: rgba(160, 137, 96, 0.3);
   border-radius: 10px;
   padding: 10px;
+  overflow-wrap: break-word;
 }
 
 .messages {

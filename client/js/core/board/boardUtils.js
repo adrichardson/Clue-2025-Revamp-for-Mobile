@@ -1,5 +1,5 @@
 // board/boardUtils.js
-import { ROOMS, TILE_SIZE, BOARD_COLS, BOARD_ROWS, BOARD_ORIGIN_PX } from "../../../shared/data/index.js";
+import { ROOMS, TILE_SIZE, BOARD_COLS, BOARD_ROWS, BOARD_ORIGIN_PX, TOASTS, TOAST_DURATIONS } from "../../../shared/data/index.js";
 import { showToast } from "../utils/utils.js";
 
 export function worldToGrid(worldX, worldY) {
@@ -30,11 +30,11 @@ export function detectBoardLocation(state, worldX, worldY) {
 
     if (room) {
         console.log("ROOM:", room.name, cell);
-        showToast(`ROOM: ${room.name}`);
+        showToast(`ROOM: ${room.name}`, TOASTS.INFO, TOAST_DURATIONS.HOVER);
         state.debug.hoveredRoom = room;      
     } else {
         console.log("HALLWAY:", cell.col, cell.row);
-        showToast(`HALLWAY (${cell.col}, ${cell.row})`);
+        showToast(`HALLWAY (${cell.col}, ${cell.row})`, TOASTS.INFO, TOAST_DURATIONS.HOVER);
         state.debug.hoveredTile = cell;    
     }
 }

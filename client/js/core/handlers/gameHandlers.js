@@ -17,10 +17,11 @@ export function initGameHandlers() {
   on(EVENTS.SERVER.PLAYER_INVALID_MOVE, handlePlayerInvalidMove);
   on(EVENTS.SERVER.PLAYER_VALID_MOVE, handlePlayerValidMove);
   on(EVENTS.SERVER.OBJECTION_FOUND, handleObjectionFound);
+  on(EVENTS.SERVER.GAME_PLAYER_LIST, handleGamePlayerList);  
 }
 
 async function handleObjectionFound(data) {
-    const message = `${data.player.username} has objected to your accusation by showing you <br> ${data.card.type == CARD_TYPES.ROOM ? `the ${data.card.name}` : data.card.name}`;
+    const message = `${data.player.username} has objected with ${data.card.type == CARD_TYPES.ROOM || data.card.type == CARD_TYPES.WEAPON ? `the <br> ${data.card.name}` : `<br> ${data.card.name}`}`;
     data = {...data, message};
     showAction(ACTION_TYPES.OBJECTION_FOUND, data); 
 }
@@ -36,7 +37,6 @@ async function handlePlayerRemoved(state, player) {
 }
 
 async function handlePlayerInvalidMove(data) {
-    console.log(data);
     const { player, attemptedMove } = data;
     if (attemptedMove.type === "tile") {
         console.log(`Player ${player.username} attempted an invalid move to tile ${attemptedMove.id}.`);    
@@ -50,6 +50,20 @@ async function handlePlayerInvalidMove(data) {
         state.playerPiece.snapToTile(state.board.origin);
     }
     //newservermessage(EVENTS.SERVER.PLAYER_INVALID_MOVE, player, { message });
+}
+
+async function handleGamePlayerList(data) {
+    const currentUser = await getUser();
+    const orderedUsers = Array.isArray(data?.users) ? data.users : [];
+    const users = orderedUsers.filter(username => username !== currentUser?.username);
+    const headers = document.querySelectorAll("#gamesheetModal .sheetColumnHeader span");
+
+    headers.forEach((header, index) => {
+        const sectionIndex = Math.floor(index / 5);
+        const username = users[index - sectionIndex * 5] || "";
+        header.textContent = username;
+        header.title = username;
+    });
 }
 
 async function handlePlayerValidMove(data) {

@@ -1,35 +1,33 @@
- export function showToast(text) {
-    let toast = document.getElementById("debug-toast");
+import { TOASTS, TOAST_DURATIONS } from "../../../../shared/data/index.js";
 
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "debug-toast";
-      document.body.appendChild(toast);
+export function showToast(text, type = TOASTS.INFO, duration = TOAST_DURATIONS.ALERT) {
 
-      Object.assign(toast.style, {
-        position: "fixed",
-        bottom: "16px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        background: "rgba(0,0,0,0.85)",
-        color: "#fff",
-        padding: "8px 14px",
-        borderRadius: "8px",
-        fontSize: "14px",
-        zIndex: 9999,
-        pointerEvents: "none",
-        opacity: 0,
-        transition: "opacity 0.2s"
-      });
-    }
+  let toast = document.getElementById("toast");
 
-    toast.textContent = text;
-    toast.style.opacity = 1;
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    document.body.appendChild(toast);
+  }
 
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => {
-      toast.style.opacity = 0;
-    }, 1200);
+  toast.className = "toast";
+  toast.classList.add(`toast-${type}`);
+  toast.textContent = text;
+  toast.classList.add("visible");
+
+  toast.addEventListener("click", (e) => {
+    e.currentTarget.classList.remove("visible");
+  });
+
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {
+    toast.classList.remove("visible");
+  }, duration);
+}
+
+export function hideToast() {
+  let toast = document.getElementById("toast");
+  toast?.classList.remove("visible");
 }
 
 export function fitText(el, max = 1.5, min = 0.7) {

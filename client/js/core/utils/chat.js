@@ -8,22 +8,37 @@ let unreadmessagecount = 0;
 
 export function toggleMessageFeed(feedType) {
     const gamefeed = document.getElementById("gamelogfeed");
+    const gamebutton = document.getElementById("gamelogbtn");
     const lobbyfeed = document.getElementById("lobbychatfeed");
+    const lobbybutton = document.getElementById("lobbychatbtn");
+    const onlineusersfeed = document.getElementById("onlineusersfeed");
+    const onlineusersbutton = document.getElementById("onlineusersbtn");
 
     if (feedType === "game") {
-        document.getElementById("gamelogbtn").classList.add("selected");
-        document.getElementById("lobbychatbtn").classList.remove("selected");
-        gamefeed.classList.remove("hidden");   
-        lobbyfeed.classList.add("hidden");      
+        gamebutton?.classList.add("selected");
+        lobbybutton?.classList.remove("selected");
+        gamefeed?.classList.remove("hidden");   
+        lobbyfeed?.classList.add("hidden");      
         let messagecontainer = gamefeed.querySelector(".messages");
         messagecontainer.scrollTop = messagecontainer.scrollHeight;        
     } else if (feedType === "lobby") {
-        document.getElementById("gamelogbtn").classList.remove("selected");
-        document.getElementById("lobbychatbtn").classList.add("selected");
-        lobbyfeed.classList.remove("hidden");   
-        gamefeed.classList.add("hidden");  
+        gamebutton?.classList.remove("selected");
+        gamefeed?.classList.add("hidden");     
+        onlineusersbutton?.classList.remove("selected");
+        onlineusersfeed?.classList.add("hidden");        
+        lobbybutton?.classList.add("selected");
+        lobbyfeed?.classList.remove("hidden"); 
         let messagecontainer = lobbyfeed.querySelector(".messages");
-        messagecontainer.scrollTop = messagecontainer.scrollHeight;            
+        messagecontainer.scrollTop = messagecontainer.scrollHeight;
+        console.log("scrolling to bottom of lobby chat feed:", messagecontainer.scrollHeight);           
+    }
+    else if (feedType === "online") {
+        lobbybutton?.classList.remove("selected");
+        lobbyfeed?.classList.add("hidden");        
+        onlineusersbutton?.classList.add("selected");
+        onlineusersfeed?.classList.remove("hidden");
+        let messagecontainer = onlineusersfeed.querySelector(".messages");
+        messagecontainer.scrollTop = messagecontainer.scrollHeight;           
     }
 }
 
@@ -55,16 +70,16 @@ export function createChatMessage(usernametext, color, message, eventtype) {
 
     let chatfeed = null;
 
-    if(eventtype === "player" && lobbychatfeed) {
-        chatfeed = document.getElementById("lobbychatfeed");;
-    } else if (eventtype === "server" && gamelogfeed) {
-        chatfeed = document.getElementById("gamelogfeed");;
+    if(eventtype === EVENTS.CHAT_MESSAGE.PLAYER_CHAT) {
+        chatfeed = document.getElementById("lobbychatfeed");
+    } else if (eventtype === EVENTS.CHAT_MESSAGE.SERVER_MESSAGE) {
+        chatfeed = document.getElementById("gamelogfeed");
     }
 
     let chatmessage = document.createElement("div");
     chatmessage.classList.add("chat-message");
 
-    if(eventtype === "player" && usernametext != "") {
+    if(eventtype === EVENTS.CHAT_MESSAGE.PLAYER_CHAT && usernametext != "") {
         let username = document.createElement("span");
         username.classList.add("chat-username");
         username.textContent = usernametext;
@@ -77,7 +92,7 @@ export function createChatMessage(usernametext, color, message, eventtype) {
     messagetext.textContent = message;
 
     //server messages styling
-    if(eventtype === "server"  && usernametext == "") {
+    if(eventtype === EVENTS.CHAT_MESSAGE.SERVER_MESSAGE  && usernametext == "") {
         messagetext.style.fontStyle = "italic";
         messagetext.style.color = "#555555";        
     }
@@ -209,20 +224,32 @@ export async function newservermessage(eventtype, player, data = null){
         message = rollmessage;
     }    
 
-    createChatMessage(usernametext, color, message, "server"); 
+    createChatMessage(usernametext, color, message, EVENTS.CHAT_MESSAGE.SERVER_MESSAGE); 
 }
 
 export async function newchatmessage(message, player){
     let curruser = await getUser();
-    let charactername = getCharacterAltTagById(player.character_id);
-    let usernametext = player.username + ` (${charactername}): `;
-    let color = getCharacterHexColorById(player.character_id);    
+    let usernametext = "";
+    let color = getCharacterHexColorById(player.character_id) || '#333333';      
+            console.log("player", player);
+    if(player.character_id === undefined) {
+        let username = player;
+        if(username == curruser.username){
+            usernametext = `You: `;
+        } else {
+            usernametext = `${username}: `;
+        }   
+        createChatMessage(usernametext, color, message, EVENTS.CHAT_MESSAGE.PLAYER_CHAT); 
+        return;       
+    };
 
+    let charactername = getCharacterAltTagById(player.character_id);
+    usernametext = player.username + ` (${charactername}): `;
     if(player.username == curruser.username){
         usernametext = `You (${charactername}): `;
     }
 
-    createChatMessage(usernametext, color, message, "player"); 
+    createChatMessage(usernametext, color, message, EVENTS.CHAT_MESSAGE.PLAYER_CHAT); 
 }
 
 export function getCharacterIdByAltTag(character){

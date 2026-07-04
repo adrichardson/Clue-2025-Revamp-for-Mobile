@@ -38,7 +38,7 @@ export class GameLobbyRoom extends Room {
   }
 
   areAllPlayersReady() {
-    //REMOVE FOR TESTING ADD FOR PROD
+    //TODO REMOVE FOR TESTING ADD FOR PROD
     // if (this.state.players.size < 3) return false;
 
     for (let player of this.state.players.values()) {

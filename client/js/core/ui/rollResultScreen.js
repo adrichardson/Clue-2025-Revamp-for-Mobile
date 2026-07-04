@@ -1,4 +1,3 @@
-import { colyseus } from "../colyseus.js";
 import { closeModal } from "../utils/modalutils.js";
 import { EVENTS } from "../../../../shared/data/index.js";
 
@@ -7,7 +6,7 @@ export function renderRollResultScreen(container, data) {
 
   container.innerHTML = `
     <div class="actionmessage">
-        ${data.message}!
+        ${data.message}
     </div>  
     <div class="actionarea">
       <div class="button-wrapper">    

@@ -89,35 +89,3 @@ export function toggleModal(id, triggeringElement) {
     return false; //closed
   } 
 }
-
-// const ActionTemplates = {
-//   roll(data) {
-//     return `
-//       <h2>Roll Result</h2>
-//       <p>You rolled a ${data.roll}</p>
-//     `;
-//   },
-//   suggestion(data) {
-//     return `
-//       <h2>Suggestion</h2>
-//       <p>${data.player} suggested ${data.suspect} with the ${data.weapon} in the ${data.room}</p>
-//     `;
-//   }
-// };
-
-// export function showActionModal(type, data) {
-
-//   const modal = document.getElementById("action-modal");
-//   const content = document.getElementById("action-content");
-
-//   const template = ActionTemplates[type];
-
-//   if (!template) {
-//     console.warn("Unknown action modal type:", type);
-//     return;
-//   }
-
-//   content.innerHTML = template(data);
-
-//   modal.classList.remove("hidden");
-// }

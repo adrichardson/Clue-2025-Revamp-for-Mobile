@@ -5,6 +5,8 @@ export const EVENTS = {
     MOVED: "client:moved",
     OBJECTED: "client:objected",
     SUGGESTED: "client:suggested",
+    CHOOSE_FINAL: "client:choosefinal",
+    SUBMIT_FINAL: "client:submitfinal",    
     NEW_TURN: "client:newTurn"
   },
 
@@ -19,7 +21,8 @@ export const EVENTS = {
     PLAYER_ADDED: "server:playerAdded",
     PLAYER_REMOVED: "server:playerRemoved",
     PLAYER_INVALID_MOVE: "server:invalidMove",
-    PLAYER_VALID_MOVE: "server:validMove"  
+    PLAYER_VALID_MOVE: "server:validMove",
+    GAME_PLAYER_LIST: "server:gamePlayerList"
   },
 
   MAINLOBBY: {
@@ -36,10 +39,18 @@ export const EVENTS = {
     METADATA_CHANGE: "gamelobby:metadatachanged",
     DISCONNECT: "gamelobby:disconnected",
     GAME_STARTED: "gamelobby:gamestarted",
+    GAME_STARTING: "gamelobby:gamestarting",
+    GAME_START_CANCELLED: "gamelobby:gamestartcancelled",
+    START_GAME_REQUEST: "gamelobby:startGameRequest",
     OWNER_CHANGE: "gamelobby:ownerchange",    
     PLAYER_JOINED: "gamelobby:playerJoined",
     PLAYER_LEFT: "gamelobby:playerLeft",
     READYSTATE_CHANGE: "gamelobby:readystateChange",    
     CHARACTER_CHANGE: "gamelobby:characterChange"
+  },
+
+  CHAT_MESSAGE: {
+    PLAYER_CHAT: "chat:playerMessage",
+    SERVER_MESSAGE: "chat:serverMessage"
   }  
 };
