@@ -34,7 +34,37 @@ export function setupModal() {
             const modal = e.target.closest(".modal");
             closeModal(modal);
         });
-    });    
+    });
+
+    // Settings button handler
+    const settingsbtn = document.getElementById("settingsbtn");
+    if (settingsbtn) {
+      settingsbtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        toggleModal("settingsModal", settingsbtn);
+
+      });
+    }
+
+    const settingsAboutBtn = document.getElementById("settings:about");
+    if (settingsAboutBtn) {
+      settingsAboutBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        // Handle about button click
+      });
+    }
+
+    const settingsLogoutBtn = document.getElementById("settings:logout");
+    if (settingsLogoutBtn) {
+      settingsLogoutBtn?.addEventListener("click", async (e) => {
+          e.preventDefault();
+          await fetch("/auth/logout", {
+              method: "POST"
+          });
+          
+          window.location.href = "/";
+      });
+    }
 }
 
 export function openModal(modal) {

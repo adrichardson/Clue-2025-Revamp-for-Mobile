@@ -75,7 +75,6 @@ function setAppHeight() {
   );
 }
 
-
 function addEventListeners() {
   const logo = document.getElementById("logo-image");
   if (logo) {

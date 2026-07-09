@@ -4,6 +4,9 @@ import { getUser, setupUserBanner } from "./utils/user.js";
 import { initMainLobbyHandlers } from "./handlers/mainLobbyHandlers.js";
 import { setupModal, toggleModal } from "./utils/modalutils.js";
 import * as chatmodule from "./utils/chat.js";
+import { getCharacterHexColorById} from "./utils/imagehelper.js";
+import { SUSPECTS } from "../../../shared/data/CardData.js";
+import { showToast } from "./utils/utils.js";
 
 export function init() {
   addEventListeners();
@@ -27,8 +30,6 @@ function addEventListeners() {
                 });
                 const user = await getUser();
                 colyseus.joinlobby(user, gamelobby_id);
-            } else if (button.textContent === "Match History") {
-                window.location.href = "/history";
             }
         });
     });
@@ -45,6 +46,38 @@ function addEventListeners() {
             }
         });
     }
+
+    const matchistorybtn = document.getElementById("matchhistbtn");
+    if (matchistorybtn) {
+        matchistorybtn.addEventListener("click", async function(e){
+            e.preventDefault();
+            await getMatchHistory();
+            const matchlistHome = document.getElementById("matchlisthome");
+            const matchhistoryHome = document.getElementById("matchhistoryhome");
+            if (matchlistHome) matchlistHome.classList.add("hidden");
+            if (matchhistoryHome) matchhistoryHome.classList.remove("hidden");
+        });
+    }   
+    
+    const cancelmatchhistorybtn = document.getElementById("cancelmatchhistorybtn");
+    if (cancelmatchhistorybtn) {
+        cancelmatchhistorybtn.addEventListener("click", async function(e){
+            e.preventDefault();
+            const matchlistHome = document.getElementById("matchlisthome");
+            const matchhistoryHome = document.getElementById("matchhistoryhome");
+            const matchesareawrapper = document.getElementById("matchesareawrapper");
+            if (matchlistHome) matchlistHome.classList.remove("hidden");
+            if (matchhistoryHome) matchhistoryHome.classList.add("hidden");
+            if( matchesareawrapper ){
+                matchesareawrapper.childNodes.forEach(child => {
+                    if( child.classList && child.classList.contains("matchhistorylisting") ){
+                        matchesareawrapper.removeChild(child);
+                    }
+                });
+            }
+
+        });
+    }    
 
     const newgamebtn = document.getElementById("newgamebtn");
     if (newgamebtn) {
@@ -102,6 +135,10 @@ function addEventListeners() {
 
         buttons.forEach(button => {
             button.addEventListener("click", () => {
+                if (button.classList.contains("disabled")) {
+                    showToast("This option will be available soon!", "error", 3000);
+                    return;
+                }
                 buttons.forEach(btn => btn.classList.remove("selected"));
                 button.classList.add("selected");
                 if (group === "type") {
@@ -147,6 +184,44 @@ function addEventListeners() {
     });
 }
 
+async function getMatchHistory() {
+    const user = await getUser();
+    const res = await fetch(`/api/matchhistory`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    let matchdata = JSON.parse(await res.text());
+    if(matchdata.length === 0){
+        const matchesfilter = document.getElementById("matchhistoryfiltercontrols");
+        const nomatches = document.getElementById("nomatches");
+        matchesfilter.classList.add("hide");
+        nomatches.classList.remove("hidden");
+    } else {
+        matchesfilter.classList.remove("hide");
+        nomatches.classList.add("hidden");        
+        matchdata.forEach(match => {
+            const date = new Date(match.createdAt);
+            const matchDate = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
+            const result = match.player.result === "win" ? "W" : "L";        
+            const characterId = match.player.character_id;
+
+            const bgcolor = getCharacterHexColorById(characterId);
+            const characterName = SUSPECTS.find(suspect => suspect.id === characterId)?.name || "Unknown Character";
+
+            const matcheswrapper = document.getElementById("matchesareawrapper");
+            const matchdiv = document.createElement("div");
+            matchdiv.classList.add("matchhistorylisting");
+            matchdiv.style.backgroundColor = bgcolor;
+            matchdiv.innerHTML = `
+                <div class="matchhistory-character">${characterName}</div>
+                <div class="matchhistory-date">${matchDate}</div>            
+                <div class="matchhistory-result">${result}</div>
+            `;
+            matcheswrapper.appendChild(matchdiv);
+        });
+    }
+}
+
 function updateSliderFill() {
     const slider = document.getElementById("playerslider");    
     const percent = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
@@ -155,6 +230,22 @@ function updateSliderFill() {
         var(--active-button) 0% ${percent}%,
         var(--disabled-button-bg) ${percent}% 100%
     )`;
+}
+
+export async function listOnlineUsers(usernames) {
+    const onlineuserslist = document.getElementById("onlineusersfeed");
+    const currentUser = await getUser();
+
+    if (!onlineuserslist) return;
+
+    onlineuserslist.innerHTML = "";
+    for (const username of usernames) {
+        if(username === currentUser.username) continue;
+        const userElement = document.createElement("div");
+        userElement.classList.add("online-user");
+        userElement.textContent = username;
+        onlineuserslist.appendChild(userElement);
+    }
 }
 
 export async function listGames(gameslist){

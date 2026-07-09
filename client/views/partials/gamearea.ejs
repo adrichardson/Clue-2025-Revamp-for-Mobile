@@ -44,4 +44,9 @@
         title: "Messages",
         content: include("modals/gamemessageContent")
     }) %>
+    <%- include("./partials/modals/draggableModal", {
+        id: "settingsModal",
+        title: "Settings",
+        content: include("./partials/modals/settingsContent")
+    }) %>     
 </div>

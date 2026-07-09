@@ -30,7 +30,8 @@ export const EVENTS = {
     PLAYER_LEFT: "lobby:playerLeft",
     WELCOME_MESSAGE: "lobby:welcomeMessage",
     GAMELOBBY_CREATED: "lobby:gamelobbyCreated",    
-    LIST_GAMES: "lobby:listgames",    
+    LIST_GAMES: "lobby:listgames",
+    ONLINE_USERS: "lobby:onlineusers",
     REFRESH_GAMES: "lobby:refreshgames", 
     LOGOUT: "lobby:logout"  
   },

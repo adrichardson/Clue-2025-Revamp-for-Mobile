@@ -56,16 +56,26 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", async (req, res) => {
-  const { username } = req.body;
-  try {
-    const user = await User.findOne({ username });
-    if (user) {
-      await OnlineUser.deleteOne({ user: user._id });
+    try {
+        const sessionUser = req.session.user;
+
+        if (sessionUser) {
+            const user = await User.findOne({ username: sessionUser.username });
+
+            if (user) {
+                await OnlineUser.deleteOne({ user: user._id });
+            }
+
+            req.session.destroy(() => {});
+        }
+
+        res.json({ message: "Logged out" });
+    } catch (err) {
+        res.status(500).json({
+            errorType: "username",
+            error: err.message
+        });
     }
-    res.json({ message: "Logged out" });
-  } catch (err) {
-    res.status(500).json({ errorType: "username", error: err.message });
-  }
 });
 
 export default router;

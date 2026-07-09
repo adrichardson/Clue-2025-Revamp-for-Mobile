@@ -36,9 +36,7 @@ export function toggleMessageFeed(feedType) {
         lobbybutton?.classList.remove("selected");
         lobbyfeed?.classList.add("hidden");        
         onlineusersbutton?.classList.add("selected");
-        onlineusersfeed?.classList.remove("hidden");
-        let messagecontainer = onlineusersfeed.querySelector(".messages");
-        messagecontainer.scrollTop = messagecontainer.scrollHeight;           
+        onlineusersfeed?.classList.remove("hidden");   
     }
 }
 
@@ -149,14 +147,14 @@ export async function newservermessage(eventtype, player, data = null){
                 const characterText = el.querySelector(".characteroption")?.textContent?.trim();
                 return characterText === "You";
             });
-            let checkbox = selectedElement.querySelector(".checksvg");
-            checkbox.style.setProperty('--checkmark-color', checkboxColor);
+            let checkbox = selectedElement?.querySelector(".checksvg");
+            checkbox?.style.setProperty('--checkmark-color', checkboxColor);
             if(player.readystate){
                 readymessage = `You (${charactername}) are ready.`;             
-                checkbox.classList.add("selected");                             
+                checkbox?.classList.add("selected");                             
             } else {
                 readymessage = `You (${charactername}) are not ready.`;
-                checkbox.classList.remove("selected");                 
+                checkbox?.classList.remove("selected");                 
             }
         }
 

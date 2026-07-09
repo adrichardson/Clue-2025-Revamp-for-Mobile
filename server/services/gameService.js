@@ -1,12 +1,5 @@
 import { matchMaker } from "colyseus";
-
-// export async function createGame(gameData) {
-//   const room = await matchMaker.createRoom("game", gameData);
-
-//   return {
-//     game_id: room.roomId
-//   };
-// }
+import Match from "../db/config/schemas/Match.js";
 
 export async function createGame(players) {
   const room = await matchMaker.createRoom("game", {
@@ -20,4 +13,18 @@ export async function createGame(players) {
   return {
     game_id: room.roomId
   };
+}
+
+export async function saveGame(players) {
+  const match = new Match({
+    players: players.map(player => ({
+      user_id: player.user_id,
+      character_id: player.character_id,
+      result: player.victor ? "win" : "lose"
+    }))
+  });
+
+  await match.save();
+
+  return match;
 }

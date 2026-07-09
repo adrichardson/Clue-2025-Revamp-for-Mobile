@@ -14,6 +14,7 @@ export class Player extends Schema {
     this.connected = true;
     this.hasJoined = false;
     this.isSpectator = false;
+    this.victor = false;
   }
 }
 
@@ -27,5 +28,6 @@ defineTypes(Player, {
   eliminated: "boolean",  
   connected: "boolean",    
   hasJoined: "boolean",
-  isSpectator: "boolean"    
+  isSpectator: "boolean",
+  victor: "boolean"
 });

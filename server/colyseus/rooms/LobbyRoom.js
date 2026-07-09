@@ -32,7 +32,9 @@ export class LobbyRoom extends Room {
     console.log(user.username, "joined the main lobby!");
     // notify others
     this.broadcast(EVENTS.MAINLOBBY.PLAYER_JOINED, { username }, { except: client });
-    client.send(EVENTS.MAINLOBBY.WELCOME_MESSAGE, { message: `Welcome ${username}!` });    
+    client.send(EVENTS.MAINLOBBY.WELCOME_MESSAGE, { message: `Welcome ${username}!` });   
+    const usernames = this.clients.map(client => client.user.username);
+    this.broadcast(EVENTS.MAINLOBBY.ONLINE_USERS, { usernames }); 
   }
 
   onLeave(client) {
@@ -44,6 +46,8 @@ export class LobbyRoom extends Room {
       console.log(username, "has left the main lobby");
       this.state.removeUser(user_id);
       this.broadcast(EVENTS.MAINLOBBY.PLAYER_LEFT, { username }, { except: client });
+      const usernames = this.clients.map(client => client.user.username);
+      this.broadcast(EVENTS.MAINLOBBY.ONLINE_USERS, { usernames });       
     }
   }
 }

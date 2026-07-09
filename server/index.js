@@ -12,7 +12,8 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import userRoute from "./routes/user.js"
 import adminRoutes from "./routes/admin.js";
-import pageRoutes from "./routes/pages.js"; 
+import pageRoutes from "./routes/pages.js";
+import matchHistoryRoutes from "./routes/matchhistory.js";
 import registraionRoutes from "./routes/registraion.js";
 import gameLobbyRoutes from "./routes/gamelobby.js";
 import gameRoutes from "./routes/game.js";
@@ -66,6 +67,7 @@ app.use(express.json());
 app.use("/", pageRoutes);                   // /pages
 app.use("/auth", authRoutes);               // /auth/register, /auth/login
 app.use("/api/users", userRoutes);          // /api/users
+app.use("/api/matchhistory", matchHistoryRoutes); // /api/matchhistory
 app.use("/api/user", userRoute);            // /api/user
 app.use("/admin", adminRoutes);             // /admin
 app.use("/register", registraionRoutes);    // /register

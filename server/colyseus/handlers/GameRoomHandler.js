@@ -1,5 +1,6 @@
 import { PHASES, EVENTS, BOARD_GRAPH, SUSPECTS, WEAPONS, ROOMS, getReachableTiles, getReachableRooms, getBlockedTiles} from "../../../shared/data/index.js";
 import { Suggestion } from "../schemas/Suggestion.js";
+import { saveGame } from "../../services/gameService.js";
 
 export const GameRoomHandlers = {
     [EVENTS.CLIENT.CHAT_MESSAGE]: (room, client, message) => {
@@ -257,7 +258,9 @@ export const GameRoomHandlers = {
             const fullsolution = new Suggestion(personguess.name, weaponguess.name, roomguess.name);
             fullsolution.cards.push(room.toCardSchema(personguess), room.toCardSchema(weaponguess), room.toCardSchema(roomguess));
             console.log(`${currentPlayer.username} solved the mystery!`);
+            currentPlayer.victor = true;
             room.state.currentTurn.suggestion = fullsolution;
+            await saveGame(Array.from(room.state.players.values()));            
             room.state.phase = PHASES.GAME_OVER;
         } else {
             console.log(`${currentPlayer.username} made an incorrect accusation.`);

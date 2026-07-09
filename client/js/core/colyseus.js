@@ -73,6 +73,10 @@ async function setupMainLobbyHandlers() {
         emit(EVENTS.MAINLOBBY.LIST_GAMES, message);
       });
 
+      lobby.onMessage(EVENTS.MAINLOBBY.ONLINE_USERS, (data) => {
+        emit(EVENTS.MAINLOBBY.ONLINE_USERS, data);
+      });      
+
       lobby.onMessage(EVENTS.MAINLOBBY.REFRESH_GAMES, (message) => {
         emit(EVENTS.MAINLOBBY.REFRESH_GAMES, message, colyseus);
       });      

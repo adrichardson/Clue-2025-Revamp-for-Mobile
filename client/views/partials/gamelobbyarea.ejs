@@ -9,7 +9,12 @@
         id: "gamemessageModal",
         title: "Messages",
         content: include("./partials/modals/gamemessageContent")
-    }) %>     
+    }) %> 
+    <%- include("./partials/modals/draggableModal", {
+        id: "settingsModal",
+        title: "Settings",
+        content: include("./partials/modals/settingsContent")
+    }) %>    
 <div class="characterinfo-wrapper" id="characterinfowrapper">
     <div class="characterinfo" id="characterinfo"> Miss Scarlet </div>
 </div>
