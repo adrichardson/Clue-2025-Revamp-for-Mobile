@@ -31,7 +31,10 @@ export function showAction(type, data) {
       break;            
     case ACTION_TYPES.MAKE_FINAL:
       screenRender.renderSuggestionScreen(actionContainer, data);
-      break;          
+      break;
+    case ACTION_TYPES.INCORRECT_FINAL:
+      screenRender.renderFinalIncorrectScreen(actionContainer, data);
+      break;
     case ACTION_TYPES.GAME_OVER:
       screenRender.renderGameOverScreen(actionContainer, data);
       break;        

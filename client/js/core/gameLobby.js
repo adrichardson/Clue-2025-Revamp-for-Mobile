@@ -47,6 +47,7 @@ function addEventListeners() {
     document.querySelectorAll(".character-pic-option").forEach(button => {
         button.addEventListener("click", async function(e) {
             e.preventDefault();
+            if (gamestarting || startGameInterval) return;
             const newtag = button.querySelector(".characteroption");  
             if(newtag.innerHTML != 'Select' && newtag.innerHTML != 'You') return;
 

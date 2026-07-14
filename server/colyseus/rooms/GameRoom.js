@@ -7,6 +7,8 @@ import { buildDeck } from "../utils/deckBuilder.js";
 import { extractSolution, dealCards } from "../utils/gameSetup.js";
 import { PHASES, EVENTS, CHARACTERS } from "../../../shared/data/index.js";
 import { Card } from "../schemas/Card.js";
+import { saveGame } from "../../services/gameService.js";
+import { Suggestion } from "../schemas/Suggestion.js";
 
 export class GameRoom extends Room {
   onCreate(gamedata) {
@@ -26,6 +28,7 @@ export class GameRoom extends Room {
           p.username,
           p.user_id,
           p.character_id,
+          p.isSpectator,
           false
         );
 
@@ -174,7 +177,8 @@ export class GameRoom extends Room {
     return null;
   }
 
-  setPlayerOrder(players) {
+  setPlayerOrder(playersMap) {
+    const players = [...playersMap.values().filter(player => !player.isSpectator)];
     const scarlet = players.find(p => p.character_id === 0);
 
     let ordered;
@@ -231,7 +235,7 @@ export class GameRoom extends Room {
     this.broadcast(EVENTS.SERVER.GAME_PLAYER_LIST, { users });    
   }
 
-  nextTurn() {
+  async nextTurn() {
     const state = this.state;
     const ids = this.playerOrder;
 
@@ -249,9 +253,14 @@ export class GameRoom extends Room {
       }
     }
 
-    // everyone eliminated somehow
+    // ALL players are eliminated, the criminal wins.
     if (!nextPlayerId) {
-      console.warn("No eligible players remain.");
+      console.warn("No eligible players remain. Criminal wins. Ending game.");
+      await saveGame(Array.from(this.state.players.values()));         
+      const fullsolution = new Suggestion(this.solution.person.name, this.solution.weapon.name, this.solution.room.imagetag);
+      fullsolution.cards.push(this.solution.person, this.solution.weapon, this.solution.room);
+      this.state.currentTurn.suggestion = fullsolution;      
+      this.state.phase = PHASES.GAME_OVER;
       return;
     }
 

@@ -252,20 +252,18 @@ export const GameRoomHandlers = {
             solution.room.imagetag === roomId;         
         const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
         if (isCorrect) {
-            const personguess = SUSPECTS.find(card => card.id === Number(message.suspectId));
-            const weaponguess = WEAPONS.find(card => card.id === Number(message.weaponId));        
-            const roomguess = ROOMS.find(card => card.imagetag === message.roomId);            
-            const fullsolution = new Suggestion(personguess.name, weaponguess.name, roomguess.name);
-            fullsolution.cards.push(room.toCardSchema(personguess), room.toCardSchema(weaponguess), room.toCardSchema(roomguess));
+            const fullsolution = new Suggestion(room.solution.person.name, room.solution.weapon.name, room.solution.room.imagetag);
+            fullsolution.cards.push(room.solution.person, room.solution.weapon, room.solution.room);
             console.log(`${currentPlayer.username} solved the mystery!`);
             currentPlayer.victor = true;
             room.state.currentTurn.suggestion = fullsolution;
-            await saveGame(Array.from(room.state.players.values()));            
+            await saveGame(Array.from(room.state.players.values()));
+            room.state.playerwinner = true;
             room.state.phase = PHASES.GAME_OVER;
         } else {
             console.log(`${currentPlayer.username} made an incorrect accusation.`);
+            room.state.phase = PHASES.FINAL_FAILED;
             currentPlayer.eliminated = true;
-            room.nextTurn();
         }
     },    
     [EVENTS.GAME_LOBBY.METADATA_CHANGE]: async (room, client, message) => {
@@ -279,6 +277,6 @@ export const GameRoomHandlers = {
         });
 
         console.log(room.metadata);
-        client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);           
+        client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);
     }
 };

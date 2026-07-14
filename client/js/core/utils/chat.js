@@ -29,8 +29,7 @@ export function toggleMessageFeed(feedType) {
         lobbybutton?.classList.add("selected");
         lobbyfeed?.classList.remove("hidden"); 
         let messagecontainer = lobbyfeed.querySelector(".messages");
-        messagecontainer.scrollTop = messagecontainer.scrollHeight;
-        console.log("scrolling to bottom of lobby chat feed:", messagecontainer.scrollHeight);           
+        messagecontainer.scrollTop = messagecontainer.scrollHeight;       
     }
     else if (feedType === "online") {
         lobbybutton?.classList.remove("selected");
@@ -130,15 +129,15 @@ export async function newservermessage(eventtype, player, data = null){
                 const characterText = el.querySelector(".characteroption")?.textContent?.trim();
                 return characterText === username;
             });
-            let checkbox = selectedElement.querySelector(".checksvg");
-            checkbox.style.setProperty('--checkmark-color', checkboxColor);
+            let checkbox = selectedElement?.querySelector(".checksvg");
+            checkbox?.style.setProperty('--checkmark-color', checkboxColor);
 
             if(player.readystate){
                 readymessage = `${username} (${charactername}) is ready.`;             
-                checkbox.classList.add("selected");                
+                checkbox?.classList.add("selected");                
             } else {
                 readymessage = `${username} (${charactername}) is not ready.`;
-                checkbox.classList.remove("selected");                 
+                checkbox?.classList.remove("selected");                 
             }
             
         } else {

@@ -191,9 +191,9 @@ async function getMatchHistory() {
         headers: { "Content-Type": "application/json" }
     });
     let matchdata = JSON.parse(await res.text());
+    const matchesfilter = document.getElementById("matchhistoryfiltercontrols");
+    const nomatches = document.getElementById("nomatches");    
     if(matchdata.length === 0){
-        const matchesfilter = document.getElementById("matchhistoryfiltercontrols");
-        const nomatches = document.getElementById("nomatches");
         matchesfilter.classList.add("hide");
         nomatches.classList.remove("hidden");
     } else {
@@ -275,8 +275,8 @@ export async function listGames(gameslist){
     nogames.classList.add("hidden"); 
       
     gameslist.forEach(game => {
-        const { owner, type, mode, maxplayers, gamelobby_id } = game.metadata;
-        const currplayers = game.clients == 0 ?  1 : game.clients;
+        const { owner, type, mode, maxplayers, gamelobby_id, currentplayers } = game.metadata;
+
         if (owner == user.username ) return;
         const matchdiv = document.getElementById("matcheswrapper");
 
@@ -306,7 +306,7 @@ export async function listGames(gameslist){
 
         const matchcount = document.createElement("div");        
         matchcount.classList.add("match-count");
-        matchcount.textContent = `${currplayers}/${maxplayers}`;
+        matchcount.textContent = `${currentplayers}/${maxplayers}`;
 
         listing.appendChild(matchusername);
         listing.appendChild(matchtype);        

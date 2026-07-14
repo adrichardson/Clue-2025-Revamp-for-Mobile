@@ -16,7 +16,8 @@ export const state = {
   characters: new Map(),
   turn: 1,
   phase: "",
-  currentTurn: null, //will be turnstateobject
+  currentTurn: null,
+  playerwinner: false,
 
   ui: {
     myPlayerId: null,

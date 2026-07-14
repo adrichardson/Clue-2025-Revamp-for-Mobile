@@ -17,7 +17,7 @@ export function initGameHandlers() {
   on(EVENTS.SERVER.PLAYER_INVALID_MOVE, handlePlayerInvalidMove);
   on(EVENTS.SERVER.PLAYER_VALID_MOVE, handlePlayerValidMove);
   on(EVENTS.SERVER.OBJECTION_FOUND, handleObjectionFound);
-  on(EVENTS.SERVER.GAME_PLAYER_LIST, handleGamePlayerList);  
+  on(EVENTS.SERVER.GAME_PLAYER_LIST, handleGamePlayerList);
 }
 
 async function handleObjectionFound(data) {
@@ -104,9 +104,19 @@ async function handleChatMessage(chatmessage) {
 async function handleStateReady(serverstate) {
   console.log("initialstate syncing");
   state.user = await getUser();
-  state.ui.myPlayerId = state.user.user_id;    
+  state.ui.myPlayerId = state.user.user_id;  
   syncState(serverstate);
+  setupSpectatorMode(state.user);
   console.log("initialstate synced");
+}
+
+async function setupSpectatorMode(user) {
+    //TODO
+    const player = state.players.get(user.user_id);
+    if (player && player.isSpectator) {
+        document.getElementById("gamesheetbtn").classList.add("disabled");
+        document.getElementById("gamehandbtn").classList.add("disabled");
+    }
 }
 
 async function handlePhaseChanged(phase, previousPhase, serverstate) {

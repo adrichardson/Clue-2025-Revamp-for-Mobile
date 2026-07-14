@@ -24,14 +24,15 @@ export const GameLobbyRoomHandlers = {
         }
         //notifcations handled in client state change listener  
     },
-    [EVENTS.GAME_LOBBY.CHARACTER_CHANGE]: (room, client, message) => {
+    [EVENTS.GAME_LOBBY.CHARACTER_CHANGE]: async (room, client, message) => {
         let user = message.user;        
         const player = room.state.getPlayer(user.user_id);
         if (player) {
             player.character_id = message.character_id;
-        }
-
-        room.updatePlayersReady();        
+            player.isSpectator = message.character_id === -1;
+        }    
+        room.updatePlayersReady();
+        await room.updateCurrentPlayersMetadata();
     },
     [EVENTS.CLIENT.CHAT_MESSAGE]: (room, client, message) => {
         let user = message.user;
@@ -68,6 +69,6 @@ export const GameLobbyRoomHandlers = {
         });
 
         console.log(room.metadata);
-        client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);           
+        client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, room.metadata);           
     }
 };

@@ -6,7 +6,8 @@ export async function createGame(players) {
     players: players.map(p => ({
       username: p.username,
       user_id: p.user_id,
-      character_id: p.character_id
+      character_id: p.character_id,
+      isSpectator: p.isSpectator
     }))
   });
 

@@ -7,5 +7,6 @@ export const ACTION_TYPES = {
   OBJECTION_FOUND: "objectionfound",
   CHOOSE_FINAL: "choosefinal",
   MAKE_FINAL: "makefinal",
+  INCORRECT_FINAL: "incorrectfinal",
   GAME_OVER: "gameover"
 };

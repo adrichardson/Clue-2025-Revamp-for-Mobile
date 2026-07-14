@@ -15,7 +15,8 @@ export class GameLobbyRoom extends Room {
         mode: game.mode,
         maxplayers: game.maxplayers,
         password: game.password,
-        gamelobby_id: this.roomId
+        gamelobby_id: this.roomId,
+        currentplayers: 0
     });  
 
     console.log("GameLobbyRoom ("+ this.roomId +") created!");
@@ -51,8 +52,29 @@ export class GameLobbyRoom extends Room {
   updatePlayersReady() {
     this.state.playersReady = this.areAllPlayersReady();
   }  
-  
-  onJoin(client, options) {
+
+  getCurrentPlayersCount() {
+    let count = 0;
+    for (const player of this.state.players.values()) {
+      if (!player.isSpectator) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  async updateCurrentPlayersMetadata() {
+    await this.setMetadata({
+      ...this.metadata,
+      currentplayers: this.getCurrentPlayersCount()
+    });
+    this.broadcast(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);
+    if (global.lobbyRoom) {
+      global.lobbyRoom.broadcast(EVENTS.MAINLOBBY.REFRESH_GAMES);
+    }        
+  }
+
+  async onJoin(client, options) {
     const { user } = options;
     const username = user.username;
     const user_id = user.user_id;
@@ -65,11 +87,10 @@ export class GameLobbyRoom extends Room {
 
       console.log("player " + username + " joined game lobby: " + this.roomId);      
 
-      client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);
-
       player.user_id = user_id;
 
       this.updatePlayersReady();
+      await this.updateCurrentPlayersMetadata();
 
       if (global.lobbyRoom) {
         global.lobbyRoom.broadcast(EVENTS.MAINLOBBY.REFRESH_GAMES);
@@ -100,14 +121,12 @@ export class GameLobbyRoom extends Room {
         });
 
         console.log("New owner assigned:", nextPlayer.username);
-
-        this.broadcast(EVENTS.GAME_LOBBY.OWNER_CHANGE, {
-          username: nextPlayer.username
-        });
+        this.broadcast(EVENTS.GAME_LOBBY.OWNER_CHANGE, { username: nextPlayer.username });
       }
     }
 
     this.updatePlayersReady();
+    await this.updateCurrentPlayersMetadata();
 
     if (this.state.players.size === 0) {
       console.log("No Players. Shutting down room:", this.roomId);

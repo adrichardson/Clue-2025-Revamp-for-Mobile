@@ -259,10 +259,6 @@ async function setupGameHandlers() {
         emit(EVENTS.SERVER.OBJECTION_FOUND, data);
       });
 
-      game.onMessage(EVENTS.SERVER.FINAL_POSSIBLE , (data) => {
-        emit(EVENTS.SERVER.FINAL_POSSIBLE, data);
-      });
-
       game.onMessage(EVENTS.SERVER.GAME_PLAYER_LIST, (data) => {
         emit(EVENTS.SERVER.GAME_PLAYER_LIST, data);
       });      

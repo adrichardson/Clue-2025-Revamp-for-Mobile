@@ -466,7 +466,12 @@ html, body {
   letter-spacing: 0.12rem;
   color: var(--white);
   padding-top: 20px;
-  position: relative;  
+  position: relative;
+  overflow-y: auto;
+  /* IE and Edge */
+  -ms-overflow-style: none;  
+  /* Firefox */
+  scrollbar-width: none;    
 }
 
 .search-wrapper {

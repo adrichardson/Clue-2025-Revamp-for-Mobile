@@ -63,6 +63,8 @@ export function syncState(serverstate){
   state.characters = serverstate.characters;
   state.phase = serverstate.phase;
   state.turn = serverstate.turn;
+  state.playerwinner = serverstate.playerwinner;
+
   const turn = serverstate.currentTurn;  
   state.currentTurn = {
     currentPlayerId: turn.currentPlayerId,
@@ -149,9 +151,18 @@ export function updateActionUI() {
       message = isMyTurn ? `Make a final accusation!` : `${player.username} is making a final accusation!`;      
       showAction(ACTION_TYPES.MAKE_FINAL, { player, user: state.user, isMyTurn, message, isFinal: true });
       break;
+    case PHASES.FINAL_FAILED:
+      var messageuser = isMyTurn ? 'You' : player.username;
+      message = `${messageuser} guessed incorrectly! <br> ${messageuser} will be able to object but can no longer make accusations.`;
+      showAction(ACTION_TYPES.INCORRECT_FINAL, { player, user: state.user, isMyTurn, message });       
+      break;
     case PHASES.GAME_OVER:
-      message = `${ isMyTurn ? "You" : player?.username} solved the murder!`;
       const solution = state.currentTurn.suggestion;      
+      if(state.playerwinner){
+        message = `${ isMyTurn ? "You" : player?.username} solved the murder!`;
+      } else {
+        message = `All players have failed to catch the murderer! <br> They got away with the crime.`;        
+      }  
       showAction(ACTION_TYPES.GAME_OVER, { player, user: state.user, message, solution });
       break;
   }

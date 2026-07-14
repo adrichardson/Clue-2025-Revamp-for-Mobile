@@ -6,6 +6,7 @@ import { colyseus } from "./colyseus.js";
 import { setupModal, toggleModal, openModal, closeModal } from "./utils/modalutils.js";
 import { on } from "./handlers/colyseusCallbacks.js";
 import { EVENTS } from "../../../shared/data/index.js";
+import { state } from "../core/gameState.js";
 
 export function init() {
     addEventListeners();  
@@ -13,13 +14,15 @@ export function init() {
     setupModal();
     const params = new URLSearchParams(window.location.search);
     const game_id = params.get("id");
-    colyseushelper.joinGame(game_id);
+    colyseushelper.joinGame(game_id);  
 }
+
 
 function addEventListeners() {
     document.querySelectorAll(".gamemenuitem").forEach(button => {
         button.addEventListener("click", async function(e) {
             e.preventDefault();
+            if(button.classList.contains("disabled")) return;
             switch(this.id) {
                 case "gameactionbtn":
                     toggleModal("gameactionModal", this);

@@ -4,6 +4,7 @@ export const PHASES = {
   SUGGESTION: "suggestion",
   FINAL_POSSIBLE: "final_possible",
   FINAL_SUGGESTION: "final_suggestion",
+  FINAL_FAILED: "final_failed",  
   OBJECTION: "objection",
   GAME_OVER: "gameover"
 };

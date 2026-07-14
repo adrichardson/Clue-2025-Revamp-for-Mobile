@@ -31,26 +31,21 @@ async function handleOwnerChange(data, gamelobby) {
 }
 
 async function handlePlayerJoined(player, gamelobby) {
-    if(gamelobby.metadata){
-        const players = gamelobby.state.players;        
-        gamelobby.metadata.currentplayers = players.size;
+    if (gamelobby.metadata) {
         setLobbyTitle(gamelobby.metadata);
-    }    
-    
+    }
     newservermessage(EVENTS.GAME_LOBBY.PLAYER_JOINED, player);
 }
 
 async function handlePlayerLeft(player, user, gamelobby) {
-    if(user.username == player.username) return;
+    if (user.username == player.username) return;
 
     clearUserCharacter(player.username);
 
-    if(gamelobby.metadata){
-        const players = gamelobby.state.players;        
-        gamelobby.metadata.currentplayers = players.size;            
-        setLobbyTitle(gamelobby.metadata);    
+    if (gamelobby.metadata) {
+        setLobbyTitle(gamelobby.metadata);
     }
-    newservermessage(EVENTS.GAME_LOBBY.PLAYER_LEFT, player);    
+    newservermessage(EVENTS.GAME_LOBBY.PLAYER_LEFT, player);
 }
 
 async function handlePlayerCharacterChange(character_id, previousCharacterId, player) {
@@ -74,10 +69,9 @@ async function handlePlayersReadyChange(readyState, previousReadyState) {
 }
 
 async function handleMetaDataChange(metadata, gamelobby) {
-    const players = gamelobby.state.players;        
+    console.log("Metadata changed:", metadata);
     gamelobby.metadata = metadata;
-    gamelobby.metadata.currentplayers = players.size;
-    setLobbyTitle(gamelobby.metadata);        
+    setLobbyTitle(gamelobby.metadata);
 }
 
 async function handleGameStarted(colyseus, game_id) {
@@ -92,4 +86,15 @@ async function handleChatMessage(chatmessage) {
 
 async function handleDisconnect() {
     window.history.back();
+}
+
+export function getActivePlayerCount(players) {
+    let count = 0;
+
+    for (const player of players.values()) {
+        if (!player.isSpectator) {
+            count++;
+        }
+    }
+    return count;
 }

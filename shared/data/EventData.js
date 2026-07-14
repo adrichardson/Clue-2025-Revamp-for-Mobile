@@ -18,6 +18,7 @@ export const EVENTS = {
     ROLL_RESULT: "server:rollResult",
     OBJECTION_FOUND: "server:objectionFound",
     FINAL_POSSIBLE: "server:finalpossible",
+    FINAL_INCORRECT: "server:finalincorrect",
     PLAYER_ADDED: "server:playerAdded",
     PLAYER_REMOVED: "server:playerRemoved",
     PLAYER_INVALID_MOVE: "server:invalidMove",

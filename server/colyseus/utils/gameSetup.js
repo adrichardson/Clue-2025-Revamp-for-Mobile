@@ -25,7 +25,7 @@ export function extractSolution(deck) {
 }
 
 export function dealCards(deck, playersMap) {
-  const players = [...playersMap.values()];
+  const players = [...playersMap.values().filter(player => !player.isSpectator)];
   let playerIndex = 0;
 
   while (deck.cards.length > 0) {

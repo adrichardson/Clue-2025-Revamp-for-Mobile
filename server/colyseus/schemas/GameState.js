@@ -13,6 +13,7 @@ export class GameState extends Schema {
     this.turn = 1;
     this.phase = "";
     this.currentTurn = new TurnState();
+    this.playerwinner = false;
   }
 
   addPlayer(id, player) {
@@ -48,6 +49,7 @@ defineTypes(GameState, {
   players: { map: Player },
   characters: { map: CharacterState },  
   turn: "number",
+  playerwinner: "boolean",
   phase: "string",
   currentTurn: TurnState,
 });

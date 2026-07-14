@@ -5,3 +5,4 @@ export { renderObjectionScreen } from "./objectionScreen.js";
 export { renderObjectionFoundScreen } from "./objectionFoundScreen.js";
 export { renderChooseFinalOptionScreen } from "./chooseFinalOptionScreen.js";
 export { renderGameOverScreen } from "./gameOverScreen.js";
+export { renderFinalIncorrectScreen } from "./finalIncorrectScreen.js";
