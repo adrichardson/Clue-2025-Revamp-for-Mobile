@@ -549,6 +549,30 @@ html, body {
   align-items: center;  
 }
 
+.filtertext {
+    position: relative;
+    cursor: pointer;
+    padding-right: 18px; /* reserve space for arrow */
+}
+
+.filtertext::after {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    text-align: center;
+    content: "";
+}
+
+.filtertext.sort-asc::after {
+    content: "▲";
+}
+
+.filtertext.sort-desc::after {
+    content: "▼";
+}
+
 .matchlisting, .matchhistorylisting {
   width: calc(85% - 22px);
   display: flex;

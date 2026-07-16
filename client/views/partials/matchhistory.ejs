@@ -1,12 +1,18 @@
 <div class="matchhistoryhome hidden" id="matchhistoryhome">
     <div class="screen-text">Match History</div>
     <div class="gamesarea-wrapper" id="matchesareawrapper">
-    <div class="filtercontrols" id="matchhistoryfiltercontrols">
-        <div class="filtertext">Character</div>
-        <div class="filtertext">Date</div>        
-        <div class="filtertext">W/L</div>        
-    </div>
-    <div class="nogames hidden" id="nomatches">You haven't played any games yet.</div>            
+        <div class="filtercontrols" id="matchhistoryfiltercontrols">
+            <div class="filtertext" data-sort="character">
+                <span>Character</span>
+            </div>
+            <div class="filtertext" data-sort="date">
+                <span>Date</span>
+            </div>
+            <div class="filtertext" data-sort="result">
+                <span>W/L</span>
+            </div>
+        </div>
+        <div class="nogames hidden" id="nomatches">You haven't played any games yet.</div>            
     </div>
     <div class="button-wrapper">
         <button class="interactable-button brown" id="cancelmatchhistorybtn">Cancel</button>

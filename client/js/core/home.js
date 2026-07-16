@@ -7,11 +7,17 @@ import * as chatmodule from "./utils/chat.js";
 import { getCharacterHexColorById} from "./utils/imagehelper.js";
 import { SUSPECTS } from "../../../shared/data/CardData.js";
 import { showToast } from "./utils/utils.js";
+import { SortableList } from "./utils/SortableList.js";
+
+let lobbySorter;
+let historySorter;
 
 export function init() {
   addEventListeners();
   setupUserBanner();
   initMainLobbyHandlers();
+  initLobbySorter();
+  initHistorySorter();  
   setupModal();
   colyseushelper.joinMainLobby();
   colyseushelper.getAvailableGames();
@@ -39,11 +45,12 @@ function addEventListeners() {
     if (searchbox) {
         searchbox.addEventListener("input", (e) => {
             const value = e.target.value.trim();
-            if (value !== "") {
-                if (searchicon) searchicon.classList.add("hidden");
-            } else if (searchicon) {
-                searchicon.classList.remove("hidden");
+
+            if (searchicon) {
+                searchicon.classList.toggle("hidden", value !== "");
             }
+
+            filterMatches(value);
         });
     }
 
@@ -54,8 +61,13 @@ function addEventListeners() {
             await getMatchHistory();
             const matchlistHome = document.getElementById("matchlisthome");
             const matchhistoryHome = document.getElementById("matchhistoryhome");
-            if (matchlistHome) matchlistHome.classList.add("hidden");
-            if (matchhistoryHome) matchhistoryHome.classList.remove("hidden");
+            if (matchlistHome) {
+                matchlistHome.classList.add("hidden");
+            }
+            if (matchhistoryHome) {
+                matchhistoryHome.classList.remove("hidden");
+                historySorter.sort();
+            }
         });
     }   
     
@@ -66,16 +78,9 @@ function addEventListeners() {
             const matchlistHome = document.getElementById("matchlisthome");
             const matchhistoryHome = document.getElementById("matchhistoryhome");
             const matchesareawrapper = document.getElementById("matchesareawrapper");
+            matchesareawrapper?.querySelectorAll(".matchhistorylisting").forEach(match => match.remove());        
             if (matchlistHome) matchlistHome.classList.remove("hidden");
             if (matchhistoryHome) matchhistoryHome.classList.add("hidden");
-            if( matchesareawrapper ){
-                matchesareawrapper.childNodes.forEach(child => {
-                    if( child.classList && child.classList.contains("matchhistorylisting") ){
-                        matchesareawrapper.removeChild(child);
-                    }
-                });
-            }
-
         });
     }    
 
@@ -184,6 +189,45 @@ function addEventListeners() {
     });
 }
 
+function initLobbySorter(){
+    lobbySorter = new SortableList({
+        wrapper: "#matcheswrapper",
+        itemSelector: ".matchlisting",
+        headerSelector: "#filtercontrols .filtertext",
+        defaultSort: "players",
+        ascending: true,
+        sorters: {
+            username: el => el.querySelector(".match-username").textContent,
+            type: el => el.querySelector(".match-type").textContent.startsWith("Public") ? 0 : 1,
+            players: el => Number(el.querySelector(".match-count").textContent.split("/")[0])
+        }
+    });
+}
+
+function initHistorySorter() {
+    historySorter = new SortableList({
+        wrapper: "#matchesareawrapper",
+        itemSelector: ".matchhistorylisting",
+        headerSelector: "#matchhistoryfiltercontrols .filtertext",
+        defaultSort: "date",
+        ascending: false,
+        sorters: {
+            character: el => el.querySelector(".matchhistory-character").textContent,
+            date: el => el.querySelector(".matchhistory-date").textContent,
+            result: el => el.querySelector(".matchhistory-result").textContent === "W" ? 0 : 1
+        }
+    });
+}
+
+async function filterMatches(searchText) {
+    const filter = searchText.toLowerCase();
+
+    document.querySelectorAll(".matchlisting").forEach(match => {
+        const text = match.textContent.toLowerCase();
+        match.classList.toggle("hidden", !text.includes(filter));
+    });
+}
+
 async function getMatchHistory() {
     const user = await getUser();
     const res = await fetch(`/api/matchhistory`, {
@@ -199,7 +243,7 @@ async function getMatchHistory() {
     } else {
         matchesfilter.classList.remove("hide");
         nomatches.classList.add("hidden");        
-        matchdata.forEach(match => {
+        matchdata.forEach((match, index) => {
             const date = new Date(match.createdAt);
             const matchDate = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
             const result = match.player.result === "win" ? "W" : "L";        
@@ -212,6 +256,7 @@ async function getMatchHistory() {
             const matchdiv = document.createElement("div");
             matchdiv.classList.add("matchhistorylisting");
             matchdiv.style.backgroundColor = bgcolor;
+            matchdiv.dataset.index = index;
             matchdiv.innerHTML = `
                 <div class="matchhistory-character">${characterName}</div>
                 <div class="matchhistory-date">${matchDate}</div>            
@@ -312,5 +357,6 @@ export async function listGames(gameslist){
         listing.appendChild(matchtype);        
         listing.appendChild(matchcount);        
         matchdiv.appendChild(listing);
+        lobbySorter.sort();
     });
 }
