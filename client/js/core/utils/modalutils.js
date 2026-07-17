@@ -42,7 +42,6 @@ export function setupModal() {
       settingsbtn.addEventListener("click", function(e) {
         e.preventDefault();
         toggleModal("settingsModal", settingsbtn);
-
       });
     }
 
@@ -50,9 +49,17 @@ export function setupModal() {
     if (settingsAboutBtn) {
       settingsAboutBtn.addEventListener("click", function(e) {
         e.preventDefault();
-        // Handle about button click
+        toggleModal("aboutModal", settingsAboutBtn);
       });
     }
+
+    const aboutbtnClose = document.getElementById("about:close");
+    if (aboutbtnClose) {
+      aboutbtnClose.addEventListener("click", function(e) {
+        e.preventDefault();
+        toggleModal("aboutModal", aboutbtnClose);
+      });
+    }    
 
     const settingsLogoutBtn = document.getElementById("settings:logout");
     if (settingsLogoutBtn) {

@@ -1562,6 +1562,15 @@ html, body {
   margin-bottom: 20px;
 }
 
+.about-message {
+  text-align: left;
+  display: block;  
+}
+
+.about-message p {
+    text-indent: 1em;
+}
+
 #actionContainer {
   display: flex;
   justify-content: center;
