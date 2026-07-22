@@ -1,13 +1,12 @@
 <div class="banner">
-    <div class="profile-pic-wrapper">
+    <div class="profile-pic-wrapper ui-action" id="profile-pic-wrapper" data-modal="profileModal" data-action="toggle">
         <img src="../../assets/icons/loadcached.png" alt="Loading" class="banner-profile-pic profile-pic-image" id="banner-thumb">
     </div>
     <div class="banner-username-wrapper">
         <div class="banner-username" id="banner-username"></div>
     </div>
-    <div class="banner-settings-wrapper" id="settingsbtn">
+    <div class="banner-settings-wrapper ui-action" id="settingsbtn" data-modal="settingsModal" data-action="toggle">
         <img src="../../assets/icons/settings40.png" alt="Settings" class="banner-settings-icon settings-icon-image" id="settings-icon-image">
         <div class="banner-version-text">Ver.  <%= version %></div>
     </div>
 </div>
-

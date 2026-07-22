@@ -18,7 +18,6 @@ async function init() {
 
   initRenderer(ctx, canvas.width, canvas.height);
   initGameHandlers();
-  console.log("initGameHandlers running");
   setupInput(canvas, state, handlePointerDown);  
 
   await loadBoardImage();
@@ -142,7 +141,7 @@ export function updateActionUI() {
       message = `${ objector ? `Select a card to show ${player.username}` : `${objectingplayer?.username} is objecting to
                   <br> ${suggestion.suspect}<br>${suggestion.weapon}<br>${suggestion.room}` }`;
       objector ? showAction(ACTION_TYPES.OBJECTION, {message, suggestion, objector}) : showAction(ACTION_TYPES.OBJECTION, {message, objector});     
-      break;           
+      break;        
     case PHASES.FINAL_POSSIBLE:
       message = isMyTurn ? `Everyone has passed. <br> Make a final accusation?` : `Everyone has passed. <br> ${player.username} is deciding if they will make a final accusation.`;
       showAction(ACTION_TYPES.CHOOSE_FINAL, { player, user: state.user, isMyTurn, message });

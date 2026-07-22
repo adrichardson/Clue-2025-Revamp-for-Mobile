@@ -1,6 +1,6 @@
 import { colyseus } from "../colyseus.js";
 import { fitText } from "../utils/utils.js";
-import { closeModal } from "../utils/modalutils.js";
+import UIManager from "../utils/UIManager.js";
 import { showToast } from "../utils/utils.js";
 import { EVENTS, SUSPECTS, WEAPONS, ROOMS, TOASTS, TOAST_DURATIONS } from "../../../../shared/data/index.js";
 
@@ -30,7 +30,7 @@ export function renderSuggestionScreen(container, data) {
         </div>`
         : 
         `<div class="button-wrapper actionbutton-wrapper">
-            <div class="interactable-button actionbtn" id="okbtn">OK</div>
+            <div class="interactable-button actionbtn ui-action" id="okbtn" data-action="toggle">OK</div>
         </div`;    
 
   container.innerHTML = `
@@ -112,19 +112,11 @@ export function renderSuggestionScreen(container, data) {
             return;
         }
         const suggestion = { suspectId,  weaponId,  roomId };
-        console.log(suggestion);
-        console.log(data);
         if(data.isFinal) {
-            console.log("making final");
             colyseus.send(EVENTS.CLIENT.SUBMIT_FINAL, suggestion);
         } else {
             colyseus.send(EVENTS.CLIENT.SUGGESTED, suggestion);
-        }
-        
+        }        
     }); 
-  }
-    container.querySelector("#okbtn")?.addEventListener("click", () => {
-        const openModal = document.querySelector(".modal.open");
-        closeModal(openModal);
-    });      
+  } 
 }

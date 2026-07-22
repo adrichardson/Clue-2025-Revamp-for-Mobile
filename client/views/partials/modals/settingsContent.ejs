@@ -2,12 +2,18 @@
     <div class="actionarea">
         <div class="actionmessage"></div>
         <div class="settingsWrapper button-wrapper">
-            <div class="settings-button interactable-button actionbtn" id="settings:about">
+            <div class="settings-button interactable-button actionbtn ui-action" data-action="toggle" data-modal="howtoModal">
+                <div class="settings-button-text">How to Play</div>
+            </div>               
+            <div class="settings-button interactable-button actionbtn ui-action" data-action="toggle" data-modal="aboutModal">
                 <div class="settings-button-text">About</div>
             </div>
-            <div class="settings-button interactable-button actionbtn" id="settings:logout">
+            <div class="settings-button interactable-button actionbtn ui-action" data-action="logout">
                 <div class="settings-button-text">Logout</div>
             </div>    
+            <div class="settings-button interactable-button actionbtn ui-action" data-action="toggle" data-modal="settingsModal">
+                <div class="settings-button-text">Close</div>
+            </div>                
         </div>
     </div>
 </div>

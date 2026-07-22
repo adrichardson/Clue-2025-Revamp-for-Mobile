@@ -5,21 +5,10 @@
 <div class="gamelobby" id="gamelobby">
     <%- include("partials/character-pic-option") %> 
 </div>
-    <%- include("./partials/modals/draggableModal", {
-        id: "gamemessageModal",
-        title: "Messages",
-        content: include("./partials/modals/gamemessageContent")
-    }) %> 
-    <%- include("./partials/modals/draggableModal", {
-        id: "settingsModal",
-        title: "Settings",
-        content: include("./partials/modals/settingsContent")
-    }) %>
-    <%- include("./partials/modals/draggableModal", {
-        id: "aboutModal",
-        title: "About",
-        content: include("./partials/modals/aboutContent")
-    }) %>        
+    <%- include("./partials/modals/modalRoot", {
+        messageModalId: "gamemessageModal",
+        messageModalContent: "./partials/modals/gamemessageContent"
+    }) %>  
 <div class="characterinfo-wrapper" id="characterinfowrapper">
     <div class="characterinfo" id="characterinfo"> Miss Scarlet </div>
 </div>

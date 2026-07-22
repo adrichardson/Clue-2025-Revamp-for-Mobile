@@ -38,7 +38,6 @@ export class GameState extends Schema {
     t.diceRoll = 0;
     t.hasMoved = false;
     t.hasSuggested = false;
-
     t.suggestion.suspect = "";
     t.suggestion.weapon = "";
     t.suggestion.room = "";

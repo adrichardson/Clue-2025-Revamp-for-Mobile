@@ -29,11 +29,9 @@ export function detectBoardLocation(state, worldX, worldY) {
     const room = getRoomAt(cell.col, cell.row);
 
     if (room) {
-        console.log("ROOM:", room.name, cell);
         showToast(`ROOM: ${room.name}`, TOASTS.INFO, TOAST_DURATIONS.HOVER);
         state.debug.hoveredRoom = room;      
     } else {
-        console.log("HALLWAY:", cell.col, cell.row);
         showToast(`HALLWAY (${cell.col}, ${cell.row})`, TOASTS.INFO, TOAST_DURATIONS.HOVER);
         state.debug.hoveredTile = cell;    
     }

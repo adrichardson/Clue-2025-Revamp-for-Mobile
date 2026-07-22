@@ -37,21 +37,9 @@
         id: "gamesheetModal",
         title: "Detective Sheet",
         content: include("modals/gamesheetContent", { users: typeof users !== "undefined" ? users : [] })
-    }) %>   
-    
-    <%- include("modals/draggableModal", {
-        id: "gamemessageModal",
-        title: "Messages",
-        content: include("modals/gamemessageContent")
-    }) %>
-    <%- include("./partials/modals/draggableModal", {
-        id: "settingsModal",
-        title: "Settings",
-        content: include("./partials/modals/settingsContent")
-    }) %>     
-    <%- include("./partials/modals/draggableModal", {
-        id: "aboutModal",
-        title: "About",
-        content: include("./partials/modals/aboutContent")
-    }) %>        
+    }) %>    
+    <%- include("./partials/modals/modalRoot", {
+        messageModalId: "gamemessageModal",
+        messageModalContent: "./partials/modals/gamemessageContent"
+    }) %>    
 </div>

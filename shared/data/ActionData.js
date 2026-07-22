@@ -5,6 +5,7 @@ export const ACTION_TYPES = {
   SUGGESTION: "suggestion",
   OBJECTION: "objection",
   OBJECTION_FOUND: "objectionfound",
+  OBJECTION_SHOWN: "objectionshown",  
   CHOOSE_FINAL: "choosefinal",
   MAKE_FINAL: "makefinal",
   INCORRECT_FINAL: "incorrectfinal",

@@ -28,11 +28,6 @@ export class LobbyRoom extends Room {
     let user = new User(username, user_id);
     this.state.addUser(user);
     client.user = user;
-
-    console.log(user.username, "joined the main lobby!");
-    // notify others
-    this.broadcast(EVENTS.MAINLOBBY.PLAYER_JOINED, { username }, { except: client });
-    client.send(EVENTS.MAINLOBBY.WELCOME_MESSAGE, { message: `Welcome ${username}!` });   
     const usernames = this.clients.map(client => client.user.username);
     this.broadcast(EVENTS.MAINLOBBY.ONLINE_USERS, { usernames }); 
   }

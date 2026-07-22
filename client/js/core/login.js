@@ -9,7 +9,6 @@ export function init() {
 }
 
 function addEventListeners() {
-  console.log("Adding event listeners for login page");
   document.getElementById("loginForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     const username = document.getElementById("username").value.toLowerCase();

@@ -1,22 +1,25 @@
 import { setupUserBanner, getUser } from "./utils/user.js";
 import * as game from "./gameBoard.js";
-import * as chatmodule from "./utils/chat.js";
+import MessageManager from "./utils/MessageManager.js";
+import ChatManager from "./utils/ChatManager.js";
 import * as colyseushelper from "./colyseus.js";
 import { colyseus } from "./colyseus.js";
-import { setupModal, toggleModal, openModal, closeModal } from "./utils/modalutils.js";
+import UIManager from "./utils/UIManager.js";
+import GameActions from "./utils/GameActions.js";
 import { on } from "./handlers/colyseusCallbacks.js";
-import { EVENTS } from "../../../shared/data/index.js";
+import { EVENTS, FEED_TYPES } from "../../../shared/data/index.js";
 import { state } from "../core/gameState.js";
 
 export function init() {
     addEventListeners();  
     setupUserBanner();
-    setupModal();
+    UIManager.init();
+    GameActions.register();
+    initGameFeeds();
     const params = new URLSearchParams(window.location.search);
     const game_id = params.get("id");
     colyseushelper.joinGame(game_id);  
 }
-
 
 function addEventListeners() {
     document.querySelectorAll(".gamemenuitem").forEach(button => {
@@ -25,22 +28,25 @@ function addEventListeners() {
             if(button.classList.contains("disabled")) return;
             switch(this.id) {
                 case "gameactionbtn":
-                    toggleModal("gameactionModal", this);
+                    UIManager.toggleModal("gameactionModal", this);
                     break;
                 case "gamehandbtn":
-                    toggleModal("gamehandModal", this);
+                    UIManager.toggleModal("gamehandModal", this);
                     break;
                 case "gamesheetbtn":
-                    let gamesheetModalOpen = toggleModal("gamesheetModal", this);
+                    let gamesheetModalOpen = UIManager.toggleModal("gamesheetModal", this);
                     if (gamesheetModalOpen) {
                         requestAnimationFrame(() => {
                             truncateSheetHeaders();
-                            colorOptionsBoxes();    
+                            colorOptionsBoxes();
+                            renderSheetFromState();
                         });  
                     }
                     break;
                 case "gamemessagebtn":
-                    toggleModal("gamemessageModal", this);
+                    UIManager.toggleModal("gamemessageModal", this);
+                    MessageManager.scrollToBottom();   
+                    MessageManager.markAllRead();                      
                     const chatsendbox = document.getElementById("chatsendbox");              
                     break;
                 default:
@@ -51,21 +57,13 @@ function addEventListeners() {
 
     document.getElementById("chatsendbox").addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
-            chatmodule.sendMessage();
+            ChatManager.sendMessage();
         }
     });
 
     document.getElementById("sendbutton").addEventListener("click", async function(e) {
-        chatmodule.sendMessage();
+        ChatManager.sendMessage();
     });
-
-    document.getElementById("lobbychatbtn").addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("lobby");
-    });
-
-    document.getElementById("gamelogbtn").addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("game");
-    });     
 
     document.querySelectorAll(".sheetBox").forEach(box => {
         box.addEventListener("click", (e) => {
@@ -78,11 +76,6 @@ function addEventListeners() {
         clearGrid();
     });     
 
-    // document.getElementById("rollbtn").addEventListener("click", async function(e) {
-    //     console.log("sending roll action");
-    //     colyseus.send(EVENTS.CLIENT.ROLLED);
-    // });     
-
     setupSheetOptionListeners();
 
     const canvas = document.getElementById("gameCanvas");
@@ -92,10 +85,46 @@ function addEventListeners() {
     canvas.addEventListener("touchend", e => e.preventDefault(), { passive: false });    
 }
 
+function initGameFeeds(){
+    MessageManager.init();
+
+    MessageManager.register({
+        type: FEED_TYPES.GAME_LOG,
+        feed: "gamelogfeed",
+        notification: "chatnotification"
+    });
+
+    MessageManager.register({
+        type: FEED_TYPES.PLAYER_MESSAGE,
+        feed: "lobbychatfeed",
+        notification: "chatnotification"
+    });    
+}
+
 function clearGrid() {
     document.querySelectorAll(".sheetBox").forEach(box => {
         box.innerHTML = "";
-    });    
+        box.style.color = "var(--sheet-black)";
+    });
+
+    state.sheet.marks = Array.from({ length: 105 }, () => ({ symbol: "", color: "black" }));
+    colyseus.send(EVENTS.CLIENT.SHEET_UPDATE, { clear: true });
+}
+
+function renderSheetFromState() {
+    const boxes = document.querySelectorAll(".sheetBox");
+    const marks = state.sheet?.marks || [];
+
+    boxes.forEach((box, index) => {
+        const mark = marks[index] || { symbol: "", color: "black" };
+        box.textContent = mark.symbol || "";
+        box.style.color = mark.symbol ? getSheetColor(mark.color) : "var(--sheet-black)";
+    });
+}
+
+function updateSheetState(index, symbol, color) {
+    state.sheet.marks = state.sheet.marks || Array.from({ length: 105 }, () => ({ symbol: "", color: "black" }));
+    state.sheet.marks[index] = { symbol, color };
 }
 
 function truncateText(el) {
@@ -135,41 +164,27 @@ function setupSheetOptionListeners() {
 }
 
 function fillBox(box) {
-    var white = "var(--white)";
-    var color = getColorOption();
+    var colorName = getColorOption();
     var marker = getMarkerOption();
-    switch(color) {
-        case "black":
-            color = "var(--black)";
-            break;
-        case "blue":
-            color = "var(--sheet-blue)";
-            break;
-        case "yellow":
-            color = "var(--sheet-yellow)";
-            break;
-        case "red":
-            color = "var(--sheet-red)";
-            break;
-        case "green":
-            color = "var(--sheet-green)";
-            break;    
-        case "purple":
-            color = "var(--sheet-purple)";
-            break;
-        default:
-            color = color;
-    }    
+    var color = getSheetColor(colorName);
 
     if(box.innerHTML !== marker) {
         box.style.color = color;
         box.textContent = marker;
-        return;
     } else if (box.style.color !== color) {
         box.style.color = color;
-        return;
+    } else {
+        box.textContent = "";
+        box.style.color = getSheetColor("black");
+        marker = "";
+        colorName = "black";
     }
-    box.textContent = "";
+
+    const index = Array.from(document.querySelectorAll('.sheetBox')).indexOf(box);
+    if (index >= 0) {
+        updateSheetState(index, box.textContent, colorName);
+        colyseus.send(EVENTS.CLIENT.SHEET_UPDATE, { mark: { index, symbol: box.textContent, color: colorName } });
+    }
 }
 
 function colorOptionsBoxes(){
@@ -208,6 +223,25 @@ function getColorOption() {
         }
     }
     return "black";
+}
+
+function getSheetColor(colorName) {
+    switch(colorName) {
+        case "black":
+            return "var(--black)";
+        case "blue":
+            return "var(--sheet-blue)";
+        case "yellow":
+            return "var(--sheet-yellow)";
+        case "red":
+            return "var(--sheet-red)";
+        case "green":
+            return "var(--sheet-green)";
+        case "purple":
+            return "var(--sheet-purple)";
+        default:
+            return "var(--black)";
+    }
 }
 
 function getMarkerOption() {

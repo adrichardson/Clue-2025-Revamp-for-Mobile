@@ -2,12 +2,13 @@ import * as colyseushelper from "./colyseus.js";
 import { colyseus } from "./colyseus.js";
 import { getUser, setupUserBanner } from "./utils/user.js";
 import { initMainLobbyHandlers } from "./handlers/mainLobbyHandlers.js";
-import { setupModal, toggleModal } from "./utils/modalutils.js";
-import * as chatmodule from "./utils/chat.js";
+import UIManager from "./utils/UIManager.js";
+import MessageManager from "./utils/MessageManager.js";
+import ChatManager from "./utils/ChatManager.js";
 import { getCharacterHexColorById} from "./utils/imagehelper.js";
-import { SUSPECTS } from "../../../shared/data/CardData.js";
 import { showToast } from "./utils/utils.js";
 import { SortableList } from "./utils/SortableList.js";
+import { SUSPECTS, FEED_TYPES } from "../../../shared/data/index.js";
 
 let lobbySorter;
 let historySorter;
@@ -17,8 +18,9 @@ export function init() {
   setupUserBanner();
   initMainLobbyHandlers();
   initLobbySorter();
-  initHistorySorter();  
-  setupModal();
+  initHistorySorter();
+  UIManager.init();
+  initHomeFeeds();  
   colyseushelper.joinMainLobby();
   colyseushelper.getAvailableGames();
   updateSliderFill();
@@ -160,33 +162,40 @@ function addEventListeners() {
     const chatbox = document.getElementById("homemessagebtn");
     const chatsendbox = document.getElementById("chatsendbox");
     const sendbtn = document.getElementById("sendbutton");
-    const lobbychatbtn = document.getElementById("lobbychatbtn");
-    const onlineusersbtn = document.getElementById("onlineusersbtn");
 
-    chatbox.addEventListener("click", async function(e) {
+    chatbox?.addEventListener("click", async function(e) {
         chatbox.classList.add("hidden");
-        toggleModal("homemessageModal", this);
+        UIManager.toggleModal("homemessageModal", this);
+        MessageManager.scrollToBottom();   
+        MessageManager.markAllRead();        
     });
 
-   chatsendbox.addEventListener("keydown", function(event) {
+   chatsendbox?.addEventListener("keydown", function(event) {
         if (event.key === "Enter" && chatsendbox.value!== "") {
-            chatmodule.sendMessage();
+            ChatManager.sendMessage();
         }
     });
 
-    sendbtn.addEventListener("click", async function(e) {
+    sendbtn?.addEventListener("click", async function(e) {
         if (chatsendbox.value!== "") {
-            chatmodule.sendMessage();
+            ChatManager.sendMessage();
         }
     });
+}
 
-    lobbychatbtn.addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("lobby");
+function initHomeFeeds(){
+    MessageManager.init();
+
+    MessageManager.register({
+        type: FEED_TYPES.PLAYER_MESSAGE,
+        feed: "lobbychatfeed",
+        notification: "chatnotification"
     });
 
-    onlineusersbtn.addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("online");
-    });
+    MessageManager.register({
+        type: FEED_TYPES.ONLINE_USERS,
+        feed: "onlineusersfeed"
+    });        
 }
 
 function initLobbySorter(){
@@ -219,7 +228,7 @@ function initHistorySorter() {
     });
 }
 
-async function filterMatches(searchText) {
+function filterMatches(searchText) {
     const filter = searchText.toLowerCase();
 
     document.querySelectorAll(".matchlisting").forEach(match => {
@@ -229,7 +238,6 @@ async function filterMatches(searchText) {
 }
 
 async function getMatchHistory() {
-    const user = await getUser();
     const res = await fetch(`/api/matchhistory`, {
         method: "GET",
         headers: { "Content-Type": "application/json" }
@@ -357,6 +365,7 @@ export async function listGames(gameslist){
         listing.appendChild(matchtype);        
         listing.appendChild(matchcount);        
         matchdiv.appendChild(listing);
-        lobbySorter.sort();
     });
+
+    lobbySorter.sort();    
 }

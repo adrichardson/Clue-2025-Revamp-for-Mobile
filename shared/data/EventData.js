@@ -7,18 +7,22 @@ export const EVENTS = {
     SUGGESTED: "client:suggested",
     CHOOSE_FINAL: "client:choosefinal",
     SUBMIT_FINAL: "client:submitfinal",    
-    NEW_TURN: "client:newTurn"
+    NEW_TURN: "client:newTurn",
+    SHEET_UPDATE: "client:sheetUpdate"
   },
 
   SERVER: {
+    GAME_LOG: "server:gamelog",
     STATE_READY: "server:stateReady",
     PHASE_CHANGED: "server:phaseChanged",
     TURN_CHANGED: "server:turnChanged",
     CHAT_MESSAGE: "server:chatMessage",
     ROLL_RESULT: "server:rollResult",
     OBJECTION_FOUND: "server:objectionFound",
+    OBJECTION_SHOWN: "server:objectionShown",    
     FINAL_POSSIBLE: "server:finalpossible",
     FINAL_INCORRECT: "server:finalincorrect",
+    PLAYER_SHEET: "server:playerSheet",
     PLAYER_ADDED: "server:playerAdded",
     PLAYER_REMOVED: "server:playerRemoved",
     PLAYER_INVALID_MOVE: "server:invalidMove",
@@ -27,9 +31,7 @@ export const EVENTS = {
   },
 
   MAINLOBBY: {
-    PLAYER_JOINED: "lobby:playerJoined",
     PLAYER_LEFT: "lobby:playerLeft",
-    WELCOME_MESSAGE: "lobby:welcomeMessage",
     GAMELOBBY_CREATED: "lobby:gamelobbyCreated",    
     LIST_GAMES: "lobby:listgames",
     ONLINE_USERS: "lobby:onlineusers",
@@ -45,7 +47,6 @@ export const EVENTS = {
     GAME_START_CANCELLED: "gamelobby:gamestartcancelled",
     START_GAME_REQUEST: "gamelobby:startGameRequest",
     OWNER_CHANGE: "gamelobby:ownerchange",    
-    PLAYER_JOINED: "gamelobby:playerJoined",
     PLAYER_LEFT: "gamelobby:playerLeft",
     READYSTATE_CHANGE: "gamelobby:readystateChange",    
     CHARACTER_CHANGE: "gamelobby:characterChange"

@@ -1,4 +1,5 @@
-import { PHASES, EVENTS, BOARD_GRAPH, SUSPECTS, WEAPONS, ROOMS, getReachableTiles, getReachableRooms, getBlockedTiles} from "../../../shared/data/index.js";
+import { randomUUID } from "crypto";
+import { PHASES, EVENTS, BOARD_GRAPH, SUSPECTS, WEAPONS, ROOMS, GAME_LOG_TYPES, getReachableTiles, getReachableRooms, getBlockedTiles} from "../../../shared/data/index.js";
 import { Suggestion } from "../schemas/Suggestion.js";
 import { saveGame } from "../../services/gameService.js";
 
@@ -10,7 +11,46 @@ export const GameRoomHandlers = {
         room.broadcast(EVENTS.SERVER.CHAT_MESSAGE, { message: chatmessage, player: player });
     },   
     [EVENTS.CLIENT.NEW_TURN]: (room, client, message) => {
-        room.nextTurn();  
+        // If current phase allowed a final decision (everybody passed), and the current player
+        // chose to end their turn, log that choice before advancing the turn.
+        try {
+            if (room.state.phase === PHASES.FINAL_POSSIBLE) {
+                room.gameLog.add(GAME_LOG_TYPES.PLAYER_ENDED_TURN, { player: client.player });
+            }
+        } catch (e) {
+            console.warn('Failed to log player ended turn:', e);
+        }
+        room.nextTurn();
+    },
+    [EVENTS.CLIENT.SHEET_UPDATE]: (room, client, message) => {
+        const player = client.player;
+        if (!player) {
+            console.warn("Sheet update attempted without player.");
+            return;
+        }
+
+        const sheet = room.playerSheets.get(player.user_id) || Array.from({ length: 105 }, () => ({ symbol: "", color: "black" }));
+        if (message.clear) {
+            for (let i = 0; i < sheet.length; i++) {
+                sheet[i].symbol = "";
+                sheet[i].color = "black";
+            }
+        } else if (message.mark && typeof message.mark.index === "number") {
+            const { index, symbol, color } = message.mark;
+            if (index >= 0 && index < sheet.length) {
+                sheet[index].symbol = symbol || "";
+                sheet[index].color = color || "black";
+            }
+        } else if (Array.isArray(message.marks)) {
+            for (let i = 0; i < sheet.length && i < message.marks.length; i++) {
+                const item = message.marks[i] || {};
+                sheet[i].symbol = item.symbol || "";
+                sheet[i].color = item.color || "black";
+            }
+        }
+
+        room.playerSheets.set(player.user_id, sheet);
+        room.sendToPlayer(player, EVENTS.SERVER.PLAYER_SHEET, { marks: sheet });
     },
     [EVENTS.CLIENT.SUGGESTED]: (room, client, message) => {
         const state = room.state;
@@ -57,6 +97,18 @@ export const GameRoomHandlers = {
         const weaponguess = WEAPONS.find(card => card.id === Number(message.weaponId)).name;        
         const roomguess = ROOMS.find(card => card.imagetag === message.roomId).name;
         const fullguess = new Suggestion(personguess, weaponguess, roomguess);
+
+        // Store a plain, serializable suggestion for game logs (avoid Schema instances)
+        const plainSuggestion = {
+            suspect: personguess,
+            weapon: weaponguess,
+            room: roomguess,
+            cards: []
+        };
+
+        // Log the suggestion immediately so it appears before per-player pass/object logs
+        room.gameLog.suggestion(client.player, plainSuggestion);
+
         const objection = room.findObjection(client.player, fullguess);
         const movePlayer = room.findPlayerByCharacterId(message.suspectId);
         const moveCharacter = room.findCharacterByCharacterId(message.suspectId);
@@ -71,6 +123,11 @@ export const GameRoomHandlers = {
                 console.log("moveplayer calledin: ", movePlayer.calledIn);                
             }
             console.log("moveCharacter currentRoomId: ", moveCharacter.currentRoomId);                
+            // Log that the player was called into the room (public game log)
+            if (movePlayer && movePlayer.calledIn) {
+                const calledRoomName = ROOMS.find(r => r.imagetag === message.roomId)?.name || message.roomId;
+                room.gameLog.add(GAME_LOG_TYPES.PLAYER_MOVED, { player: movePlayer, location: calledRoomName, locationType: 'room', action: 'calledin' });
+            }
         }    
 
         if (objection) {
@@ -81,20 +138,37 @@ export const GameRoomHandlers = {
             state.phase = PHASES.OBJECTION;                  
         } else {
             console.log("Nobody could object.");
-            state.phase = PHASES.FINAL_POSSIBLE;        
+            state.phase = PHASES.FINAL_POSSIBLE;
+            // Public game log to indicate that no one could object to the suggestion
+            try {
+                room.gameLog.add(GAME_LOG_TYPES.EVERYBODY_PASSED, { player: client.player });
+            } catch (e) {
+                console.warn('Failed to log everybody passed:', e);
+            }
         }
-    },    
+    },
     [EVENTS.CLIENT.MOVED]: (room, client, data) => {    
         const state = room.state;
         let { tileId, roomId, stay, pass, passage } = data;
         
         client.player.calledIn = false;
         if (stay) {
-            state.currentTurn.hasMoved = true;                 
+            state.currentTurn.hasMoved = true;
+            try {
+                const charState = state.characters.get(String(client.player.character_id));
+                const stayedRoomId = charState?.currentRoomId;
+                const stayedRoomName = stayedRoomId ? (ROOMS.find(r => r.imagetag === stayedRoomId)?.name || stayedRoomId) : null;
+                if (stayedRoomName) {
+                    room.gameLog.add(GAME_LOG_TYPES.PLAYER_MOVED, { player: client.player, location: stayedRoomName, locationType: 'room', action: 'stayed' });
+                }
+            } catch (e) {
+                console.warn('Failed to log stay action:', e);
+            }
             state.phase = PHASES.SUGGESTION;            
         }
 
         if (pass) {          
+            room.gameLog.playerPassed(client.player);
             room.nextTurn();  
         }
 
@@ -144,8 +218,13 @@ export const GameRoomHandlers = {
                 state.currentTurn.validMoves.tiles.clear();
                 state.currentTurn.validMoves.rooms.clear();
                 state.currentTurn.hasMoved = true;           
+                // capture previous room before moving to a tile so the client can display "moved out of [previous room]"
+                const prevRoomId = state.characters.get(String(client.player.character_id)).currentRoomId;
+                const prevRoomName = prevRoomId ? (ROOMS.find(r => r.imagetag === prevRoomId)?.name || prevRoomId) : null;
                 state.characters.get(String(client.player.character_id)).currentTileId = tileId;             
                 state.characters.get(String(client.player.character_id)).currentRoomId = null;
+                // Keep server log with exact tile, and include prevRoomName for client-friendly messaging
+                room.gameLog.add(GAME_LOG_TYPES.PLAYER_MOVED, { player: client.player, location: `tile ${tileId}`, locationType: 'tile', prevRoomName });
                 room.sendToPlayer(client.player, EVENTS.SERVER.PLAYER_VALID_MOVE, { player: client.player, validMove: { "type": "tile", "id": tileId } } );
                 console.log(`${client.player.username} has moved to tile ${tileId}.`);
                 room.nextTurn();       
@@ -164,7 +243,10 @@ export const GameRoomHandlers = {
                 state.currentTurn.hasMoved = true;               
                 state.characters.get(String(client.player.character_id)).currentTileId = null;                
                 state.characters.get(String(client.player.character_id)).currentRoomId = roomId;                 
-                state.phase = PHASES.SUGGESTION;        
+                state.phase = PHASES.SUGGESTION;
+                const roomName = ROOMS.find(r => r.imagetag === roomId)?.name || roomId;
+                const action = passage ? 'passage' : (stay ? 'stayed' : 'moved');
+                room.gameLog.add(GAME_LOG_TYPES.PLAYER_MOVED, { player: client.player, location: roomName, locationType: 'room', action });
                 room.sendToPlayer(client.player, EVENTS.SERVER.PLAYER_VALID_MOVE, { player: client.player, validMove: { type: "room", "id": roomId } });
                 console.log(`${client.player.username} has moved to the ${roomId}.`);   
             } 
@@ -202,6 +284,7 @@ export const GameRoomHandlers = {
 
         // update turn state
         state.currentTurn.diceRoll = roll;
+        room.gameLog.roll(client.player, roll);
 
         let character = state.characters.get(String(client.player.character_id));
         const blockedTiles = getBlockedTiles(state.characters, character.character_id);   
@@ -219,15 +302,9 @@ export const GameRoomHandlers = {
             state.currentTurn.validMoves.rooms.push(room);
         }
 
-        // state.currentTurn.validMoves = { tiles: Array.from(movable), rooms: reachableRooms };
         room.sendToPlayer(client.player, EVENTS.SERVER.ROLL_RESULT, { player: client.player, roll: roll, validMoves: state.currentTurn.validMoves });
-        room.sendToPlayers(client => client.player?.user_id !== state.currentTurn.currentPlayerId,  EVENTS.SERVER.ROLL_RESULT, { player: client.player, roll: roll })      
-        //client.send(EVENTS.SERVER.ROLL_RESULT, { player: client.player, roll: roll, validMoves: state.currentTurn.validMoves });
+        room.sendToPlayers(client => client.player?.user_id !== state.currentTurn.currentPlayerId,  EVENTS.SERVER.ROLL_RESULT, { player: client.player, roll: roll });     
         state.phase = PHASES.MOVE;
-
-        console.log(
-            `${client.player.username} rolled a ${roll}`
-        );
     }, 
     [EVENTS.CLIENT.OBJECTED]: async (room, client, message) => {
         const { cardId, cardType } = message;
@@ -235,11 +312,37 @@ export const GameRoomHandlers = {
         const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
         console.log("player", client.player.username, "objected with ", card);
         console.log("showing", card.name, " to player ", currentPlayer.username);
-        room.sendToPlayer(currentPlayer, EVENTS.SERVER.OBJECTION_FOUND, { player: client.player, card });
-    }, 
+
+            // Create a public log entry that does NOT include the card details.
+            room.gameLog.add(GAME_LOG_TYPES.PLAYER_OBJECTED, { player: client.player });
+
+            // Private log for the player who should be shown the card (reveal the card).
+            room.gameLog.addPrivate(currentPlayer, GAME_LOG_TYPES.PLAYER_OBJECTED, { player: client.player, card, view: 'revealed', target: currentPlayer });
+        room.queuePrivateEvent(currentPlayer, EVENTS.SERVER.OBJECTION_FOUND, { player: client.player, card });
+
+        for (const player of room.state.players.values()) {
+            if (player.user_id === currentPlayer.user_id) continue;
+            room.queuePrivateEvent(player, EVENTS.SERVER.OBJECTION_SHOWN, { player: client.player, currplayer: currentPlayer });
+        }
+        
+            // Private log for the player who showed the card (so they see "you showed [card] to [player]").
+            room.gameLog.addPrivate(client.player, GAME_LOG_TYPES.PLAYER_OBJECTED, { player: client.player, card, view: 'shower', target: currentPlayer });
+        
+            // Notify all other players that an objection occurred (without card details).
+            for (const player of room.state.players.values()) {
+                if (player.user_id === currentPlayer.user_id) continue;
+                if (player.user_id === client.player.user_id) continue; // already sent to shower
+                room.queuePrivateEvent(player, EVENTS.SERVER.OBJECTION_SHOWN, { player: client.player, currplayer: currentPlayer });
+            }
+    },
     [EVENTS.CLIENT.CHOOSE_FINAL]: async (room, client, message) => {
         const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
         console.log(currentPlayer.username, " is making a final");
+        try {
+            room.gameLog.add(GAME_LOG_TYPES.PLAYER_CHOSE_FINAL, { player: currentPlayer });
+        } catch (e) {
+            console.warn('Failed to log player chose final:', e);
+        }
         room.state.phase = PHASES.FINAL_SUGGESTION;
     },
     [EVENTS.CLIENT.SUBMIT_FINAL]: async (room, client, message) => {
@@ -251,17 +354,20 @@ export const GameRoomHandlers = {
             solution.weapon.id === Number(weaponId) &&
             solution.room.imagetag === roomId;         
         const currentPlayer = room.state.players.get(room.state.currentTurn.currentPlayerId);
+        const fullsolution = new Suggestion(room.solution.person.name, room.solution.weapon.name, room.solution.room.name);
+        fullsolution.cards.push(room.solution.person, room.solution.weapon, room.solution.room);
+        room.gameLog.accusation(currentPlayer, fullsolution);
+
         if (isCorrect) {
-            const fullsolution = new Suggestion(room.solution.person.name, room.solution.weapon.name, room.solution.room.imagetag);
-            fullsolution.cards.push(room.solution.person, room.solution.weapon, room.solution.room);
             console.log(`${currentPlayer.username} solved the mystery!`);
             currentPlayer.victor = true;
             room.state.currentTurn.suggestion = fullsolution;
-            await saveGame(Array.from(room.state.players.values()));
+            await saveGame(Array.from(room.state.players.values()), room.gameLog.getAll());
             room.state.playerwinner = true;
             room.state.phase = PHASES.GAME_OVER;
         } else {
             console.log(`${currentPlayer.username} made an incorrect accusation.`);
+            room.gameLog.incorrectAccusation(currentPlayer, fullsolution);
             room.state.phase = PHASES.FINAL_FAILED;
             currentPlayer.eliminated = true;
         }
@@ -276,7 +382,6 @@ export const GameRoomHandlers = {
             test: value
         });
 
-        console.log(room.metadata);
         client.send(EVENTS.GAME_LOBBY.METADATA_CHANGE, this.metadata);
     }
 };

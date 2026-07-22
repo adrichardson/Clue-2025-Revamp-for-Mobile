@@ -3,11 +3,13 @@ import { GameLobbyState } from "../schemas/GameLobbyState.js";
 import { GameLobbyRoomHandlers } from "../handlers/GameLobbyRoomHandler.js";
 import { Player } from "../schemas/Player.js";
 import { EVENTS } from "../../../shared/data/index.js";
+import GameLogManager from "../schemas/GameLogManager.js";
 
 export class GameLobbyRoom extends Room {
   onCreate(game) {
     this.autoDispose = false;
     this.state  = new GameLobbyState();
+    this.gameLog = new GameLogManager(this);
 
     this.setMetadata({
         owner: game.owner,
@@ -91,6 +93,7 @@ export class GameLobbyRoom extends Room {
 
       this.updatePlayersReady();
       await this.updateCurrentPlayersMetadata();
+      this.gameLog.playerJoined(player);
 
       if (global.lobbyRoom) {
         global.lobbyRoom.broadcast(EVENTS.MAINLOBBY.REFRESH_GAMES);

@@ -1,21 +1,10 @@
 <div class="chatbox" id="homemessagebtn">Chat
-<div class="chat-notification hidden" id="chatnotification">New</div>    
+    <div class="chat-notification hidden" id="chatnotification">New</div>    
 </div>    
-    <%- include("./partials/modals/draggableModal", {
-        id: "homemessageModal",
-        title: "Messages",
-        content: include("./partials/modals/homemessageContent")
-    }) %>  
-    <%- include("./partials/modals/draggableModal", {
-        id: "settingsModal",
-        title: "Settings",
-        content: include("./partials/modals/settingsContent")
-    }) %>          
-    <%- include("./partials/modals/draggableModal", {
-        id: "aboutModal",
-        title: "About",
-        content: include("./partials/modals/aboutContent")
-    }) %>        
+    <%- include("./partials/modals/modalRoot", {
+        messageModalId: "homemessageModal",
+        messageModalContent: "./partials/modals/homemessageContent"
+    }) %>
 <div class="matchlisthome" id="matchlisthome">
     <div class="screen-text">Available Games</div>  
     <div class="gamesarea-wrapper" id="gamesareawrapper">

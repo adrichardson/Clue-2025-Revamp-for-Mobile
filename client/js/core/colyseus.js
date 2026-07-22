@@ -47,20 +47,12 @@ async function setupMainLobbyHandlers() {
       return;
     } else {
 
-      const lobby = colyseus.lobby;
-
-      lobby.onMessage(EVENTS.MAINLOBBY.PLAYER_JOINED, (message) => {
-        emit(EVENTS.MAINLOBBY.PLAYER_JOINED, message);
-      });
+      const lobby = colyseus.lobby;       
 
       lobby.onMessage(EVENTS.MAINLOBBY.PLAYER_LEFT, (message) => {
         emit(EVENTS.MAINLOBBY.PLAYER_LEFT, message);
       });
       
-      lobby.onMessage(EVENTS.MAINLOBBY.WELCOME_MESSAGE, (message) => {
-        emit(EVENTS.MAINLOBBY.WELCOME_MESSAGE, message);
-      });
-
       lobby.onMessage(EVENTS.SERVER.CHAT_MESSAGE, (data) => {
         emit(EVENTS.SERVER.CHAT_MESSAGE, data);
       });      
@@ -109,8 +101,6 @@ async function setGameLobbyCallbacks(){
         $(player).listen(SCHEMA_FIELDS.PLAYER.CHARACTER_ID, (character_id, previousCharacterId) => {  
             emit(EVENTS.GAME_LOBBY.CHARACTER_CHANGE, character_id, previousCharacterId, player);
         });  
-
-        emit(EVENTS.GAME_LOBBY.PLAYER_JOINED, player, gamelobby);
     });
 
     $(gamelobby.state).players.onRemove((player, sessionId) => {
@@ -130,6 +120,10 @@ async function setupGameLobbyHandlers() {
       gamelobby.onMessage(EVENTS.GAME_LOBBY.METADATA_CHANGE, (data) => {
         emit(EVENTS.GAME_LOBBY.METADATA_CHANGE, data, gamelobby);
       });
+
+      gamelobby.onMessage(EVENTS.SERVER.GAME_LOG, (data) => {
+        emit(EVENTS.SERVER.GAME_LOG, data);
+      });      
 
       gamelobby.onMessage(EVENTS.GAME_LOBBY.DISCONNECT, (data) => {
         emit(EVENTS.GAME_LOBBY.DISCONNECT, data);
@@ -153,11 +147,6 @@ async function setupGameLobbyHandlers() {
 
       gamelobby.onMessage(EVENTS.GAME_LOBBY.OWNER_CHANGE, (data) => {
         emit(EVENTS.GAME_LOBBY.OWNER_CHANGE, data, gamelobby);
-      });       
-
-      gamelobby.onMessage(EVENTS.GAME_LOBBY.PLAYER_JOINED, (data) => {
-        console.log("player joined from gamelobbyhandlers function");
-        emit(EVENTS.GAME_LOBBY.PLAYER_JOINED, data);
       });         
     }
 }
@@ -235,7 +224,11 @@ async function setupGameHandlers() {
       return;
     } else {
       const game = colyseus.game;
-      const user = await getUser();        
+      const user = await getUser();
+      
+      game.onMessage(EVENTS.SERVER.GAME_LOG, (data) => {
+        emit(EVENTS.SERVER.GAME_LOG, data);
+      });            
  
       game.onMessage(EVENTS.SERVER.CHAT_MESSAGE, (data) => {
         emit(EVENTS.SERVER.CHAT_MESSAGE, data);
@@ -246,17 +239,23 @@ async function setupGameHandlers() {
       });
 
       game.onMessage(EVENTS.SERVER.PLAYER_INVALID_MOVE, (data) => {
-        console.log("invalid move data:", data);
         emit(EVENTS.SERVER.PLAYER_INVALID_MOVE, data);
       }); 
 
       game.onMessage(EVENTS.SERVER.PLAYER_VALID_MOVE, (data) => {
-        console.log("game on message valid", data);
         emit(EVENTS.SERVER.PLAYER_VALID_MOVE, data);
       });
 
       game.onMessage(EVENTS.SERVER.OBJECTION_FOUND , (data) => {
         emit(EVENTS.SERVER.OBJECTION_FOUND, data);
+      });
+
+      game.onMessage(EVENTS.SERVER.OBJECTION_SHOWN , (data) => {
+        emit(EVENTS.SERVER.OBJECTION_SHOWN, data);
+      });
+
+      game.onMessage(EVENTS.SERVER.PLAYER_SHEET, (data) => {
+        emit(EVENTS.SERVER.PLAYER_SHEET, data);
       });
 
       game.onMessage(EVENTS.SERVER.GAME_PLAYER_LIST, (data) => {
@@ -286,7 +285,6 @@ class ColyseusMainLobbyService {
     if (this.lobby) {
       try {
         await this.lobby.leave();
-        console.log("Left main lobby.");
       } catch (err) {
         console.error("Error leaving lobby:", err);
       } finally {

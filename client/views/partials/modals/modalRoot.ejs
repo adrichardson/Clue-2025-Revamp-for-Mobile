@@ -1,0 +1,29 @@
+<%- include("./partials/modals/draggableModal", {
+    id: messageModalId,
+    title: "Messages",
+    content: include(messageModalContent)
+}) %>
+
+<%- include("./partials/modals/draggableModal", {
+    id: "settingsModal",
+    title: "Settings",
+    content: include("./partials/modals/settingsContent")
+}) %>
+
+<%- include("./partials/modals/draggableModal", {
+    id: "aboutModal",
+    title: "About",
+    content: include("./partials/modals/aboutContent")
+}) %>
+
+<%- include("./partials/modals/draggableModal", {
+    id: "howtoModal",
+    title: "How to Play",
+    content: include("./partials/modals/howtoContent")
+}) %>
+
+<%- include("./partials/modals/draggableModal", {
+    id: "profileModal",
+    title: "Profile",
+    content: include("./partials/modals/profileContent")
+}) %>

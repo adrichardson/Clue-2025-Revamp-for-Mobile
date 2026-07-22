@@ -11,7 +11,7 @@ export function renderGameOverScreen(container, data) {
             `).join("")}
         </div>
         <div class="button-wrapper">   
-            <div class="interactable-button actionbtn leavegamebtn" id="leavegamebtn">LEAVE GAME</div>
+            <div class="interactable-button actionbtn leavegamebtn ui-action" id="leavegamebtn" data-action="leavegame">LEAVE GAME</div>
         </div>`
 
   container.innerHTML = `
@@ -21,9 +21,4 @@ export function renderGameOverScreen(container, data) {
     <div class="actionarea">
         ${solutionHTML}
     </div>`;
-
-  container.querySelector("#leavegamebtn").addEventListener("click", () => {
-    window.location.href = `/home`;
-  });
-
 }

@@ -22,7 +22,7 @@ export const GameLobbyRoomHandlers = {
         if (room.gameStartTimer && !room.state.playersReady) {
             cancelPendingGameStart(room);
         }
-        //notifcations handled in client state change listener  
+        room.gameLog.readyChanged(player);
     },
     [EVENTS.GAME_LOBBY.CHARACTER_CHANGE]: async (room, client, message) => {
         let user = message.user;        
@@ -33,6 +33,7 @@ export const GameLobbyRoomHandlers = {
         }    
         room.updatePlayersReady();
         await room.updateCurrentPlayersMetadata();
+        // room.gameLog.characterChanged(player);
     },
     [EVENTS.CLIENT.CHAT_MESSAGE]: (room, client, message) => {
         let user = message.user;

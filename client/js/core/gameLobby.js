@@ -1,10 +1,11 @@
-import * as chatmodule from "./utils/chat.js";
+import MessageManager from "./utils/MessageManager.js";
+import ChatManager from "./utils/ChatManager.js";
 import * as colyseushelper from "./colyseus.js";
 import { colyseus } from "./colyseus.js";
-import {updateSelectedImageColor, updateSelectedImageTag, getCharacterHexColorById} from "./utils/imagehelper.js";
+import {updateSelectedImageColor, updateSelectedImageTag, getCharacterHexColorById, getCharacterIdByAltTag, getCharacterAltTagById} from "./utils/imagehelper.js";
 import { getUser, setupUserBanner} from "./utils/user.js";
-import { setupModal, toggleModal } from "./utils/modalutils.js";
-import { EVENTS } from "../../../shared/data/index.js";
+import UIManager from "./utils/UIManager.js";
+import { EVENTS, FEED_TYPES } from "../../../shared/data/index.js";
 import { initGameLobbyHandlers } from "./handlers/gameLobbyHandlers.js";
 
 let gamestarting = false;
@@ -13,8 +14,9 @@ let startGameInterval = null;
 export function init() {
     addEventListeners();    
     setupUserBanner();
-    setupModal();
+    UIManager.init();
     initGameLobbyHandlers();
+    initGameLobbyFeeds();
     const params = new URLSearchParams(window.location.search);
     const game_id = params.get("id");
     colyseushelper.joinGameLobby(game_id);
@@ -55,7 +57,7 @@ function addEventListeners() {
                 var character_id = -1
             } else {
                 const newimage = button.querySelector("img");
-                var character_id = await chatmodule.getCharacterIdByAltTag(newimage.alt);                           
+                var character_id = await getCharacterIdByAltTag(newimage.alt);                           
             }
             var user = await getUser();
             colyseus.send(EVENTS.GAME_LOBBY.CHARACTER_CHANGE, { user : user, character_id : character_id});     
@@ -65,32 +67,40 @@ function addEventListeners() {
     const chatbox = document.getElementById("gamemessagebtn");
     const chatsendbox = document.getElementById("chatsendbox");
     const sendbtn = document.getElementById("sendbutton");
-    const lobbychatbtn = document.getElementById("lobbychatbtn");
-    const gamelogbtn = document.getElementById("gamelogbtn");
 
     chatbox.addEventListener("click", async function(e) {
         chatbox.classList.add("hidden");
-        toggleModal("gamemessageModal", this);
+        UIManager.toggleModal("gamemessageModal", this);
+        MessageManager.scrollToBottom();   
+        MessageManager.markAllRead();          
     });
 
    chatsendbox.addEventListener("keydown", function(event) {
         if (event.key === "Enter" && chatsendbox.value!== "") {
-            chatmodule.sendMessage();
+            ChatManager.sendMessage();
         }
     });
 
     sendbtn.addEventListener("click", async function(e) {
         if (chatsendbox.value!== "") {
-            chatmodule.sendMessage();
+            ChatManager.sendMessage();
         }
+    }); 
+}
+
+function initGameLobbyFeeds(){
+    MessageManager.init();
+
+    MessageManager.register({
+        type: FEED_TYPES.PLAYER_MESSAGE,
+        feed: "lobbychatfeed",
+        notification: "chatnotification"
     });
 
-    lobbychatbtn.addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("lobby");
-    });
-
-    gamelogbtn.addEventListener("click", async function(e) {
-        chatmodule.toggleMessageFeed("game");
+    MessageManager.register({
+        type: FEED_TYPES.GAME_LOG,
+        feed: "gamelogfeed",
+        notification: "chatnotification"
     });    
 }
 
@@ -246,7 +256,7 @@ export async function updateLobbyCharacters(player, character_id){
     } else if (character_id== -1) {
         return;
     } else {
-        const newimagealt = chatmodule.getCharacterAltTagById(character_id);
+        const newimagealt = getCharacterAltTagById(character_id);
         const newtag = getTagByImageAltTag(newimagealt);
         const newimage = getImageByAltTag(newimagealt);
         const newcheck = newimage.parentElement.querySelector(".checksvg");

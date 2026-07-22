@@ -26,6 +26,9 @@ export const state = {
     canMove: false,
     canSuggest: false,
   },
+  sheet: {
+    marks: []
+  },
 
   debug: {
     showTiles: false,

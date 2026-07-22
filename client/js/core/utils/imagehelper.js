@@ -63,6 +63,32 @@ export function updateSelectedImageTag(imageid , tag) {
   }
 }
 
+export function getCharacterAltTagById(id){
+    let characters = {
+        "Spectator" : -1,
+        "Miss Scarlet" : 0, 
+        "Mrs. Peacock" : 1,         
+        "Mrs. White" : 2,         
+        "Mr. Green" : 3,         
+        "Professor Plum" : 4,         
+        "Colonel Mustard" : 5   
+    }
+    let name = Object.keys(characters).find(key => characters[key] === id);
+    return name;
+}
+
+export function getCharacterIdByAltTag(character){
+    let characters = {
+        "Miss Scarlet" : 0, 
+        "Mrs. Peacock" : 1,         
+        "Mrs. White" : 2,         
+        "Mr. Green" : 3,         
+        "Professor Plum" : 4,         
+        "Colonel Mustard" : 5   
+    }
+    return Object.keys(characters).indexOf(character);
+}
+
 export function getCharacterHexColorById(characterId) {
     let hexcolor;
     switch (characterId) {

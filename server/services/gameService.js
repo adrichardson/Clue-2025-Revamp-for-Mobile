@@ -16,16 +16,16 @@ export async function createGame(players) {
   };
 }
 
-export async function saveGame(players) {
+export async function saveGame(players, gamelog) {
   const match = new Match({
     players: players.map(player => ({
       user_id: player.user_id,
       character_id: player.character_id,
-      result: player.victor ? "win" : "lose"
-    }))
+      result: player.victor ? "win" : "lose",
+    })),
+    gamelog
   });
 
   await match.save();
-
   return match;
 }

@@ -1,5 +1,5 @@
 import * as screenRender from "./screenRender.js";
-import { toggleModal } from "../utils/modalutils.js";
+import UIManager from "../utils/UIManager.js";
 import { ACTION_TYPES } from "../../../../shared/data/index.js";
 
 const actionContainer = document.getElementById("actionContainer");
@@ -26,6 +26,9 @@ export function showAction(type, data) {
     case ACTION_TYPES.OBJECTION_FOUND:
       screenRender.renderObjectionFoundScreen(actionContainer, data);
       break;
+    case ACTION_TYPES.OBJECTION_SHOWN:
+      screenRender.renderObjectionShownScreen(actionContainer, data);
+      break;      
     case ACTION_TYPES.CHOOSE_FINAL:
       screenRender.renderChooseFinalOptionScreen(actionContainer, data);
       break;            
@@ -40,8 +43,9 @@ export function showAction(type, data) {
       break;        
   }
 
+  actionContainer.actionData = data;
+
   if (actionModal.classList.contains("hidden")) {
-    console.log("Toggling action modal for action type:", type);
-    toggleModal("gameactionModal", actionButton);
+    UIManager.toggleModal("gameactionModal", actionButton);
   }
 }

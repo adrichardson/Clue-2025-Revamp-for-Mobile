@@ -586,6 +586,10 @@ html, body {
   box-shadow: var(--black) 0px 4px 10px 0px;
 }
 
+.matchhistorylisting:last-child {
+  margin-bottom: 10px;
+}
+
 .selected-game {
   border: 5px solid var(--clue-yellow);
   padding: 6px;
@@ -1563,12 +1567,19 @@ html, body {
 }
 
 .about-message {
+  padding-top: 20px;
   text-align: left;
-  display: block;  
+  display: block;
+  padding-left: 10%;
+  padding-right: 10%;
+  font-size: 1.3rem;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .about-message p {
-    text-indent: 1em;
+    text-indent: 0.5em;
 }
 
 #actionContainer {
@@ -1581,7 +1592,6 @@ html, body {
 
 .actionbtn {
   font-size: 1.5rem;
-
 }
 
 .actionbutton-wrapper {

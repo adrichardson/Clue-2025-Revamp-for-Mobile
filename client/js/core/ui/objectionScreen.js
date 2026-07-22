@@ -1,12 +1,4 @@
-import { colyseus } from "../colyseus.js";
-import { closeModal } from "../utils/modalutils.js";
-import { EVENTS } from "../../../../shared/data/index.js";
-
-
 export function renderObjectionScreen(container, data) {
-
-    console.log("recieved objection data", data);
-
     const objectionHTML = data.objector ? `
         <div class="objectionCardHolder">
             ${data.suggestion?.cards.map(card => `
@@ -19,11 +11,11 @@ export function renderObjectionScreen(container, data) {
             `).join("")}
         </div>
         <div class="button-wrapper actionbutton-wrapper">
-            <div class="interactable-button actionbtn disabled" id="showbtn">SHOW</div>
+            <div class="interactable-button actionbtn disabled ui-action" id="showbtn" data-action="showcard">SHOW</div>
         </div>`
         : 
         `<div class="button-wrapper actionbutton-wrapper">
-            <div class="interactable-button actionbtn" id="okbtn">OK</div>
+            <div class="interactable-button actionbtn ui-action" id="okbtn" data-action="toggle">OK</div>
         </div`;
     container.innerHTML = `
         <div class="actionmessage"> 
@@ -33,20 +25,6 @@ export function renderObjectionScreen(container, data) {
             ${objectionHTML}
         </div>`
 
-    container.querySelector("#okbtn")?.addEventListener("click", () => {
-        const openModal = document.querySelector(".modal.open");
-        closeModal(openModal);
-    });
-    container.querySelector("#showbtn")?.addEventListener("click", () => {
-        if(container.querySelector("#showbtn")?.classList.contains("disabled")) return;
-        const showcard = container.querySelector(".card.selected");
-        const cardId = showcard.dataset.cardId;
-        const cardType = showcard.dataset.cardType;
-        const cardData = {cardId, cardType};
-        colyseus.send(EVENTS.CLIENT.OBJECTED, cardData);
-        const openModal = document.querySelector(".modal.open");
-        closeModal(openModal);        
-    });    
     container.querySelectorAll(".card").forEach(card => {
         card.addEventListener("click", () => {
             const showbtn = document.querySelector("#showbtn");            
